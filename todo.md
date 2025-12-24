@@ -742,11 +742,16 @@
 - [ ] Animation de passage de niveau
 
 ### Badges de Compétences
-- [ ] Table badges et merchant_badges dans la base de données
-- [ ] 10 badges différents (Gestionnaire de Stock, Vendeur d'Or, Mentor Actif, etc.)
-- [ ] Logique de déverrouillage automatique
-- [ ] Page dédiée aux badges (/merchant/badges)
-- [ ] Animation de déverrouillage
+- [x] Table badges et merchant_badges dans la base de données
+- [x] 10 badges différents (Premier Pas, Gestionnaire de Stock, Vendeur d'Or, Protecteur Social, Apprenant Actif, Mentor, Régulier, Expert, Maître, Légende)
+- [x] Logique de déverrouillage automatique (script check-and-unlock-badges.ts)
+- [x] Page dédiée aux badges (/merchant/badges)
+- [x] Affichage des badges débloqués vs verrouillés
+- [x] Statistiques globales (badges débloqués, progression, points totaux)
+- [x] Groupement par catégorie (ventes, stock, social, apprentissage, communauté, accomplissements)
+- [x] Bouton dans le profil pour accéder aux badges
+- [x] Script de seed pour les badges initiaux
+- [ ] Animation de déverrouillage avec confettis
 - [ ] Partage des badges sur les réseaux sociaux
 
 ### Parcours d'Apprentissage

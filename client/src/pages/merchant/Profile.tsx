@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Camera, Award, TrendingUp, Calendar, MapPin, Phone, CreditCard, Shield } from 'lucide-react';
+import { ArrowLeft, Camera, Award, TrendingUp, Calendar, MapPin, Phone, CreditCard, Shield, Trophy } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/useAuth';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
@@ -283,9 +283,7 @@ export default function MerchantProfile() {
           </button>
 
           <button
-            onClick={() => {
-              toast.info('Badges bientôt disponibles !');
-            }}
+                onClick={() => setLocation('/merchant/badges')}
             className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white rounded-3xl p-12 text-4xl font-bold shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-6"
           >
             <Award className="w-16 h-16" />

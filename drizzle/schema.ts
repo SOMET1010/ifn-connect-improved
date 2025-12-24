@@ -279,6 +279,46 @@ export type VoiceCommand = typeof voiceCommands.$inferSelect;
 export type InsertVoiceCommand = typeof voiceCommands.$inferInsert;
 
 // ============================================================================
+// BADGES & GAMIFICATION
+// ============================================================================
+
+/**
+ * Table des badges disponibles
+ */
+export const badges = mysqlTable("badges", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  icon: varchar("icon", { length: 50 }).notNull(),
+  color: varchar("color", { length: 50 }).notNull(),
+  requirement: text("requirement").notNull(),
+  category: varchar("category", { length: 50 }).notNull(),
+  points: int("points").notNull().default(10),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Badge = typeof badges.$inferSelect;
+export type InsertBadge = typeof badges.$inferInsert;
+
+/**
+ * Table des badges débloqués par les marchands
+ */
+export const merchantBadges = mysqlTable("merchant_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  badgeId: int("badgeId").notNull().references(() => badges.id, { onDelete: "cascade" }),
+  unlockedAt: timestamp("unlockedAt").defaultNow().notNull(),
+  isNew: boolean("isNew").default(true).notNull(),
+}, (table) => ({
+  merchantIdIdx: index("merchant_id_idx").on(table.merchantId),
+  badgeIdIdx: index("badge_id_idx").on(table.badgeId),
+}));
+
+export type MerchantBadge = typeof merchantBadges.$inferSelect;
+export type InsertMerchantBadge = typeof merchantBadges.$inferInsert;
+
+// ============================================================================
 // AUDIT LOGS
 // ============================================================================
 

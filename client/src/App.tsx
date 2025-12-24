@@ -12,6 +12,7 @@ import CashRegister from './pages/merchant/CashRegister';
 import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
 import MerchantProfile from './pages/merchant/Profile';
 import SocialCoverage from './pages/merchant/SocialCoverage';
+import Badges from './pages/merchant/Badges';
 import VirtualMarket from './pages/merchant/VirtualMarket';
 import OrderHistory from './pages/merchant/OrderHistory';
 import Stock from "./pages/merchant/Stock";
@@ -28,6 +29,7 @@ function Router() {
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />          <Route path="/merchant/cash-register" component={CashRegisterSimple} />
           <Route path="/merchant/profile" component={MerchantProfile} />
           <Route path="/merchant/social-coverage" component={SocialCoverage} />
+          <Route path="/merchant/badges" component={Badges} />
           <Route path="/merchant/market" component={VirtualMarket} />
           <Route path="/merchant/orders" component={OrderHistory} />      <Route path={"/merchant/stock"} component={Stock} />
       <Route path={"/agent"} component={AgentDashboard} />
