@@ -895,3 +895,37 @@
 - [x] 100% ont accès au suivi CNPS/CMU
 - [x] 100% ont débloqué au moins 2 badges
 - [x] 100% peuvent télécharger leur certificat
+
+
+## 🔌 PHASE 8 : ACCESSIBILITÉ CRITIQUE
+
+### Mode Hors Ligne (Offline-First)
+- [x] Service Worker pour cache offline (client/public/sw.js)
+- [x] IndexedDB pour stockage local des ventes (hook useOffline)
+- [x] Synchronisation automatique en arrière-plan (Background Sync API)
+- [x] Indicateur de statut connexion (composant OfflineIndicator)
+- [x] File d'attente des ventes non synchronisées (IndexedDB pending-sales)
+- [x] Intégration dans CashRegisterSimple
+- [x] Sauvegarde locale si hors ligne avec toast de confirmation
+- [x] Compteur de ventes en attente visible
+- [x] Hook useOffline avec fonctions saveSaleOffline, getPendingSales, clearPendingSales
+- [ ] Cache des produits pour affichage hors ligne (produits chargés depuis l'API)
+- [ ] Gestion des conflits de synchronisation (simple: last-write-wins)
+- [ ] Tests manuels terrain de fonctionnement hors ligne
+
+### Confirmations Vocales (Text-to-Speech)
+- [ ] Intégration Web Speech API
+- [ ] Annonce vocale après chaque vente ("Vente enregistrée : X francs")
+- [ ] Annonce vocale pour les alertes importantes
+- [ ] Sélection de la langue (Français/Dioula)
+- [ ] Contrôle du volume
+- [ ] Activation/désactivation dans les paramètres
+- [ ] Tests avec différents navigateurs
+
+### Tests Utilisateurs Terrain
+- [ ] Protocole de test utilisateur
+- [ ] Questionnaire de satisfaction
+- [ ] Grille d'observation
+- [ ] Sessions de test dans 3 marchés (Cocody, Adjamé, Treichville)
+- [ ] Analyse des retours
+- [ ] Rapport de synthèse

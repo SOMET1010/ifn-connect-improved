@@ -4,6 +4,8 @@ import { Check, X, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
+import OfflineIndicator from '@/components/OfflineIndicator';
+import { useOffline } from '@/hooks/useOffline';
 
 /**
  * Caisse ULTRA-SIMPLIFIÉE pour utilisateurs non habitués à l'informatique
@@ -14,6 +16,7 @@ export default function CashRegisterSimple() {
   const [quantity, setQuantity] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { isOnline, saveSaleOffline, updatePendingSalesCount } = useOffline();
 
   // Mock merchantId - À remplacer par l'ID réel
   const merchantId = 1;
@@ -34,6 +37,8 @@ export default function CashRegisterSimple() {
         setQuantity('');
         setSelectedProduct(null);
       }, 3000);
+      // Mettre à jour le compteur de ventes en attente
+      updatePendingSalesCount();
     },
     onError: () => {
       toast.error('❌ Erreur ! Réessayez');
@@ -51,7 +56,7 @@ export default function CashRegisterSimple() {
   };
 
   // Valider la vente
-  const handleValidate = () => {
+  const handleValidate = async () => {
     if (!selectedProduct || !quantity) {
       toast.error('⚠️ Choisissez un produit et entrez une quantité !', {
         duration: 3000,
@@ -67,14 +72,46 @@ export default function CashRegisterSimple() {
     const unitPrice = parseFloat(product.basePrice || '0');
     const totalAmount = qty * unitPrice;
 
-    createSale.mutate({
+    const saleData = {
       merchantId,
       productId: selectedProduct,
       quantity: qty,
       unitPrice,
       totalAmount,
-      paymentMethod: 'cash',
-    });
+      paymentMethod: 'cash' as const,
+    };
+
+    // Si hors ligne, sauvegarder localement
+    if (!isOnline) {
+      await saveSaleOffline({
+        merchantId,
+        items: [{
+          productId: selectedProduct,
+          quantity: qty,
+          unitPrice,
+        }],
+        totalAmount,
+        createdAt: new Date().toISOString(),
+      });
+      
+      // Afficher l'écran de succès
+      setShowSuccess(true);
+      toast.success('💾 Vente sauvegardée localement ! Elle sera synchronisée automatiquement.', {
+        duration: 5000,
+        style: { fontSize: '20px', padding: '20px' }
+      });
+      
+      setTimeout(() => {
+        setShowSuccess(false);
+        setQuantity('');
+        setSelectedProduct(null);
+      }, 3000);
+      
+      return;
+    }
+
+    // Si en ligne, envoyer normalement
+    createSale.mutate(saleData);
   };
 
   // Écran de succès PLEIN ÉCRAN
@@ -99,6 +136,9 @@ export default function CashRegisterSimple() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-green-50">
       {/* Header */}
       <InstitutionalHeader />
+      
+      {/* Indicateur de connexion */}
+      <OfflineIndicator />
 
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-8">
