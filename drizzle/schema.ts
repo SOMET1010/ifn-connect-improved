@@ -48,6 +48,8 @@ export const merchants = mysqlTable("merchants", {
   cmuNumber: varchar("cmuNumber", { length: 50 }), // Health insurance number
   cnpsStatus: mysqlEnum("cnpsStatus", ["active", "inactive", "pending"]).default("pending"),
   cmuStatus: mysqlEnum("cmuStatus", ["active", "inactive", "pending"]).default("pending"),
+  cnpsExpiryDate: timestamp("cnpsExpiryDate"), // CNPS expiry date
+  cmuExpiryDate: timestamp("cmuExpiryDate"), // CMU expiry date
   enrolledBy: int("enrolledBy").references(() => agents.id), // Agent who enrolled this merchant
   enrolledAt: timestamp("enrolledAt"),
   isVerified: boolean("isVerified").default(false).notNull(),

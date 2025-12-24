@@ -706,13 +706,18 @@
 - [x] Affichage du statut CMU dans le profil (actif/inactif/pending)
 - [x] Numéros CNPS/CMU affichés
 - [x] Boutons pour voir les détails
-- [ ] Page dédiée à la couverture sociale (/merchant/social-coverage)
-- [ ] Dates d'expiration en grand
-- [ ] Compteur de jours restants
-- [ ] Alertes visuelles si expiration < 30 jours
+- [x] Page dédiée à la couverture sociale (/merchant/social-coverage)
+- [x] Dates d'expiration en grand (texte 5xl)
+- [x] Compteur de jours restants (texte 8xl)
+- [x] Alertes visuelles si expiration < 30 jours (carte rouge animée)
+- [x] Champs cnpsExpiryDate et cmuExpiryDate dans la base de données
+- [x] Script de seed pour ajouter des dates de test
 
 ### Alertes Automatiques
-- [ ] Table notifications dans la base de données
+- [x] Alertes visuelles dans la page de couverture sociale
+- [ ] Table notifications dans la base de données (pour historique)
+- [ ] Procédure tRPC pour vérification quotidienne
+- [ ] Notifications push/SMS automatiques
 - [ ] Vérification quotidienne des dates d'expiration
 - [ ] Notification in-app pour renouvellement CNPS/CMU
 - [ ] Badge rouge sur l'icône de profil si alerte
