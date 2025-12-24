@@ -12,6 +12,7 @@ import Stock from "./pages/merchant/Stock";
 import MarketsPage from "./pages/admin/Markets";
 import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
+import AgentDashboard from "./pages/agent/AgentDashboard";
 
 function Router() {
   return (
@@ -21,7 +22,8 @@ function Router() {
       <Route path={"/merchant/dashboard"} component={MerchantDashboardNew} />
       <Route path={"/merchant/cash-register"} component={CashRegister} />
       <Route path={"/merchant/stock"} component={Stock} />
-      <Route path={"/agent"} component={() => <div className="p-8 text-center">Page Agent - En développement</div>} />
+      <Route path={"/agent"} component={AgentDashboard} />
+      <Route path={"/agent/dashboard"} component={AgentDashboard} />
       <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />

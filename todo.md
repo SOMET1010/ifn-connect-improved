@@ -529,3 +529,50 @@
 - [ ] Tester la géolocalisation GPS
 - [ ] Vérifier la génération du code marchand
 - [ ] Tester la création des données en base
+
+
+## 📊 DASHBOARD AGENT TERRAIN (Checkpoint 15)
+
+### Backend (tRPC Procedures)
+- [x] Créer agent.listMerchants - Liste des marchands enrôlés avec pagination
+- [x] Créer agent.stats - Statistiques agent (enrôlements du jour/mois, marchés couverts)
+- [x] Créer agent.merchantsByMarket - Grouper les marchands par marché pour la carte
+
+### Interface Dashboard
+- [x] Créer la page /agent/dashboard
+- [x] Section KPIs : Enrôlements du jour, Total enrôlés, Marchés couverts
+- [x] Tableau des marchands avec colonnes (Code, Nom, Téléphone, Marché, Date, CNPS, CMU)
+- [x] Recherche et filtres (par nom)
+- [x] Pagination du tableau
+- [x] Bouton "Enrôler un nouveau marchand" (lien vers wizard)
+- [x] Design responsive et accessible
+
+### Carte Interactive
+- [x] Intégrer Google Maps dans le dashboard
+- [x] Afficher les markers des marchands enrôlés
+- [x] Markers groupés par marché (via merchantsByMarket)
+- [x] InfoWindow au clic (nom, code, téléphone, marché, date)
+- [ ] Filtrer la carte selon les critères de recherche (à implémenter)
+
+
+## 🔐 AUTHENTIFICATION RÉELLE (Checkpoint 15)
+
+### Backend
+- [ ] Utiliser ctx.user dans toutes les procedures au lieu de merchantId hardcodé
+- [ ] Modifier sales.* pour utiliser ctx.user.id
+- [ ] Modifier stock.* pour utiliser ctx.user.id
+- [ ] Créer une procedure pour récupérer le merchant lié à l'utilisateur
+- [ ] Protéger les routes agent avec role check
+
+### Frontend
+- [ ] Utiliser useAuth() pour récupérer l'utilisateur connecté
+- [ ] Rediriger vers login si non authentifié
+- [ ] Afficher le nom de l'utilisateur dans le header
+- [ ] Gérer les rôles (merchant/agent/admin)
+- [ ] Créer une page de sélection de rôle après login
+- [ ] Protéger les routes selon le rôle
+
+### UX
+- [ ] Ajouter un bouton de déconnexion
+- [ ] Afficher un message de bienvenue personnalisé
+- [ ] Gérer les erreurs d'authentification

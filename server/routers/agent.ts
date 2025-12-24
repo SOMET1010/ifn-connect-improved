@@ -5,6 +5,7 @@ import { users, merchants, actors, markets } from '../../drizzle/schema';
 import { storagePut } from '../storage';
 import { randomBytes } from 'crypto';
 import { eq } from 'drizzle-orm';
+import { listMerchants, getAgentStats, getMerchantsByMarket } from '../db-agent';
 
 /**
  * Générer un code marchand unique au format MRC-XXXXX
@@ -58,6 +59,36 @@ async function uploadPhotoToS3(base64Data: string, filename: string): Promise<st
 }
 
 export const agentRouter = router({
+  /**
+   * Liste des marchands enrôlés avec pagination
+   */
+  listMerchants: publicProcedure
+    .input(
+      z.object({
+        page: z.number().optional(),
+        limit: z.number().optional(),
+        search: z.string().optional(),
+        marketId: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await listMerchants(input);
+    }),
+
+  /**
+   * Statistiques de l'agent
+   */
+  stats: publicProcedure.query(async () => {
+    return await getAgentStats();
+  }),
+
+  /**
+   * Marchands groupés par marché (pour la carte)
+   */
+  merchantsByMarket: publicProcedure.query(async () => {
+    return await getMerchantsByMarket();
+  }),
+
   /**
    * Enrôler un nouveau marchand
    */
