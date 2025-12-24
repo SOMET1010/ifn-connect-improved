@@ -43,39 +43,40 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
+  /* Palette Tons Chauds Africains - IFN Connect */
+  --primary: oklch(0.65 0.12 35); /* Orange Terracotta #E07A5F */
+  --primary-foreground: oklch(1 0 0); /* Blanc */
+  --sidebar-primary: oklch(0.65 0.12 35);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --chart-1: oklch(0.75 0.10 35);
+  --chart-2: oklch(0.65 0.12 35);
+  --chart-3: oklch(0.55 0.10 100);
+  --chart-4: oklch(0.70 0.08 40);
+  --chart-5: oklch(0.60 0.10 30);
+  --radius: 0.75rem;
+  --background: oklch(0.98 0.01 60); /* Beige clair #FAF7F0 */
+  --foreground: oklch(0.30 0.01 260); /* Gris foncé #3F3F46 */
+  --card: oklch(1 0 0); /* Blanc */
+  --card-foreground: oklch(0.30 0.01 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
+  --popover-foreground: oklch(0.30 0.01 260);
+  --secondary: oklch(0.55 0.10 100); /* Vert Olive #6B8E23 */
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.96 0.01 60); /* Beige très clair #F5F1E8 */
+  --muted-foreground: oklch(0.50 0.01 260);
+  --accent: oklch(0.72 0.10 40); /* Orange doux #F4A261 */
+  --accent-foreground: oklch(0.30 0.01 260);
+  --destructive: oklch(0.55 0.22 25); /* Rouge */
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.90 0.01 60); /* Beige bordure #E5E0D8 */
+  --input: oklch(0.90 0.01 60);
+  --ring: oklch(0.65 0.12 35);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.30 0.01 260);
+  --sidebar-accent: oklch(0.96 0.01 60);
+  --sidebar-accent-foreground: oklch(0.30 0.01 260);
+  --sidebar-border: oklch(0.90 0.01 60);
+  --sidebar-ring: oklch(0.65 0.12 35);
 }
 
 .dark {
@@ -174,4 +175,212 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+}
+/* ============================================================================
+   STYLES PERSONNALISÉS IFN CONNECT - ACCESSIBILITÉ
+   ============================================================================ */
+
+/* Boutons accessibles - Taille minimale 48x48px */
+.btn-accessible {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.btn-accessible:active {
+  transform: scale(0.95);
+}
+
+/* Cartes tactiles pour interactions */
+.card-tactile {
+  min-height: 80px;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background-color: var(--color-card);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.card-tactile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.card-tactile:active {
+  transform: scale(0.98);
+}
+
+/* Pictogrammes */
+.pictogram {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background-color: var(--color-muted);
+  transition: all 0.2s ease;
+}
+
+.pictogram-lg {
+  width: 80px;
+  height: 80px;
+}
+
+.pictogram-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.pictogram-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+}
+
+/* Navigation mobile fixe en bas */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-card);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+  padding: 0.75rem;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 80px;
+  gap: 0.5rem;
+}
+
+.mobile-nav-item:hover {
+  background-color: var(--color-muted);
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.95);
+}
+
+.mobile-nav-item.active {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+/* Contenu avec padding pour navigation mobile */
+.content-with-mobile-nav {
+  padding-bottom: 120px;
+}
+
+@media (min-width: 768px) {
+  .content-with-mobile-nav {
+    padding-bottom: 0;
+  }
+  
+  .mobile-nav {
+    display: none;
+  }
+}
+
+/* Animations personnalisées */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Utilitaires personnalisés */
+.text-balance {
+  text-wrap: balance;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Badge de notification */
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-destructive);
+  color: var(--color-destructive-foreground);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Indicateur de statut */
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.status-indicator.active {
+  background-color: var(--color-secondary);
+}
+
+.status-indicator.inactive {
+  background-color: var(--color-muted-foreground);
+}
+
+.status-indicator.pending {
+  background-color: var(--color-warning);
 }

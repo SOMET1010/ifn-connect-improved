@@ -1,0 +1,152 @@
+# IFN Connect - Liste des Fonctionnalités
+
+## Infrastructure et Configuration
+- [x] Schéma de base de données complet (marchands, agents, coopératives, ventes, stocks, produits)
+- [ ] Système d'authentification multi-niveaux (numéro marchand, OTP SMS, PIN)
+- [ ] Row Level Security (RLS) dans la base de données
+- [ ] Configuration du Service Worker pour PWA
+- [ ] Configuration IndexedDB pour stockage offline
+- [ ] Queue de synchronisation avec retry automatique
+
+## Système de Design Accessible
+- [x] Bibliothèque de pictogrammes SVG pour actions principales
+- [x] Composants de boutons larges tactiles (min 48x48px)
+- [x] Système de feedback visuel et sonore
+- [x] Composants d'alertes vocales
+- [x] Mode simplifié avec 4 actions principales
+- [x] Navigation alternative sans couleurs (pictogrammes + texte + position)
+
+## Support Vocal
+- [x] Configuration Web Speech API pour reconnaissance vocale
+- [x] Support de la langue Dioula
+- [x] Support de la langue Française
+- [x] Commandes vocales pour enregistrement de ventes
+- [x] Commandes vocales pour consultation de stock
+- [x] Synthèse vocale pour alertes
+- [x] Synthèse vocale pour guidage utilisateur
+- [x] Transcription automatique des commandes vocales
+
+## Module Marchand (80% utilisateurs)
+- [x] Dashboard marchand avec KPIs (ventes du jour, stock bas, cotisations)
+- [ ] Interface de caisse tactile simplifiée
+- [ ] Enregistrement rapide de ventes avec vocal
+- [ ] Gestion de stock avec alertes visuelles et vocales
+- [ ] Visualisation simple CNPS (retraite)
+- [ ] Visualisation simple CMU (santé)
+- [ ] Marché virtuel d'approvisionnement
+- [ ] Liste des produits disponibles
+- [ ] Panier d'achat et commande
+- [ ] Intégration paiements Mobile Money (InTouch)
+- [ ] Intégration Orange Money
+- [ ] Intégration MTN Mobile Money
+- [ ] Historique des transactions
+- [ ] Profil marchand avec numéro unique
+
+## Module Agent Terrain (15% utilisateurs)
+- [ ] Dashboard agent avec statistiques d'enrôlement
+- [ ] Wizard d'enrôlement en 5 étapes
+- [ ] Capture photo des pièces justificatives
+- [ ] Compression automatique des photos
+- [ ] Géolocalisation GPS automatique
+- [ ] Validation des données en temps réel
+- [ ] Liste des marchands enrôlés avec filtres
+- [ ] Carte des marchands avec clustering
+- [ ] Mode offline complet pour enrôlement
+- [ ] Queue d'enrôlements en attente de sync
+- [ ] Support N1 avec FAQ
+- [ ] Calcul d'itinéraires optimisés
+
+## Module Coopérative (5% utilisateurs)
+- [ ] Dashboard coopérative avec KPIs
+- [ ] Gestion des stocks centralisés
+- [ ] Traitement des commandes groupées
+- [ ] Agrégation automatique des commandes
+- [ ] Calcul des prix groupés
+- [ ] Planification des livraisons
+- [ ] Gestion des membres
+- [ ] Suivi des paiements membres
+- [ ] Rapports financiers exportables en PDF
+- [ ] Historique complet des transactions
+- [ ] Notifications pour nouvelles commandes
+
+## Module Administration
+- [ ] Dashboard analytique avec KPIs temps réel
+- [ ] Volume de transactions
+- [ ] Nombre d'enrôlés
+- [ ] Taux d'adoption du digital
+- [ ] Cartographie SIG interactive
+- [ ] Clustering intelligent des marqueurs
+- [ ] Heatmap des zones d'activité
+- [ ] Carte de densité (formel vs informel)
+- [ ] Gestion des utilisateurs et rôles
+- [ ] Activation/désactivation de modules par rôle
+- [ ] Configuration des intégrations API
+- [ ] Monitoring système et alertes
+- [ ] Audit logs avec recherche avancée
+- [ ] Export de données pour analyse
+- [ ] Rapports personnalisables
+- [ ] Backup manuel et automatique
+
+## Notifications et Communications
+- [ ] Envoi SMS automatique (OTP)
+- [ ] Envoi SMS pour alertes de stock bas
+- [ ] Envoi SMS pour confirmations de paiement
+- [ ] Envoi email pour rapports mensuels
+- [ ] Envoi email pour factures
+- [ ] Envoi email pour relevés
+- [ ] Personnalisation des notifications par rôle
+- [ ] Historique des notifications envoyées
+
+## Cartographie et Géolocalisation
+- [ ] Intégration Google Maps
+- [ ] Clustering intelligent des marchands
+- [ ] Heatmap des zones d'activité commerciale
+- [ ] Géolocalisation automatique des points de vente
+- [ ] Calcul d'itinéraires optimisés pour agents
+- [ ] Filtres par zone géographique
+- [ ] Visualisation de la densité des marchands
+
+## Optimisation et Performance
+- [ ] Lazy loading des modules
+- [ ] Code splitting par rôle
+- [ ] Compression des images (WebP)
+- [ ] Optimisation des requêtes base de données
+- [ ] Cache intelligent avec Service Worker
+- [ ] Préchargement des données critiques
+
+## Tests et Qualité
+- [ ] Tests unitaires pour l'authentification
+- [ ] Tests unitaires pour les ventes
+- [ ] Tests unitaires pour les stocks
+- [ ] Tests d'intégration pour le workflow marchand
+- [ ] Tests d'intégration pour le workflow agent
+- [ ] Tests d'accessibilité
+- [ ] Tests de performance
+- [ ] Tests du mode offline
+
+## Documentation
+- [ ] Guide utilisateur pour marchands
+- [ ] Guide utilisateur pour agents
+- [ ] Guide utilisateur pour coopératives
+- [ ] Guide administrateur
+- [ ] Documentation technique
+- [ ] Documentation des APIs
+
+
+## 🆕 INTÉGRATION DONNÉES D'ENRÔLEMENT EXISTANTES
+
+### Données disponibles
+- [x] Importer 8 marchés/coopératives depuis markets.csv
+- [x] Importer 1301 acteurs/bénéficiaires depuis actors.csv
+- [x] Adapter le schéma de base de données pour correspondre aux données existantes
+- [x] Créer un script d'import automatique des CSV vers la base de données
+- [x] Lier les acteurs aux marchés via market_name
+- [ ] Créer une interface de visualisation des acteurs enrôlés
+- [ ] Ajouter la recherche par identifier_code (carte)
+- [ ] Ajouter la recherche par téléphone
+- [ ] Créer des statistiques par marché (effectif, CMU, CNPS, RSTI)
+- [ ] Intégrer les données dans le module Agent Terrain
+- [ ] Intégrer les données dans le module Coopérative
+- [ ] Créer une page de détail pour chaque acteur
+- [ ] Ajouter la possibilité de mettre à jour les informations
+- [ ] Créer un système de vérification des doublons
