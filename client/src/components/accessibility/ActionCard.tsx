@@ -42,24 +42,27 @@ export default function ActionCard({
   };
 
   const variantClasses = {
-    primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90',
-    accent: 'bg-accent text-accent-foreground hover:bg-accent/90',
-    default: 'bg-card text-card-foreground hover:bg-muted',
+    primary: 'bg-gradient-to-br from-primary/10 via-background to-accent/5 border-2 border-primary/40 hover:border-primary hover:shadow-xl text-foreground',
+    secondary: 'bg-card border-2 border-border/50 hover:border-accent/50 hover:shadow-xl text-foreground',
+    accent: 'bg-accent/10 border-2 border-accent/40 hover:border-accent hover:shadow-xl text-foreground',
+    default: 'bg-card border-2 border-border/30 hover:border-border hover:shadow-lg text-foreground',
   };
 
   const sizeClasses = {
-    default: 'min-h-[120px] p-4',
-    lg: 'min-h-[160px] p-6',
+    default: 'min-h-[200px] p-6',
+    lg: 'min-h-[280px] md:min-h-[320px] p-8 md:p-10',
   };
 
   return (
     <div
       className={cn(
-        'card-tactile relative group',
+        'card-tactile relative group rounded-2xl cursor-pointer',
+        'transition-all duration-300 ease-out',
+        'hover:scale-[1.02] active:scale-[0.98]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         variantClasses[variant],
         sizeClasses[size],
-        disabled && 'opacity-50 cursor-not-allowed',
+        disabled && 'opacity-50 cursor-not-allowed hover:scale-100',
         className
       )}
       onClick={handleClick}
@@ -91,31 +94,37 @@ export default function ActionCard({
       </div>
 
       {/* Contenu */}
-      <div className="flex flex-col items-center text-center gap-3 mt-2">
+      <div className="flex flex-col items-center text-center gap-4 mt-3">
         {/* Pictogramme ou Icône */}
         {pictogramSrc ? (
-          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-background/80 backdrop-blur-sm p-3 shadow-lg flex items-center justify-center">
+          <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm p-4 shadow-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
             <img
               src={pictogramSrc}
               alt={title}
               className="w-full h-full object-contain drop-shadow-md"
+              style={{
+                mixBlendMode: 'multiply',
+                filter: 'contrast(1.1) brightness(0.95)'
+              }}
             />
           </div>
         ) : Icon ? (
-          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-background/80 backdrop-blur-sm p-3 shadow-lg flex items-center justify-center">
-            <Icon size={48} />
+          <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm p-4 shadow-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+            <Icon size={56} className="text-primary" strokeWidth={1.5} />
           </div>
         ) : null}
 
         {/* Titre */}
-        <h3 className="text-xl font-bold text-balance">
+        <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm opacity-90 text-balance">
-          {description}
-        </p>
+        {description && (
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed px-2">
+            {description}
+          </p>
+        )}
       </div>
 
       {/* Effet hover */}

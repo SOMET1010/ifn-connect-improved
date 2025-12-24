@@ -176,3 +176,21 @@
 - [ ] Heatmap de densité des acteurs
 - [ ] Filtres par marché
 - [ ] Export des données cartographiques
+
+
+## 🎨 CORRECTION FOND BLANC DES IMAGES
+
+- [x] Remplacer les images PNG avec fond blanc par des icônes SVG ou images transparentes
+- [x] Améliorer l'intégration visuelle des pictogrammes dans les cartes
+- [x] Ajouter un effet de blend ou filtre pour mieux intégrer les images
+
+
+## 🎨 AMÉLIORATIONS DESIGN EN COURS
+
+- [x] Ajouter les titres et descriptions visibles sur les cartes de rôles
+- [x] Améliorer la hiérarchie visuelle avec meilleurs espacements
+- [x] Ajouter des animations au hover pour feedback tactile
+- [x] Augmenter la taille des textes pour meilleure lisibilité
+- [x] Rendre les icônes plus grandes et plus visibles
+- [x] Améliorer les contrastes pour l'accessibilité
+- [x] Optimiser pour mobile avec boutons plus larges

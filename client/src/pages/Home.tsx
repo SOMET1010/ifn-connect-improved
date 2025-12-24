@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Globe, Volume2, VolumeX } from 'lucide-react';
+import { Globe, Volume2, VolumeX, Wallet, UserCheck, Building2, ShieldCheck } from 'lucide-react';
 import ActionCard from '@/components/accessibility/ActionCard';
 import LanguageSelector from '@/components/accessibility/LanguageSelector';
 import AudioButton from '@/components/accessibility/AudioButton';
@@ -123,7 +123,7 @@ export default function Home() {
                 <ActionCard
                   title="Je suis Marchand"
                   description="Encaisser et vendre sans souci"
-                  pictogramSrc="/pictograms/merchant.png"
+                  icon={Wallet}
                   audioKey="sell"
                   onClick={() => handleRoleSelection('merchant')}
                   variant="primary"
@@ -135,7 +135,7 @@ export default function Home() {
                 <ActionCard
                   title="Agent terrain"
                   description="Aider les marchands"
-                  pictogramSrc="/pictograms/agent.png"
+                  icon={UserCheck}
                   audioKey="enroll"
                   onClick={() => handleRoleSelection('agent')}
                   variant="secondary"
@@ -145,22 +145,22 @@ export default function Home() {
                 {/* Coopérative */}
                 <ActionCard
                   title="Coopérative"
-                  description="Gérer stock et livraisons"
-                  pictogramSrc="/pictograms/cooperative.png"
+                  description="Gérer les commandes groupées"
+                  icon={Building2}
                   audioKey="cooperative"
                   onClick={() => handleRoleSelection('cooperative')}
-                  variant="accent"
+                  variant="secondary"
                   size="lg"
                 />
 
-                {/* Admin */}
+                {/* Administration */}
                 <ActionCard
-                  title="Admin"
-                  description="Statistiques"
-                  pictogramSrc="/pictograms/admin.png"
-                  audioKey="help"
+                  title="Administration"
+                  description="Superviser la plateforme"
+                  icon={ShieldCheck}
+                  audioKey="admin"
                   onClick={() => handleRoleSelection('admin')}
-                  variant="default"
+                  variant="secondary"
                   size="lg"
                 />
               </div>
