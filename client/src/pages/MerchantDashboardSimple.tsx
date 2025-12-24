@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
+import { Onboarding } from '@/components/Onboarding';
 import { 
   ShoppingCart, 
   Package, 
@@ -19,6 +21,26 @@ import InstitutionalHeader from '@/components/InstitutionalHeader';
 export default function MerchantDashboardSimple() {
   const [, setLocation] = useLocation();
   const { merchant, isLoading: authLoading } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Vérifier si c'est le premier lancement
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('ifn-onboarding-completed');
+    if (!hasSeenOnboarding && merchant) {
+      // Attendre 1 seconde pour que la page se charge complètement
+      setTimeout(() => setShowOnboarding(true), 1000);
+    }
+  }, [merchant]);
+  
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('ifn-onboarding-completed', 'true');
+    setShowOnboarding(false);
+  };
+  
+  const handleOnboardingSkip = () => {
+    localStorage.setItem('ifn-onboarding-completed', 'true');
+    setShowOnboarding(false);
+  };
   
   if (authLoading) {
     return (
@@ -104,11 +126,11 @@ export default function MerchantDashboardSimple() {
 
         {/* 4 GROS BOUTONS D'ACTION */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          
-          {/* VENDRE - Action principale */}
+                    {/* VENDRE - Action principale */}
           <button
-            onClick={() => setLocation('/merchant/cash-register')}
-            className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group relative"
+            id="btn-cash-register"
+            onClick={() => setLocation('/merchant/cash-register-simple')}
+            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group relative"
           >
             {/* Badge "Action principale" */}
             <div className="absolute top-6 right-6 bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-lg font-bold">
@@ -160,6 +182,7 @@ export default function MerchantDashboardSimple() {
 
           {/* MON PROFIL */}
           <button
+            id="btn-profile"
             onClick={() => setLocation('/merchant/profile')}
             className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
           >
@@ -184,6 +207,14 @@ export default function MerchantDashboardSimple() {
           </div>
         </div>
       </main>
+      
+      {/* Onboarding */}
+      {showOnboarding && (
+        <Onboarding
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+        />
+      )}
     </div>
   );
 }

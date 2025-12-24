@@ -173,10 +173,14 @@ export default function CashRegisterSimple() {
           </button>
           
           {/* Bouton activation/désactivation du son */}
-          <SpeechToggle />
+          <div id="btn-speech-toggle">
+            <SpeechToggle />
+          </div>
           
           {/* Sélecteur de langue */}
-          <LanguageSelector />
+          <div id="btn-language-selector">
+            <LanguageSelector />
+          </div>
         </div>
 
         {/* Statistiques du jour */}

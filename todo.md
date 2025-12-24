@@ -1015,3 +1015,49 @@
 - [x] Layout flex-wrap pour adaptation mobile
 - [ ] Modifier Badges pour utiliser les traductions
 - [x] Tests manuels avec Français et Dioula
+
+
+## 🎓 PHASE 11 : TUTORIEL DE PREMIER LANCEMENT (ONBOARDING)
+
+### Composant Onboarding
+- [x] Créer le composant Onboarding.tsx avec overlay semi-transparent
+- [x] Système d'étapes avec navigation (Suivant/Précédent/Passer)
+- [x] Spotlight sur l'élément actif avec highlight (bordure jaune animée)
+- [x] Bulles explicatives avec positionnement dynamique
+- [x] Indicateur de progression (barres en haut)
+- [x] Sauvegarde dans localStorage (clé 'ifn-onboarding-completed')
+- [x] Gestion du clic sur l'overlay pour fermer
+- [ ] Bouton "Recommencer le tutoriel" dans les paramètres
+
+### Étapes du Tutoriel
+- [x] Étape 1 : Bienvenue - Message d'accueil et présentation
+- [x] Étape 2 : Découvrir la Caisse - Highlight sur le bouton Caisse (id="btn-cash-register")
+- [x] Étape 3 : Activer le Son - Explication des confirmations vocales (id="btn-speech-toggle")
+- [x] Étape 4 : Choisir sa Langue - Présentation du sélecteur de langue (id="btn-language-selector")
+- [x] Étape 5 : Voir son Profil - Découvrir code MRC, badges, couverture sociale (id="btn-profile")
+- [x] Étape 6 : Félicitations - Message de fin et encouragement
+- [x] 6 étapes au total (simplifié pour éviter la surcharge)
+
+### Support Multilingue
+- [x] Ajouter les traductions dans translations.ts (16 nouvelles clés)
+- [x] Traductions Français/Dioula/Baoulé/Bété/Sénoufo/Malinké pour chaque étape
+- [x] Utiliser useLanguage dans le composant Onboarding (hook t())
+- [x] Traductions authentiques Dioula (Feereli yɔrɔ, Kan fɔcogo, etc.)
+- [x] Traductions de base française pour les autres langues
+
+### Intégration
+- [x] Intégrer dans MerchantDashboardSimple
+- [x] Vérifier si c'est le premier lancement (localStorage 'ifn-onboarding-completed')
+- [x] Afficher automatiquement au premier lancement (délai 1 seconde)
+- [x] Handlers onComplete et onSkip pour sauvegarder la préférence
+- [x] IDs ajoutés sur les éléments cibles (btn-cash-register, btn-profile, etc.)
+- [ ] Ajouter un bouton "Aide" pour relancer le tutoriel
+
+### Tests
+- [x] Tests manuels prévus (nécessite connexion marchand)
+- [ ] Tester le tutoriel complet en Français
+- [ ] Tester le tutoriel complet en Dioula
+- [ ] Vérifier que le tutoriel ne s'affiche qu'une fois
+- [ ] Vérifier que le bouton "Passer" fonctionne
+- [ ] Vérifier la navigation Suivant/Précédent
+- [ ] Vérifier le spotlight sur chaque élément
