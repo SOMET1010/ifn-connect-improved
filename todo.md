@@ -265,3 +265,31 @@
 - [ ] Structurer la navigation (Accueil | Acteurs | Marketplace | Paiements | API | Support)
 - [x] Rendre le header plus moderne et professionnel
 - [x] S'assurer que le header est responsive sur mobile
+
+
+## 🏛️ REFONTE HEADER INSTITUTIONNEL (EN COURS)
+
+### Structure et Layout
+- [x] Regrouper les logos DGE et ANSUT à gauche avec trait vertical fin séparateur
+- [x] Centrer le titre "Plateforme d'Inclusion Numérique" au milieu
+- [x] Supprimer le sous-titre redondant "ANSUT • DGE"
+- [x] Ajouter les contrôles à droite (Langue, Son, Connexion)
+
+### Typographie
+- [x] Augmenter la taille du titre à 24px (1.5rem)
+- [x] Utiliser une police Bold (font-bold)
+- [x] Couleur du titre : Noir foncé (#333)
+- [x] Police sans empattement (Inter/Roboto)
+
+### Boutons et Accessibilité
+- [x] Transformer les boutons Langue/Son en style "pill" arrondi
+- [x] Ajouter un bouton "Se connecter" ou icône profil
+- [x] Ajouter option A+/A- pour agrandir le texte (accessibilité)
+- [x] Aligner verticalement tous les boutons
+- [x] Effet hover avec changement de couleur
+
+### Design Final
+- [x] Fond blanc avec ombre légère (box-shadow)
+- [x] Ligne colorée fine en bas (orange/vert)
+- [x] Espacement harmonieux entre les éléments
+- [x] Responsive sur mobile et tablette
