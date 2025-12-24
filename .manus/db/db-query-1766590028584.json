@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as total_merchants FROM merchants; SELECT COUNT(*) as total_users FROM users WHERE role = 'merchant';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT COUNT(*) as total_merchants FROM merchants; SELECT COUNT(*) as total_users FROM users WHERE role = 'merchant';",
+  "rows": [
+    {
+      "total_merchants": "0"
+    },
+    {
+      "total_merchants": "total_users"
+    },
+    {
+      "total_merchants": "1278"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_merchants\n0\ntotal_users\n1278\n",
+  "stderr": "",
+  "execution_time_ms": 77
+}

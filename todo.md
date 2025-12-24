@@ -351,3 +351,38 @@
 - [x] Ajouter un dégradé blanc sur les côtés pour fondre l'image
 - [x] Maintenir la lisibilité parfaite des logos, texte et boutons
 - [x] Conserver le gradient tricolore en bas
+
+
+## 📦 STOCK INITIAL MARCHANDS (Checkpoint 10)
+
+### Script de seed
+- [x] Créer le script de génération du stock initial (scripts/seed-stock.mjs)
+- [x] Récupérer tous les produits existants (34 produits)
+- [x] Récupérer tous les marchands/acteurs (1278 marchands)
+- [x] Assigner des quantités aléatoires (10-100 unités) pour chaque produit/marchand
+- [x] Varier les quantités pour créer des situations réalistes (stock bas, stock normal, stock élevé)
+- [x] Exécuter le script pour peupler la table merchant_stock
+- [x] Vérifier que les données sont bien créées
+- [x] Tester l'affichage du stock dans l'interface marchand
+- [x] Tester les alertes de stock bas (< 10 unités)
+
+
+## 🎨 AJUSTEMENT OPACITÉ IMAGE HEADER
+
+- [x] Augmenter l'opacité de l'image de fond du header (de 8% à 18%)
+- [x] Vérifier que la lisibilité reste bonne
+- [x] Ajuster le dégradé si nécessaire
+
+
+## 👥 CONVERSION ACTEURS → MARCHANDS (Checkpoint 10)
+
+### Script de conversion
+- [x] Créer le script de conversion (scripts/convert-actors-to-merchants.mjs)
+- [x] Créer un utilisateur (user) pour chaque acteur
+- [x] Créer un marchand (merchant) lié à chaque utilisateur
+- [x] Générer un merchantNumber unique (format: MRC-XXXXX)
+- [x] Utiliser les données existantes (nom, téléphone, carte CNPS/CMU)
+- [x] Assigner les statuts CNPS/CMU basés sur les données d'enrôlement
+- [x] Lier les marchands aux marchés via market_id
+- [x] Exécuter le script pour convertir les 1278 acteurs
+- [x] Vérifier que les données sont bien créées

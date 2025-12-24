@@ -62,9 +62,9 @@ export default function InstitutionalHeader() {
     // Ajout de 'sticky top-0 z-50' pour garder le header visible au scroll
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md transition-all duration-300 relative overflow-hidden">
       
-      {/* Image de fond marché ivoirien avec opacité très faible */}
+      {/* Image de fond marché ivoirien avec opacité modérée */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.18] pointer-events-none"
         style={{ backgroundImage: 'url(/marche-ivoirien.jpg)' }}
       />
       
