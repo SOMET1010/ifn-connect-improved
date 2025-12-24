@@ -635,3 +635,50 @@
 - [x] Toast de confirmation après annulation
 - [x] État vide si aucune commande
 - [x] Loading states pendant les requêtes
+
+
+## 🎯 SIMPLIFICATION RADICALE DES INTERFACES
+
+### Principes de design
+- [x] Gros boutons (minimum 80px de hauteur) - 128px implémenté
+- [x] Icônes XXL (minimum 48px) - 132px implémenté
+- [x] Texte en gros caractères (minimum 18px) - 60px implémenté
+- [x] Maximum 4 options visibles par page
+- [x] Couleurs vives et contrastées (orange, vert, bleu, violet)
+- [x] Espaces blancs généreux (padding 48px)
+
+### Page d'accueil
+- [x] Refondre avec 2 gros boutons colorés uniquement (Marchand + Agent)
+- [x] Supprimer le texte complexe
+- [x] Ajouter des icônes XXL universelles (132px)
+- [x] Icône audio visible sur chaque bouton
+
+### Dashboard Marchand
+- [x] Simplifier les KPIs (3 maximum) - Aujourd'hui, Bédou, Alertes
+- [x] Agrandir les boutons d'action (4 boutons géants 256px)
+- [x] Supprimer les graphiques complexes
+- [x] 4 boutons géants dans la grille (Vendre, Commander, Argent, Aide)
+
+### Caisse
+- [ ] Pavé numérique géant (boutons 100px)
+- [ ] Liste de produits avec images
+- [ ] Bouton "Valider" très visible (vert, 100px)
+- [ ] Confirmation visuelle + vocale
+
+### Marché Virtuel
+- [ ] Grille de produits avec grandes images
+- [ ] Bouton "+" géant pour ajouter au panier
+- [ ] Panier toujours visible en haut
+- [ ] Checkout en 2 étapes maximum
+
+### Assistance vocale
+- [ ] Bouton audio géant sur chaque page
+- [ ] Instructions parlées en Français/Dioula
+- [ ] Confirmation vocale des actions
+- [ ] Feedback sonore pour chaque clic
+
+### Parcours guidés
+- [ ] Tutoriel au premier lancement
+- [ ] Étapes numérotées visibles (1/3, 2/3, 3/3)
+- [ ] Flèches géantes pour navigation
+- [ ] Messages de succès très visibles (plein écran)
