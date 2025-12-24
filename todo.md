@@ -1187,3 +1187,63 @@
 - [ ] Clustering intelligent
 - [ ] Heatmap des zones d'activité
 - [ ] Filtres par marché
+
+
+## 🏗️ SPRINT 1 : STABILISATION CRITIQUE (P0) - 15 JOURS
+
+### P0-4 : Backup/Restore Base de Données (2 jours)
+- [x] Créer le script de backup automatique (scripts/backup/backup-db.sh)
+- [x] Configurer la rotation des backups (garder 30 jours)
+- [x] Ajouter les logs de backup (logs/backup.log)
+- [x] Créer le script de restore (scripts/backup/restore-db.sh)
+- [x] Backup de sécurité automatique avant restore
+- [x] Documenter la procédure dans BACKUP_PROCEDURE.md
+- [x] Scripts rendus exécutables (chmod +x)
+- [x] Validation syntaxique des scripts (bash -n)
+- [x] Créer le script d'installation du cron job (install-cron.sh)
+- [x] Créer le script de test complet (test-backup-restore.sh)
+- [ ] Exécuter install-cron.sh pour installer le cron job
+- [ ] Exécuter test-backup-restore.sh pour valider le système
+
+### P0-5 : Supprimer ComponentShowcase (1h)
+- [ ] Supprimer le fichier ComponentShowcase.tsx
+- [ ] Supprimer la route dans App.tsx
+- [ ] Vérifier que le build fonctionne
+
+### P0-3 : Tests E2E Synchronisation Offline (3 jours)
+- [ ] Installer Playwright pour tests E2E
+- [ ] Créer le test : vente offline
+- [ ] Créer le test : reconnexion réseau
+- [ ] Créer le test : synchronisation automatique
+- [ ] Créer le test : vérification en base de données
+- [ ] Corriger les bugs détectés
+- [ ] Documenter les scénarios de test
+
+### P0-1 : Flux Paiement Mobile Money (5 jours)
+- [ ] Intégration API InTouch (prioritaire)
+  - [ ] Créer le compte développeur InTouch
+  - [ ] Implémenter l'authentification API
+  - [ ] Implémenter le flux de paiement
+  - [ ] Gérer les callbacks de confirmation
+  - [ ] Gérer les erreurs et timeouts
+- [ ] Intégration Orange Money
+  - [ ] Créer le compte développeur Orange Money
+  - [ ] Implémenter l'authentification API
+  - [ ] Implémenter le flux de paiement
+- [ ] Intégration MTN Mobile Money
+  - [ ] Créer le compte développeur MTN
+  - [ ] Implémenter l'authentification API
+  - [ ] Implémenter le flux de paiement
+- [ ] Tests end-to-end paiement
+- [ ] UI sélection opérateur
+- [ ] UI confirmation paiement
+- [ ] Gestion des erreurs utilisateur
+
+### P0-2 : Renouvellement CNPS/CMU (5 jours)
+- [ ] Créer le formulaire de demande de renouvellement
+- [ ] Créer la procédure tRPC renewal.request
+- [ ] Notification aux agents DGE/ANSUT par email
+- [ ] Workflow d'approbation dans dashboard admin
+- [ ] Mise à jour automatique des dates après approbation
+- [ ] Tests end-to-end du flux complet
+- [ ] UI historique des demandes
