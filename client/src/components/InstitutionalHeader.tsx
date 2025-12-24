@@ -60,12 +60,21 @@ export default function InstitutionalHeader() {
 
   return (
     // Ajout de 'sticky top-0 z-50' pour garder le header visible au scroll
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md transition-all duration-300">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md transition-all duration-300 relative overflow-hidden">
+      
+      {/* Image de fond marché ivoirien avec opacité très faible */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+        style={{ backgroundImage: 'url(/marche-ivoirien.jpg)' }}
+      />
+      
+      {/* Dégradé blanc sur les côtés pour fondre l'image */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-transparent to-white/60 pointer-events-none" />
       
       {/* Ligne tricolore institutionnelle (Clin d'œil subtil CIV/Emergence) */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-white to-green-600 opacity-80" />
       
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-3 relative z-10">
         <div className="flex items-center justify-between gap-4 lg:gap-8">
           
           {/* --- ZONE GAUCHE : IDENTITÉ --- */}

@@ -341,3 +341,13 @@
 - [x] Unifier la fonction adjustFontSize avec bornes min/max
 - [x] Améliorer la structure sémantique (h1 pour SEO)
 - [x] Optimiser l'espacement responsive pour éviter l'écrasement des logos
+
+
+## 🎨 IMAGE DE FOND HEADER (Checkpoint 9)
+
+### Design
+- [x] Ajouter une image de fond sur le thème du marché ivoirien dans le header
+- [x] Appliquer une opacité très faible (8%) pour ne pas gêner la lisibilité
+- [x] Ajouter un dégradé blanc sur les côtés pour fondre l'image
+- [x] Maintenir la lisibilité parfaite des logos, texte et boutons
+- [x] Conserver le gradient tricolore en bas
