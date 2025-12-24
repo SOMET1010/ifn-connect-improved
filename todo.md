@@ -586,3 +586,29 @@
 - [x] Afficher un badge de rôle (Marchand/Agent/Admin)
 - [x] Ajouter un message de bienvenue personnalisé sur les dashboards
 - [x] Gérer l'état non connecté (afficher "Se connecter" au lieu du menu)
+
+
+## 🛒 MARCHÉ VIRTUEL (RÉAPPROVISIONNEMENT)
+
+### Backend
+- [x] Créer orders.listByMerchant - Liste des commandes d'un marchand
+- [x] Créer orders.create - Créer une nouvelle commande
+- [x] Créer orders.updateStatus - Mettre à jour le statut d'une commande
+- [x] Créer orders.availableProducts - Liste des produits disponibles au marché
+- [x] Utiliser basePrice existant dans la table products
+
+### Frontend
+- [x] Créer la page /merchant/market (Marché Virtuel)
+- [x] Afficher la liste des produits disponibles avec prix
+- [x] Ajouter un système de panier (quantités)
+- [x] Créer le formulaire de commande (panier avec validation)
+- [x] Afficher les produits en stock bas en priorité (badge rouge)
+- [x] Ajouter une barre de recherche (nom + catégorie)
+- [ ] Créer la page /merchant/orders (Historique des commandes) - à implémenter
+- [ ] Afficher le statut des commandes (en attente, livrée, annulée) - à implémenter
+
+### UX
+- [ ] Notifications de disponibilité des produits
+- [x] Badge "Stock bas" sur les produits concernés (badge rouge avec icône)
+- [x] Confirmation avant validation de commande (panier récapitulatif)
+- [x] Toast de succès après commande
