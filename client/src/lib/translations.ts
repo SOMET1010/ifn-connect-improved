@@ -15,6 +15,24 @@ export interface Translations {
   profile: string;
   logout: string;
   
+  // Messages vocaux (Text-to-Speech)
+  saleRecorded: string;
+  francsCFA: string;
+  tryAgain: string;
+  attention: string;
+  offlineMode: string;
+  willSyncAutomatically: string;
+  saleSavedLocally: string;
+  yourCNPSExpiresIn: string;
+  yourCMUExpiresIn: string;
+  days: string;
+  congratulations: string;
+  youUnlockedBadge: string;
+  soundEnabled: string;
+  soundDisabled: string;
+  voiceAnnouncementsEnabled: string;
+  languageChanged: string;
+  
   // Marchands
   dashboard: string;
   todaySales: string;
@@ -103,6 +121,24 @@ export const translations: Record<SupportedLanguage, Translations> = {
     profile: 'Profil',
     logout: 'Déconnexion',
     
+    // Messages vocaux (Text-to-Speech)
+    saleRecorded: 'Vente enregistrée',
+    francsCFA: 'francs CFA',
+    tryAgain: 'Réessayez',
+    attention: 'Attention',
+    offlineMode: 'Mode hors ligne',
+    willSyncAutomatically: 'La vente sera synchronisée automatiquement',
+    saleSavedLocally: 'Vente sauvegardée localement',
+    yourCNPSExpiresIn: 'Votre CNPS expire dans',
+    yourCMUExpiresIn: 'Votre CMU expire dans',
+    days: 'jours',
+    congratulations: 'Félicitations',
+    youUnlockedBadge: 'Vous avez débloqué le badge',
+    soundEnabled: 'Son activé',
+    soundDisabled: 'Son désactivé',
+    voiceAnnouncementsEnabled: 'Annonces vocales activées',
+    languageChanged: 'Langue changée',
+    
     // Marchands
     dashboard: 'Tableau de bord',
     todaySales: 'Ventes du jour',
@@ -189,6 +225,24 @@ export const translations: Record<SupportedLanguage, Translations> = {
     help: 'Aide',
     profile: 'Profil',
     logout: 'Sortir',
+    
+    // Messages vocaux (Text-to-Speech)
+    saleRecorded: 'Feereli kɛra',
+    francsCFA: 'francs CFA',
+    tryAgain: 'Aw ye a lajɛ kokura',
+    attention: 'Aw ye aw janto',
+    offlineMode: 'Internet tɛ',
+    willSyncAutomatically: 'Feereli bɛna Kɛ yɔrɔ la a yɛrɛma',
+    saleSavedLocally: 'Feereli marabɔra yan',
+    yourCNPSExpiresIn: 'I ka CNPS bɛna Ban',
+    yourCMUExpiresIn: 'I ka CMU bɛna Ban',
+    days: 'tile',
+    congratulations: 'Nse',
+    youUnlockedBadge: 'I ye badge in sɔrɔ',
+    soundEnabled: 'Kan dalen',
+    soundDisabled: 'Kan dabɔra',
+    voiceAnnouncementsEnabled: 'Kan fɔcogo dalen',
+    languageChanged: 'Kan yɛlɛmara',
     
     // Marchands
     dashboard: 'Tableau',
@@ -277,6 +331,24 @@ export const translations: Record<SupportedLanguage, Translations> = {
     profile: 'Profil',
     logout: 'Sortir',
     
+    // Messages vocaux (Text-to-Speech) - Base française pour Baoulé
+    saleRecorded: 'Vente enregistrée',
+    francsCFA: 'francs CFA',
+    tryAgain: 'Réessayez',
+    attention: 'Attention',
+    offlineMode: 'Mode hors ligne',
+    willSyncAutomatically: 'Synchronisation automatique',
+    saleSavedLocally: 'Vente sauvegardée',
+    yourCNPSExpiresIn: 'CNPS expire dans',
+    yourCMUExpiresIn: 'CMU expire dans',
+    days: 'jours',
+    congratulations: 'Félicitations',
+    youUnlockedBadge: 'Badge débloqué',
+    soundEnabled: 'Son activé',
+    soundDisabled: 'Son désactivé',
+    voiceAnnouncementsEnabled: 'Annonces activées',
+    languageChanged: 'Langue changée',
+    
     // Marchands
     dashboard: 'Tableau',
     todaySales: 'Ventes jour',
@@ -364,6 +436,22 @@ export const translations: Record<SupportedLanguage, Translations> = {
     help: 'Aide',
     profile: 'Profil',
     logout: 'Sortir',
+    saleRecorded: 'Vente enregistrée',
+    francsCFA: 'francs CFA',
+    tryAgain: 'Réessayez',
+    attention: 'Attention',
+    offlineMode: 'Mode hors ligne',
+    willSyncAutomatically: 'Synchronisation automatique',
+    saleSavedLocally: 'Vente sauvegardée',
+    yourCNPSExpiresIn: 'CNPS expire dans',
+    yourCMUExpiresIn: 'CMU expire dans',
+    days: 'jours',
+    congratulations: 'Félicitations',
+    youUnlockedBadge: 'Badge débloqué',
+    soundEnabled: 'Son activé',
+    soundDisabled: 'Son désactivé',
+    voiceAnnouncementsEnabled: 'Annonces activées',
+    languageChanged: 'Langue changée',
     dashboard: 'Tableau',
     todaySales: 'Ventes jour',
     totalAmount: 'Total',
@@ -432,6 +520,22 @@ export const translations: Record<SupportedLanguage, Translations> = {
     help: 'Aide',
     profile: 'Profil',
     logout: 'Sortir',
+    saleRecorded: 'Vente enregistrée',
+    francsCFA: 'francs CFA',
+    tryAgain: 'Réessayez',
+    attention: 'Attention',
+    offlineMode: 'Mode hors ligne',
+    willSyncAutomatically: 'Synchronisation automatique',
+    saleSavedLocally: 'Vente sauvegardée',
+    yourCNPSExpiresIn: 'CNPS expire dans',
+    yourCMUExpiresIn: 'CMU expire dans',
+    days: 'jours',
+    congratulations: 'Félicitations',
+    youUnlockedBadge: 'Badge débloqué',
+    soundEnabled: 'Son activé',
+    soundDisabled: 'Son désactivé',
+    voiceAnnouncementsEnabled: 'Annonces activées',
+    languageChanged: 'Langue changée',
     dashboard: 'Tableau',
     todaySales: 'Ventes jour',
     totalAmount: 'Total',
@@ -500,6 +604,22 @@ export const translations: Record<SupportedLanguage, Translations> = {
     help: 'Aide',
     profile: 'Profil',
     logout: 'Sortir',
+    saleRecorded: 'Vente enregistrée',
+    francsCFA: 'francs CFA',
+    tryAgain: 'Réessayez',
+    attention: 'Attention',
+    offlineMode: 'Mode hors ligne',
+    willSyncAutomatically: 'Synchronisation automatique',
+    saleSavedLocally: 'Vente sauvegardée',
+    yourCNPSExpiresIn: 'CNPS expire dans',
+    yourCMUExpiresIn: 'CMU expire dans',
+    days: 'jours',
+    congratulations: 'Félicitations',
+    youUnlockedBadge: 'Badge débloqué',
+    soundEnabled: 'Son activé',
+    soundDisabled: 'Son désactivé',
+    voiceAnnouncementsEnabled: 'Annonces activées',
+    languageChanged: 'Langue changée',
     dashboard: 'Tableau',
     todaySales: 'Ventes jour',
     totalAmount: 'Total',

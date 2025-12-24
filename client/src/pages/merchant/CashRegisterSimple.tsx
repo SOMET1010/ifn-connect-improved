@@ -6,8 +6,10 @@ import { toast } from 'sonner';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import SpeechToggle from '@/components/SpeechToggle';
+import LanguageSelector from '@/components/LanguageSelector';
 import { useOffline } from '@/hooks/useOffline';
 import { useSpeech } from '@/hooks/useSpeech';
+import { useLanguage } from '@/hooks/useLanguage';
 
 /**
  * Caisse ULTRA-SIMPLIFIÉE pour utilisateurs non habitués à l'informatique
@@ -161,7 +163,7 @@ export default function CashRegisterSimple() {
       <div className="container mx-auto px-4 py-8">
         
         {/* Boutons de navigation */}
-        <div className="mb-8 flex items-center gap-4">
+        <div className="mb-8 flex items-center gap-4 flex-wrap">
           <button
             onClick={() => setLocation('/merchant/dashboard')}
             className="bg-gray-200 hover:bg-gray-300 rounded-2xl px-8 py-6 flex items-center gap-4 text-3xl font-bold text-gray-700 transition-all hover:scale-105"
@@ -172,6 +174,9 @@ export default function CashRegisterSimple() {
           
           {/* Bouton activation/désactivation du son */}
           <SpeechToggle />
+          
+          {/* Sélecteur de langue */}
+          <LanguageSelector />
         </div>
 
         {/* Statistiques du jour */}

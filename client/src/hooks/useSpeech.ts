@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLanguage } from './useLanguage';
 
 export interface SpeechOptions {
   lang?: string;
@@ -120,24 +121,27 @@ export function useSpeech() {
     }
   }, [stop]);
 
+  // Hook de langue pour les traductions
+  const { getSaleMessage, t } = useLanguage();
+
   // Fonctions utilitaires pour annoncer des montants
   const speakAmount = useCallback((amount: number, options?: SpeechOptions) => {
     const formattedAmount = new Intl.NumberFormat('fr-FR').format(amount);
-    speak(`${formattedAmount} francs CFA`, options);
-  }, [speak]);
+    speak(`${formattedAmount} ${t('francsCFA')}`, options);
+  }, [speak, t]);
 
   const speakSaleSuccess = useCallback((amount: number, options?: SpeechOptions) => {
-    const formattedAmount = new Intl.NumberFormat('fr-FR').format(amount);
-    speak(`Vente enregistrée. ${formattedAmount} francs CFA`, options);
-  }, [speak]);
+    const message = getSaleMessage(amount);
+    speak(message, options);
+  }, [speak, getSaleMessage]);
 
   const speakError = useCallback((message: string, options?: SpeechOptions) => {
-    speak(`Erreur. ${message}`, options);
-  }, [speak]);
+    speak(`${t('error')}. ${message}`, options);
+  }, [speak, t]);
 
   const speakAlert = useCallback((message: string, options?: SpeechOptions) => {
-    speak(`Attention. ${message}`, options);
-  }, [speak]);
+    speak(`${t('attention')}. ${message}`, options);
+  }, [speak, t]);
 
   return {
     isSupported,

@@ -971,3 +971,47 @@
 - [ ] Sélecteur de langue (Français/Dioula)
 - [ ] Slider de volume
 - [ ] Bouton de test vocal
+
+
+## 🌍 PHASE 10 : SUPPORT MULTILINGUE DIOULA
+
+### Système de Traductions
+- [x] Étendre le fichier translations.ts existant avec messages vocaux
+- [x] Support de 6 langues : Français, Dioula, Baoulé, Bété, Sénoufo, Malinké
+- [x] Traductions des messages de vente (Vente enregistrée, francs CFA, Erreur, Réessayez)
+- [x] Traductions des alertes CNPS/CMU (Votre CNPS/CMU expire dans X jours)
+- [x] Traductions des badges (Félicitations, Vous avez débloqué le badge)
+- [x] Traductions des messages d'interface (Son activé/désactivé, Langue changée)
+- [x] Traductions spécifiques Dioula authentiques (Feereli kɛra, Aw ye aw janto, etc.)
+
+### Hook useLanguage
+- [x] Créer le hook useLanguage pour gérer la langue sélectionnée (client/src/hooks/useLanguage.ts)
+- [x] Sauvegarde de la langue dans localStorage (clé 'ifn-language')
+- [x] Fonction t() pour obtenir la traduction d'une clé
+- [x] Fonction getTranslations() pour obtenir toutes les traductions
+- [x] Fonction getSaleMessage(amount) pour formater les messages de vente
+- [x] Fonction getExpirationMessage(type, daysLeft) pour les alertes CNPS/CMU
+- [x] Fonction getBadgeUnlockedMessage(badgeName) pour les badges
+- [x] Support de 6 langues : fr, dioula, baule, bete, senoufo, malinke
+
+### Sélecteur de Langue
+- [x] Créer le composant LanguageSelector (client/src/components/LanguageSelector.tsx)
+- [x] Menu dropdown avec 6 langues (Français 🇫🇷, Dioula 🇨🇮, Baoulé 🇨🇮, Bété 🇨🇮, Sénoufo 🇨🇮, Malinké 🇨🇮)
+- [x] Icône Languages de lucide-react
+- [x] Affichage du drapeau et nom de la langue courante
+- [x] Indicateur visuel ✓ sur la langue sélectionnée
+- [x] Intégration dans CashRegisterSimple
+- [x] Intégration dans SocialCoverage
+- [x] Annonce vocale du changement de langue ('Langue changée')
+
+### Intégration
+- [x] Modifier useSpeech pour utiliser les traductions (import useLanguage)
+- [x] speakAmount() utilise t('francsCFA')
+- [x] speakSaleSuccess() utilise getSaleMessage(amount)
+- [x] speakError() utilise t('error')
+- [x] speakAlert() utilise t('attention')
+- [x] CashRegisterSimple intègre LanguageSelector dans le header
+- [x] SocialCoverage intègre LanguageSelector et utilise getExpirationMessage()
+- [x] Layout flex-wrap pour adaptation mobile
+- [ ] Modifier Badges pour utiliser les traductions
+- [x] Tests manuels avec Français et Dioula

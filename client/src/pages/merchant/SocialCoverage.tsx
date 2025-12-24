@@ -4,8 +4,10 @@ import { ArrowLeft, Shield, CreditCard, Calendar, AlertTriangle, Download, Check
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/useAuth';
 import { useSpeech } from '@/hooks/useSpeech';
+import { useLanguage } from '@/hooks/useLanguage';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import SpeechToggle from '@/components/SpeechToggle';
+import LanguageSelector from '@/components/LanguageSelector';
 import { toast } from 'sonner';
 
 /**
@@ -16,6 +18,7 @@ export default function SocialCoverage() {
   const [, setLocation] = useLocation();
   const { merchant } = useAuth();
   const { speakAlert, isEnabled: speechEnabled } = useSpeech();
+  const { getExpirationMessage } = useLanguage();
   const [hasSpokenAlert, setHasSpokenAlert] = useState(false);
 
   if (!merchant) {
@@ -45,11 +48,11 @@ export default function SocialCoverage() {
       const alerts: string[] = [];
       
       if (cnpsNeedsRenewal) {
-        alerts.push(`Attention. Votre CNPS expire dans ${cnpsDaysLeft} jours`);
+        alerts.push(getExpirationMessage('cnps', cnpsDaysLeft));
       }
       
       if (cmuNeedsRenewal) {
-        alerts.push(`Attention. Votre CMU expire dans ${cmuDaysLeft} jours`);
+        alerts.push(getExpirationMessage('cmu', cmuDaysLeft));
       }
       
       if (alerts.length > 0) {
@@ -63,7 +66,7 @@ export default function SocialCoverage() {
         setHasSpokenAlert(true);
       }
     }
-  }, [cnpsNeedsRenewal, cmuNeedsRenewal, cnpsDaysLeft, cmuDaysLeft, speechEnabled, hasSpokenAlert, speakAlert]);
+  }, [cnpsNeedsRenewal, cmuNeedsRenewal, cnpsDaysLeft, cmuDaysLeft, speechEnabled, hasSpokenAlert, speakAlert, getExpirationMessage]);
 
   const handleDownloadAttestation = (type: 'cnps' | 'cmu') => {
     toast.info(`📄 Téléchargement de l'attestation ${type.toUpperCase()} bientôt disponible !`);
@@ -79,7 +82,7 @@ export default function SocialCoverage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Boutons de navigation */}
-        <div className="mb-8 flex items-center gap-4">
+        <div className="mb-8 flex items-center gap-4 flex-wrap">
           <button
             onClick={() => setLocation('/merchant/profile')}
             className="bg-gray-200 hover:bg-gray-300 rounded-2xl px-8 py-6 flex items-center gap-4 text-3xl font-bold text-gray-700 transition-all hover:scale-105"
@@ -90,6 +93,9 @@ export default function SocialCoverage() {
           
           {/* Bouton activation/désactivation du son */}
           <SpeechToggle />
+          
+          {/* Sélecteur de langue */}
+          <LanguageSelector />
         </div>
 
         {/* Titre */}
