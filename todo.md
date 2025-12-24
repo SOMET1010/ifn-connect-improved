@@ -1206,13 +1206,23 @@
 - [ ] Exécuter test-backup-restore.sh pour valider le système
 
 ### P0-5 : Supprimer ComponentShowcase (1h)
-- [ ] Supprimer le fichier ComponentShowcase.tsx
-- [ ] Supprimer la route dans App.tsx
-- [ ] Vérifier que le build fonctionne
+- [x] Supprimer le fichier ComponentShowcase.tsx (1437 lignes supprimées)
+- [x] Vérifier qu'aucun autre fichier ne l'importe (aucun import trouvé)
+- [x] Aucune route à supprimer dans App.tsx (n'était pas routé)
+- [x] Build fonctionne correctement
 
 ### P0-3 : Tests E2E Synchronisation Offline (3 jours)
-- [ ] Installer Playwright pour tests E2E
-- [ ] Créer le test : vente offline
+- [x] Installer Playwright pour tests E2E (v1.57.0)
+- [x] Installer Chromium browser
+- [x] Créer la configuration Playwright (playwright.config.ts)
+- [x] Créer le dossier e2e/
+- [x] Créer le test P0-3.1 : Vente offline → synchronisation automatique
+- [x] Créer le test P0-3.2 : Vérification intégrité des données
+- [x] Créer le test P0-3.3 : Gestion des conflits de synchronisation
+- [x] Créer le test P0-3.4 : Persistance après refresh
+- [x] Ajouter les scripts npm (test:e2e, test:e2e:ui, test:e2e:report)
+- [x] Documenter les tests dans E2E_TESTS.md
+- [ ] Exécuter les tests pour validation
 - [ ] Créer le test : reconnexion réseau
 - [ ] Créer le test : synchronisation automatique
 - [ ] Créer le test : vérification en base de données
