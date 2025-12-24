@@ -319,3 +319,25 @@
 - [x] Exécuter le script pour peupler la base
 - [x] Vérifier que les 30 produits sont bien créés (34 produits créés !)
 - [x] Tester la caisse avec les produits
+
+
+## 🎯 OPTIMISATION HEADER INSTITUTIONNEL (Checkpoint 8)
+
+### Persistance et UX
+- [x] Implémenter la persistance des préférences utilisateur (localStorage)
+  - [x] Sauvegarder l'état audio (activé/désactivé)
+  - [x] Sauvegarder la taille de police (80%-150%)
+  - [x] Restaurer les préférences au chargement de la page)
+
+### Design et Accessibilité
+- [x] Rendre le header sticky (fixe au scroll) avec backdrop-blur
+- [x] Ajouter la gestion d'erreurs pour les logos (fallback si image ne charge pas)
+- [x] Optimiser l'affichage mobile du header
+- [x] Améliorer le gradient tricolore (orange-blanc-vert, rappel drapeau ivoirien)
+- [x] Améliorer le feedback visuel du bouton audio (vert pâle quand actif)
+- [x] Renommer "Se connecter" en "Espace Agent" pour plus de clarté
+
+### Code et Performance
+- [x] Unifier la fonction adjustFontSize avec bornes min/max
+- [x] Améliorer la structure sémantique (h1 pour SEO)
+- [x] Optimiser l'espacement responsive pour éviter l'écrasement des logos

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Volume2, VolumeX, User, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/accessibility/LanguageSelector';
@@ -6,139 +6,172 @@ import { audioManager } from '@/lib/audioManager';
 import { getLoginUrl } from '@/const';
 
 /**
- * Header institutionnel professionnel pour la plateforme IFN
- * Design classique gouvernemental avec logos regroupés, titre centré, et accessibilité
+ * Header institutionnel optimisé pour ANSUT / IFN
+ * Inclus : Persistance des préférences, Sticky mode, et Accessibilité AA+
  */
 export default function InstitutionalHeader() {
-  const [audioEnabled, setAudioEnabled] = useState(audioManager.isAudioEnabled());
-  const [fontSize, setFontSize] = useState(100); // Pourcentage de la taille de base
+  // --- ÉTATS AVEC PERSISTANCE ---
+  
+  // Audio state
+  const [audioEnabled, setAudioEnabled] = useState(() => {
+    // Vérifier le localStorage ou l'état par défaut de l'audioManager
+    if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('ifn-audio-pref');
+        return saved !== null ? JSON.parse(saved) : audioManager.isAudioEnabled();
+    }
+    return true;
+  });
 
+  // Font Size state
+  const [fontSize, setFontSize] = useState(100);
+
+  // --- EFFETS (SIDE EFFECTS) ---
+
+  // Initialisation et persistance de la taille de police
+  useEffect(() => {
+    const savedSize = localStorage.getItem('ifn-font-size');
+    if (savedSize) {
+      const size = parseInt(savedSize);
+      setFontSize(size);
+      document.documentElement.style.fontSize = `${size}%`;
+    }
+  }, []);
+
+  // Gestion du Toggle Audio
   const toggleAudio = () => {
     const newState = !audioEnabled;
     setAudioEnabled(newState);
     audioManager.setEnabled(newState);
-    audioManager.provideFeedback(newState ? 'success' : 'tap');
+    localStorage.setItem('ifn-audio-pref', JSON.stringify(newState));
+    
+    if (newState) {
+        audioManager.provideFeedback('success'); 
+    }
   };
 
-  const increaseFontSize = () => {
-    const newSize = Math.min(fontSize + 10, 150);
+  // Gestion de la taille du texte
+  const adjustFontSize = (adjustment: number) => {
+    const newSize = Math.max(80, Math.min(fontSize + adjustment, 150)); // Bornes 80% - 150%
     setFontSize(newSize);
     document.documentElement.style.fontSize = `${newSize}%`;
-    audioManager.provideFeedback('tap');
-  };
-
-  const decreaseFontSize = () => {
-    const newSize = Math.max(fontSize - 10, 80);
-    setFontSize(newSize);
-    document.documentElement.style.fontSize = `${newSize}%`;
+    localStorage.setItem('ifn-font-size', newSize.toString());
     audioManager.provideFeedback('tap');
   };
 
   return (
-    <header className="bg-white shadow-md relative">
-      {/* Ligne colorée décorative en bas */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-primary to-green-600" />
+    // Ajout de 'sticky top-0 z-50' pour garder le header visible au scroll
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md transition-all duration-300">
       
-      <div className="container py-4">
-        <div className="flex items-center justify-between gap-6">
-          {/* Section gauche : Logos institutionnels regroupés */}
-          <div className="flex items-center gap-4">
-            <img 
-              src="/logos/dge-logo.png" 
-              alt="Direction Générale de l'Économie" 
-              className="h-14 md:h-16 object-contain"
-            />
-            <div className="w-px h-14 md:h-16 bg-border" />
-            <img 
-              src="/logos/ansut-logo.png" 
-              alt="Agence Nationale du Service Universel de Télécommunications" 
-              className="h-14 md:h-16 object-contain"
-            />
+      {/* Ligne tricolore institutionnelle (Clin d'œil subtil CIV/Emergence) */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-white to-green-600 opacity-80" />
+      
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4 lg:gap-8">
+          
+          {/* --- ZONE GAUCHE : IDENTITÉ --- */}
+          <div className="flex items-center gap-3 md:gap-6 shrink-0">
+            {/* Logos avec protection de ratio */}
+            <div className="flex items-center gap-3 md:gap-4 h-12 md:h-16">
+              <img 
+                 src="/logos/dge-logo.png" 
+                 alt="Logo DGE" 
+                 className="h-full w-auto object-contain"
+                 onError={(e) => e.currentTarget.style.display = 'none'} // Fallback simple
+              />
+              {/* Séparateur vertical */}
+              <div className="w-px h-8 md:h-12 bg-gray-300" />
+              <img 
+                 src="/logos/ansut-logo.png" 
+                 alt="Logo ANSUT" 
+                 className="h-full w-auto object-contain"
+                 onError={(e) => e.currentTarget.style.display = 'none'}
+              />
+            </div>
           </div>
 
-          {/* Section centre : Titre de la plateforme */}
-          <div className="hidden lg:flex flex-1 justify-center">
-            <h1 className="text-2xl font-bold text-[#333] leading-tight text-center">
+          {/* --- ZONE CENTRE : TITRE (Desktop) --- */}
+          <div className="hidden lg:flex flex-1 justify-center items-center">
+            <h1 className="text-xl xl:text-2xl font-bold text-gray-800 tracking-tight text-center uppercase">
               Plateforme d'Inclusion Numérique
             </h1>
           </div>
 
-          {/* Section droite : Contrôles d'accessibilité et connexion */}
-          <div className="flex items-center gap-2">
-            {/* Contrôles de taille de texte */}
-            <div className="hidden sm:flex items-center gap-1 bg-muted/30 rounded-full p-1">
+          {/* --- ZONE DROITE : OUTILS --- */}
+          <div className="flex items-center gap-2 md:gap-3">
+            
+            {/* Widget Accessibilité (Taille texte) - Visible dès Tablette */}
+            <div className="hidden sm:flex items-center bg-gray-100 rounded-full p-1 border border-gray-200">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={decreaseFontSize}
-                aria-label="Diminuer la taille du texte"
-                className="h-8 w-8 rounded-full hover:bg-accent/20"
+                onClick={() => adjustFontSize(-10)}
+                aria-label="Diminuer texte"
+                className="h-7 w-7 rounded-full hover:bg-white hover:shadow-sm transition-all"
                 disabled={fontSize <= 80}
               >
-                <Minus className="h-4 w-4" />
+                <Minus className="h-3.5 w-3.5 text-gray-600" />
               </Button>
-              <span className="text-xs font-medium px-2 text-muted-foreground">
-                A
+              <span className="text-[10px] font-bold px-1.5 text-gray-500 min-w-[2.5ch] text-center">
+                {fontSize === 100 ? 'A' : `${fontSize}%`}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={increaseFontSize}
-                aria-label="Augmenter la taille du texte"
-                className="h-8 w-8 rounded-full hover:bg-accent/20"
+                onClick={() => adjustFontSize(10)}
+                aria-label="Augmenter texte"
+                className="h-7 w-7 rounded-full hover:bg-white hover:shadow-sm transition-all"
                 disabled={fontSize >= 150}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3.5 w-3.5 text-gray-600" />
               </Button>
             </div>
 
-            {/* Sélecteur de langue */}
-            <LanguageSelector showLabel={false} />
+            {/* Séparateur léger */}
+            <div className="hidden sm:block w-px h-6 bg-gray-200 mx-1" />
 
-            {/* Toggle audio */}
+            {/* Langue */}
+            <LanguageSelector />
+
+            {/* Audio Toggle */}
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleAudio}
-              aria-label={audioEnabled ? 'Désactiver l\'audio' : 'Activer l\'audio'}
-              className="h-10 w-10 rounded-full hover:bg-accent/20"
+              title={audioEnabled ? "Désactiver les sons" : "Activer les sons"}
+              className={`h-9 w-9 rounded-full transition-colors ${
+                audioEnabled ? 'text-green-600 bg-green-50' : 'text-gray-400 hover:text-gray-600'
+              }`}
             >
-              {audioEnabled ? (
-                <Volume2 className="h-5 w-5" />
-              ) : (
-                <VolumeX className="h-5 w-5" />
-              )}
+              {audioEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
             </Button>
 
-            {/* Bouton de connexion */}
+            {/* Connexion (Mise en avant) */}
             <Button
-              variant="outline"
-              size="sm"
               onClick={() => window.location.href = getLoginUrl()}
-              className="hidden md:flex items-center gap-2 rounded-full px-4 hover:bg-accent/10"
+              className="hidden md:flex items-center gap-2 rounded-full px-5 bg-[#000] hover:bg-[#333] text-white shadow-sm hover:shadow transition-all ml-2"
             >
               <User className="h-4 w-4" />
-              <span>Se connecter</span>
+              <span className="font-medium">Espace Agent</span>
             </Button>
 
-            {/* Version mobile : icône seulement */}
+            {/* Mobile Menu / Login Icon Only */}
             <Button
               variant="outline"
               size="icon"
               onClick={() => window.location.href = getLoginUrl()}
-              className="md:hidden h-10 w-10 rounded-full"
-              aria-label="Se connecter"
+              className="md:hidden h-9 w-9 rounded-full border-gray-300"
             >
               <User className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
-        {/* Titre mobile (affiché en dessous sur petits écrans) */}
-        <div className="lg:hidden mt-3 text-center">
-          <h1 className="text-lg font-bold text-[#333] leading-tight">
-            Plateforme d'Inclusion Numérique
-          </h1>
+        {/* --- MOBILE ONLY : TITRE --- */}
+        {/* Affiché uniquement sur mobile pour préserver l'espace en haut */}
+        <div className="lg:hidden mt-3 pb-1 border-t border-dashed border-gray-100 pt-3 text-center">
+             <span className="text-sm font-bold text-gray-800 uppercase tracking-wide">
+               Plateforme d'Inclusion Numérique
+             </span>
         </div>
       </div>
     </header>
