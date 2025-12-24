@@ -386,3 +386,43 @@
 - [x] Lier les marchands aux marchés via market_id
 - [x] Exécuter le script pour convertir les 1278 acteurs
 - [x] Vérifier que les données sont bien créées
+
+
+## 📊 DASHBOARD MARCHAND ENRICHI (Checkpoint 11)
+
+### Infrastructure et dépendances
+- [x] Installer Recharts pour les graphiques
+- [x] Créer les tRPC procedures pour les statistiques
+
+### Procedures tRPC
+- [x] sales.last7Days - Ventes des 7 derniers jours (pour graphique)
+- [x] sales.topProducts - Top 5 produits les plus vendus
+- [x] sales.todayStats - Statistiques du jour (montant, nombre de ventes)
+- [x] sales.totalBalance - Solde total du marchand
+- [x] sales.lowStockCount - Nombre de produits en stock bas
+
+### Interface Dashboard
+- [x] Créer la page /merchant/dashboard
+- [x] Section KPIs : Ventes du jour, Solde, Alertes stock, CNPS/CMU
+- [x] Graphique des ventes des 7 derniers jours (ligne)
+- [x] Top 5 produits les plus vendus (barres horizontales)
+- [x] Cartes d'actions rapides (Vendre, Stock, Argent, Aide)
+- [x] Navigation mobile fixe en bas
+- [x] Design responsive et accessible
+- [x] Feedback vocal pour les actions (à implémenter)
+
+
+## 🧪 VENTES DE TEST & TOOLTIPS NOUCHI (Checkpoint 11 suite)
+
+### Ventes de test
+- [x] Créer un script pour générer des ventes de test
+- [x] Générer des ventes sur les 7 derniers jours (209 ventes)
+- [x] Varier les produits et montants pour réalisme
+- [x] Créer des ventes aujourd'hui pour les KPIs
+- [x] Vérifier l'affichage des graphiques animés (Top 5 produits fonctionne, solde à 346 784 FCFA)
+
+### Tooltips Nouchi
+- [x] Ajouter les tooltips sur les KPIs (Djê, Bédou, etc.)
+- [x] Ajouter les tooltips sur les boutons d'actions (Djossi, Fata)
+- [x] Maintenir le français comme langue principale
+- [x] Tester sur mobile (tap pour afficher)

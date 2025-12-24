@@ -4,7 +4,11 @@ import {
   createSale, 
   getSalesByMerchant, 
   getTodayStats, 
-  getSalesHistory 
+  getSalesHistory,
+  getLast7DaysSales,
+  getTopProducts,
+  getTotalBalance,
+  getLowStockCount
 } from '../db-sales';
 
 export const salesRouter = router({
@@ -76,5 +80,55 @@ export const salesRouter = router({
     .query(async ({ input }) => {
       const sales = await getSalesHistory(input);
       return sales;
+    }),
+
+  /**
+   * Ventes des 7 derniers jours (pour graphique)
+   */
+  last7Days: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const data = await getLast7DaysSales(input.merchantId);
+      return data;
+    }),
+
+  /**
+   * Top 5 des produits les plus vendus
+   */
+  topProducts: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+      limit: z.number().optional().default(5),
+    }))
+    .query(async ({ input }) => {
+      const products = await getTopProducts(input.merchantId, input.limit);
+      return products;
+    }),
+
+  /**
+   * Solde total du marchand
+   */
+  totalBalance: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const balance = await getTotalBalance(input.merchantId);
+      return balance;
+    }),
+
+  /**
+   * Nombre de produits en stock bas
+   */
+  lowStockCount: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+      threshold: z.number().optional().default(10),
+    }))
+    .query(async ({ input }) => {
+      const count = await getLowStockCount(input.merchantId, input.threshold);
+      return count;
     }),
 });
