@@ -40,37 +40,69 @@ export default function Home() {
 
         {/* Contenu */}
         <div className="relative z-10 min-h-screen flex flex-col">
-          {/* Header avec logos et contrôles */}
-          <header className="container py-6">
-            <div className="flex items-center justify-between">
-              {/* Logos institutionnels */}
-              <div className="flex items-center gap-6">
-                <img 
-                  src="/logos/partners.png" 
-                  alt="DGE & ANSUT" 
-                  className="h-10 md:h-12 object-contain"
-                />
-              </div>
+          {/* Header avec logos et contrôles - Design amélioré */}
+          <header className="bg-white/95 backdrop-blur-md shadow-lg relative">
+            {/* Ligne colorée décorative en bas */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-primary to-green-600" />
+            
+            <div className="container py-4 md:py-6">
+              <div className="flex items-center justify-between gap-4">
+                {/* Section gauche : Logos + Titre */}
+                <div className="flex items-center gap-4 md:gap-6 flex-1">
+                  {/* Logo DGE */}
+                  <img 
+                    src="/logos/dge-logo.png" 
+                    alt="DGE" 
+                    className="h-12 md:h-16 lg:h-20 object-contain"
+                  />
+                  
+                  {/* Séparateur vertical */}
+                  <div className="hidden md:block w-px h-12 lg:h-16 bg-border" />
+                  
+                  {/* Titre de la plateforme */}
+                  <div className="hidden md:block">
+                    <h1 className="text-lg lg:text-2xl font-bold text-foreground leading-tight">
+                      Plateforme d'Inclusion Numérique
+                    </h1>
+                    <p className="text-xs lg:text-sm text-muted-foreground mt-1">
+                      <span className="text-primary font-semibold">ANSUT</span> • <span className="text-accent font-semibold">DGE</span>
+                    </p>
+                  </div>
+                </div>
 
-              {/* Contrôles */}
-              <div className="flex items-center gap-2">
-                {/* Sélecteur de langue */}
-                <LanguageSelector showLabel={false} />
+                {/* Section droite : Logo ANSUT + Contrôles */}
+                <div className="flex items-center gap-4 md:gap-6">
+                  {/* Logo ANSUT */}
+                  <img 
+                    src="/logos/ansut-logo.png" 
+                    alt="ANSUT" 
+                    className="h-12 md:h-16 lg:h-20 object-contain"
+                  />
+                  
+                  {/* Séparateur vertical */}
+                  <div className="hidden sm:block w-px h-12 bg-border" />
+                  
+                  {/* Contrôles */}
+                  <div className="flex items-center gap-2">
+                    {/* Sélecteur de langue */}
+                    <LanguageSelector showLabel={false} />
 
-                {/* Toggle audio */}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={toggleAudio}
-                  aria-label={audioEnabled ? 'Désactiver l\'audio' : 'Activer l\'audio'}
-                  className="h-10 w-10"
-                >
-                  {audioEnabled ? (
-                    <Volume2 className="h-5 w-5" />
-                  ) : (
-                    <VolumeX className="h-5 w-5" />
-                  )}
-                </Button>
+                    {/* Toggle audio */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={toggleAudio}
+                      aria-label={audioEnabled ? 'Désactiver l\'audio' : 'Activer l\'audio'}
+                      className="h-10 w-10 bg-white hover:bg-accent/10"
+                    >
+                      {audioEnabled ? (
+                        <Volume2 className="h-5 w-5" />
+                      ) : (
+                        <VolumeX className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </header>

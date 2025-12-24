@@ -254,3 +254,14 @@
 - [x] stock.lowStock - Produits en stock bas
 - [ ] stock.movements - Historique des mouvements
 - [ ] stock.alerts - Alertes actives
+
+
+## 🎨 AMÉLIORATION HEADER (EN COURS)
+
+- [x] Agrandir les logos DGE et ANSUT pour meilleure visibilité
+- [x] Ajouter le titre "Plateforme d'Inclusion Numérique" dans le header
+- [x] Ajouter les lignes colorées décoratives (orange/vert)
+- [x] Améliorer le fond du header (blanc/gris clair)
+- [ ] Structurer la navigation (Accueil | Acteurs | Marketplace | Paiements | API | Support)
+- [x] Rendre le header plus moderne et professionnel
+- [x] S'assurer que le header est responsive sur mobile
