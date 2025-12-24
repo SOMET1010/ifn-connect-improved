@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { orders, products } from "../drizzle/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 /**
  * Créer une nouvelle commande
@@ -101,4 +101,25 @@ export async function getAvailableProducts() {
     .orderBy(products.name);
 
   return result;
+}
+
+/**
+ * Statistiques des commandes d'un marchand
+ */
+export async function getOrderStats(merchantId: number) {
+  const db = await getDb();
+  if (!db) return { totalSpent: 0, orderCount: 0 };
+
+  const result = await db
+    .select({
+      totalSpent: sql<string>`COALESCE(SUM(${orders.totalAmount}), 0)`,
+      orderCount: sql<number>`COUNT(*)`,
+    })
+    .from(orders)
+    .where(eq(orders.merchantId, merchantId));
+
+  return {
+    totalSpent: parseFloat(result[0]?.totalSpent || '0'),
+    orderCount: result[0]?.orderCount || 0,
+  };
 }

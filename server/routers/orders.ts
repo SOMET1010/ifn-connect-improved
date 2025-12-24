@@ -4,7 +4,8 @@ import {
   createOrder,
   getOrdersByMerchant,
   updateOrderStatus,
-  getAvailableProducts
+  getAvailableProducts,
+  getOrderStats
 } from '../db-orders';
 
 export const ordersRouter = router({
@@ -63,5 +64,17 @@ export const ordersRouter = router({
     .mutation(async ({ input }) => {
       const result = await updateOrderStatus(input.orderId, input.status);
       return result;
+    }),
+
+  /**
+   * Statistiques des commandes d'un marchand
+   */
+  stats: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const stats = await getOrderStats(input.merchantId);
+      return stats;
     }),
 });

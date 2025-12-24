@@ -604,7 +604,7 @@
 - [x] Créer le formulaire de commande (panier avec validation)
 - [x] Afficher les produits en stock bas en priorité (badge rouge)
 - [x] Ajouter une barre de recherche (nom + catégorie)
-- [ ] Créer la page /merchant/orders (Historique des commandes) - à implémenter
+- [x] Créer la page /merchant/orders (Historique des commandes) - à implémenter
 - [ ] Afficher le statut des commandes (en attente, livrée, annulée) - à implémenter
 
 ### UX
@@ -612,3 +612,26 @@
 - [x] Badge "Stock bas" sur les produits concernés (badge rouge avec icône)
 - [x] Confirmation avant validation de commande (panier récapitulatif)
 - [x] Toast de succès après commande
+
+
+## 📦 HISTORIQUE DES COMMANDES
+
+### Backend
+- [x] Créer orders.stats - Statistiques des commandes (total dépensé, nombre)
+- [x] Améliorer orders.listByMerchant avec filtres (statut, dates)
+
+### Frontend
+- [x] Créer la page /merchant/orders
+- [x] Tableau des commandes avec colonnes (Date, Produit, Quantité, Prix, Total, Statut)
+- [x] Filtres par statut (en attente, confirmée, livrée, annulée)
+- [x] Filtres par dates (affichage de la date de commande)
+- [x] Badge de statut coloré (orange=attente, bleu=confirmée, vert=livrée, rouge=annulée)
+- [x] Bouton d'annulation pour les commandes en attente
+- [x] Section statistiques (Total dépensé, Nombre de commandes)
+- [x] Pagination du tableau (limit 100)
+- [x] Détails de commande affichés dans les cartes
+
+### UX
+- [x] Toast de confirmation après annulation
+- [x] État vide si aucune commande
+- [x] Loading states pendant les requêtes
