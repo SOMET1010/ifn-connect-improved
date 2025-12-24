@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Shield, CreditCard, Calendar, AlertTriangle, Download, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/useAuth';
+import { useSpeech } from '@/hooks/useSpeech';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
+import SpeechToggle from '@/components/SpeechToggle';
 import { toast } from 'sonner';
 
 /**
@@ -13,6 +15,8 @@ import { toast } from 'sonner';
 export default function SocialCoverage() {
   const [, setLocation] = useLocation();
   const { merchant } = useAuth();
+  const { speakAlert, isEnabled: speechEnabled } = useSpeech();
+  const [hasSpokenAlert, setHasSpokenAlert] = useState(false);
 
   if (!merchant) {
     return (
@@ -35,6 +39,32 @@ export default function SocialCoverage() {
   const cnpsNeedsRenewal = cnpsDaysLeft > 0 && cnpsDaysLeft < 30;
   const cmuNeedsRenewal = cmuDaysLeft > 0 && cmuDaysLeft < 30;
 
+  // Annonce vocale automatique des alertes au chargement de la page
+  useEffect(() => {
+    if (!hasSpokenAlert && speechEnabled) {
+      const alerts: string[] = [];
+      
+      if (cnpsNeedsRenewal) {
+        alerts.push(`Attention. Votre CNPS expire dans ${cnpsDaysLeft} jours`);
+      }
+      
+      if (cmuNeedsRenewal) {
+        alerts.push(`Attention. Votre CMU expire dans ${cmuDaysLeft} jours`);
+      }
+      
+      if (alerts.length > 0) {
+        // Annonce après un court délai
+        setTimeout(() => {
+          alerts.forEach((alert, index) => {
+            setTimeout(() => speakAlert(alert), index * 3000);
+          });
+        }, 1000);
+        
+        setHasSpokenAlert(true);
+      }
+    }
+  }, [cnpsNeedsRenewal, cmuNeedsRenewal, cnpsDaysLeft, cmuDaysLeft, speechEnabled, hasSpokenAlert, speakAlert]);
+
   const handleDownloadAttestation = (type: 'cnps' | 'cmu') => {
     toast.info(`📄 Téléchargement de l'attestation ${type.toUpperCase()} bientôt disponible !`);
   };
@@ -48,14 +78,19 @@ export default function SocialCoverage() {
       <InstitutionalHeader />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Bouton retour */}
-        <button
-          onClick={() => setLocation('/merchant/profile')}
-          className="mb-8 bg-gray-200 hover:bg-gray-300 rounded-2xl px-8 py-6 flex items-center gap-4 text-3xl font-bold text-gray-700 transition-all hover:scale-105"
-        >
-          <ArrowLeft className="w-12 h-12" />
-          Retour au Profil
-        </button>
+        {/* Boutons de navigation */}
+        <div className="mb-8 flex items-center gap-4">
+          <button
+            onClick={() => setLocation('/merchant/profile')}
+            className="bg-gray-200 hover:bg-gray-300 rounded-2xl px-8 py-6 flex items-center gap-4 text-3xl font-bold text-gray-700 transition-all hover:scale-105"
+          >
+            <ArrowLeft className="w-12 h-12" />
+            Retour au Profil
+          </button>
+          
+          {/* Bouton activation/désactivation du son */}
+          <SpeechToggle />
+        </div>
 
         {/* Titre */}
         <div className="text-center mb-12">

@@ -929,3 +929,45 @@
 - [ ] Sessions de test dans 3 marchés (Cocody, Adjamé, Treichville)
 - [ ] Analyse des retours
 - [ ] Rapport de synthèse
+
+
+## 🔊 PHASE 9 : CONFIRMATIONS VOCALES (Text-to-Speech)
+
+### Hook useSpeech
+- [x] Créer le hook useSpeech avec Web Speech API (client/src/hooks/useSpeech.ts)
+- [x] Fonction speak(text, lang) pour annoncer les messages
+- [x] Gestion de la file d'attente des messages (queueRef avec traitement séquentiel)
+- [x] Support multilingue (fr-FR par défaut, options.lang personnalisable)
+- [x] Contrôle du volume (options.volume)
+- [x] Activation/désactivation globale (toggle, setEnabled, localStorage)
+- [x] Détection de la disponibilité de l'API (isSupported)
+- [x] Fonctions utilitaires (speakAmount, speakSaleSuccess, speakError, speakAlert)
+- [x] Gestion des erreurs (onerror callback)
+
+### Intégration Caisse
+- [x] Annonce vocale après chaque vente ("Vente enregistrée. X francs CFA")
+- [x] Annonce en cas d'erreur ("Erreur. Réessayez")
+- [x] Annonce en mode hors ligne ("Mode hors ligne. La vente sera synchronisée automatiquement")
+- [x] Bouton toggle Son activé/désactivé dans la caisse (composant SpeechToggle)
+- [x] Intégration dans CashRegisterSimple
+- [ ] Annonce du montant total avant validation (optionnel)
+
+### Alertes Importantes
+- [x] Annonce expiration CNPS/CMU < 30 jours (page SocialCoverage)
+- [x] Annonce automatique au chargement de la page si alerte
+- [x] Délai de 1 seconde avant première annonce
+- [x] Espacement de 3 secondes entre les annonces multiples
+- [x] Flag hasSpokenAlert pour éviter les répétitions
+- [ ] Annonce nouveau badge débloqué (page Badges)
+- [ ] Annonce synchronisation terminée (mode hors ligne)
+
+### Paramètres
+- [x] Composant SpeechToggle avec toggle activation/désactivation
+- [x] Sauvegarde des préférences dans localStorage
+- [x] Icônes Volume2/VolumeX selon l'état
+- [x] Annonce vocale de confirmation à l'activation
+- [x] Intégration dans CashRegisterSimple et SocialCoverage
+- [ ] Page paramètres dédiée
+- [ ] Sélecteur de langue (Français/Dioula)
+- [ ] Slider de volume
+- [ ] Bouton de test vocal

@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { Check, X, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import OfflineIndicator from '@/components/OfflineIndicator';
+import SpeechToggle from '@/components/SpeechToggle';
 import { useOffline } from '@/hooks/useOffline';
+import { useSpeech } from '@/hooks/useSpeech';
 
 /**
  * Caisse ULTRA-SIMPLIFIÉE pour utilisateurs non habitués à l'informatique
@@ -17,6 +19,7 @@ export default function CashRegisterSimple() {
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const { isOnline, saveSaleOffline, updatePendingSalesCount } = useOffline();
+  const { speakSaleSuccess, speakError, speakAlert, isEnabled: speechEnabled } = useSpeech();
 
   // Mock merchantId - À remplacer par l'ID réel
   const merchantId = 1;
@@ -27,11 +30,18 @@ export default function CashRegisterSimple() {
   // Charger les stats du jour
   const { data: todayStats } = trpc.sales.todayStats.useQuery({ merchantId });
 
+  // Référence au montant total pour l'annonce vocale
+  const lastSaleAmountRef = useRef<number>(0);
+
   // Mutation pour créer une vente
   const createSale = trpc.sales.create.useMutation({
     onSuccess: () => {
       // Afficher l'écran de succès GÉANT
       setShowSuccess(true);
+      
+      // Annonce vocale du succès avec le montant sauvegardé
+      speakSaleSuccess(lastSaleAmountRef.current);
+      
       setTimeout(() => {
         setShowSuccess(false);
         setQuantity('');
@@ -42,6 +52,7 @@ export default function CashRegisterSimple() {
     },
     onError: () => {
       toast.error('❌ Erreur ! Réessayez');
+      speakError('Réessayez');
     },
   });
 
@@ -96,6 +107,11 @@ export default function CashRegisterSimple() {
       
       // Afficher l'écran de succès
       setShowSuccess(true);
+      
+      // Annonce vocale du succès (mode hors ligne)
+      speakSaleSuccess(totalAmount);
+      speakAlert('Mode hors ligne. La vente sera synchronisée automatiquement');
+      
       toast.success('💾 Vente sauvegardée localement ! Elle sera synchronisée automatiquement.', {
         duration: 5000,
         style: { fontSize: '20px', padding: '20px' }
@@ -111,6 +127,7 @@ export default function CashRegisterSimple() {
     }
 
     // Si en ligne, envoyer normalement
+    lastSaleAmountRef.current = totalAmount;
     createSale.mutate(saleData);
   };
 
@@ -143,14 +160,19 @@ export default function CashRegisterSimple() {
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-8">
         
-        {/* Bouton retour GÉANT */}
-        <button
-          onClick={() => setLocation('/merchant/dashboard')}
-          className="mb-8 bg-gray-200 hover:bg-gray-300 rounded-2xl px-8 py-6 flex items-center gap-4 text-3xl font-bold text-gray-700 transition-all hover:scale-105"
-        >
-          <ArrowLeft className="w-12 h-12" />
-          Retour
-        </button>
+        {/* Boutons de navigation */}
+        <div className="mb-8 flex items-center gap-4">
+          <button
+            onClick={() => setLocation('/merchant/dashboard')}
+            className="bg-gray-200 hover:bg-gray-300 rounded-2xl px-8 py-6 flex items-center gap-4 text-3xl font-bold text-gray-700 transition-all hover:scale-105"
+          >
+            <ArrowLeft className="w-12 h-12" />
+            Retour
+          </button>
+          
+          {/* Bouton activation/désactivation du son */}
+          <SpeechToggle />
+        </div>
 
         {/* Statistiques du jour */}
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl p-8 mb-8 text-white shadow-2xl">
