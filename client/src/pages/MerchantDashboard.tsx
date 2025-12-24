@@ -29,11 +29,23 @@ export default function MerchantDashboard() {
   const isLoading = loadingToday || loadingBalance || loadingStock || loadingChart || loadingTop;
 
   // Formater les données pour le graphique
-  const chartData = last7Days?.map(item => ({
-    date: new Date(item.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
-    montant: item.totalAmount,
-    ventes: item.salesCount,
-  })) || [];
+  const chartData = last7Days?.map(item => {
+    // Parser la date au format YYYY-MM-DD
+    const [year, month, day] = item.date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    
+    return {
+      date: dateObj.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
+      montant: item.totalAmount,
+      ventes: item.salesCount,
+    };
+  }) || [];
+  
+  // Debug: afficher les données dans la console
+  if (last7Days && last7Days.length > 0) {
+    console.log('📊 Données brutes last7Days:', last7Days);
+    console.log('📊 Données formatées chartData:', chartData);
+  }
 
   // Formater les données pour le top produits
   const topProductsData = topProducts?.map(item => ({

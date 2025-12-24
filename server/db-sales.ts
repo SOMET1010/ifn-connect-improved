@@ -169,8 +169,8 @@ export async function getLast7DaysSales(merchantId: number) {
 
   const result = await db
     .select({
-      date: sql<string>`DATE(${sales.saleDate})`,
-      totalAmount: sql<number>`SUM(${sales.totalAmount})`,
+      date: sql<string>`DATE(${sales.saleDate}) as sale_date`,
+      totalAmount: sql<number>`SUM(CAST(${sales.totalAmount} AS DECIMAL(10,2)))`,
       salesCount: sql<number>`COUNT(*)`,
     })
     .from(sales)
@@ -180,8 +180,8 @@ export async function getLast7DaysSales(merchantId: number) {
         gte(sales.saleDate, sevenDaysAgo)
       )
     )
-    .groupBy(sql`DATE(${sales.saleDate})`)
-    .orderBy(sql`DATE(${sales.saleDate})`);
+    .groupBy(sql`sale_date`)
+    .orderBy(sql`sale_date`);
 
   return result.map(row => ({
     date: row.date,

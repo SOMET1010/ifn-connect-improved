@@ -457,3 +457,13 @@
 - [x] Toast de feedback pour l'utilisateur
 - [x] Gestion des permissions microphone
 - [x] Fallback si Web Speech API non supporté
+
+
+## 📊 CORRECTION GRAPHIQUE VENTES 7 JOURS (Checkpoint 13)
+
+- [x] Investiguer le format des données retournées par sales.last7Days (format: YYYY-MM-DD)
+- [x] Vérifier la requête SQL dans db-sales.ts
+- [x] Corriger le format des dates (SQL → JavaScript Date)
+- [x] Ajuster la transformation des données pour Recharts (parsing manuel des dates YYYY-MM-DD)
+- [x] Tester l'affichage du graphique avec les données réelles (fonctionne parfaitement)
+- [x] Ajouter des données de fallback si nécessaire (non requis, les données s'affichent)
