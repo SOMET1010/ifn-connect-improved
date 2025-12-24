@@ -426,3 +426,34 @@
 - [x] Ajouter les tooltips sur les boutons d'actions (Djossi, Fata)
 - [x] Maintenir le français comme langue principale
 - [x] Tester sur mobile (tap pour afficher)
+
+
+## 🎤 RECONNAISSANCE VOCALE CAISSE (Checkpoint 12)
+
+### Infrastructure
+- [x] Créer le hook useVoiceRecognition avec Web Speech API
+- [x] Support multilingue (Français configurable)
+- [x] Gestion des états (idle, listening, processing, error)
+- [x] Feedback visuel pendant l'enregistrement (via state)
+
+### Parser intelligent
+- [x] Créer la fonction parseVoiceCommand pour extraire les données
+- [x] Détecter le produit dans la commande vocale
+- [x] Extraire la quantité (chiffres + unités)
+- [x] Extraire le prix unitaire ou total
+- [x] Gérer les variations linguistiques (Français + quelques mots Dioula)
+- [x] Mapping des noms de produits (34 produits supportés)
+
+### Intégration dans la caisse
+- [x] Ajouter le bouton microphone dans CashRegister
+- [x] Afficher la transcription en temps réel
+- [x] Remplir automatiquement le formulaire avec les données extraites
+- [x] Permettre la correction manuelle avant validation
+- [x] Ajouter la confirmation vocale
+- [x] Gérer les erreurs de reconnaissance
+
+### UX et accessibilité
+- [x] Animation du bouton microphone pendant l'écoute (animate-pulse)
+- [x] Toast de feedback pour l'utilisateur
+- [x] Gestion des permissions microphone
+- [x] Fallback si Web Speech API non supporté

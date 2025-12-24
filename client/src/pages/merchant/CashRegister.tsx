@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { ShoppingCart, Mic, Check, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { trpc } from '@/lib/trpc';
 import { audioManager } from '@/lib/audioManager';
 import { toast } from 'sonner';
+import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { parseVoiceCommand } from '@/utils/voiceCommandParser';
 import MobileNavigation from '@/components/accessibility/MobileNavigation';
 
 /**
@@ -16,7 +19,8 @@ export default function CashRegister() {
   const [, setLocation] = useLocation();
   const [quantity, setQuantity] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [showVoiceCard, setShowVoiceCard] = useState(false);
 
   // Mock merchantId - À remplacer par l'ID réel de l'utilisateur connecté
   const merchantId = 1;
@@ -87,16 +91,89 @@ export default function CashRegister() {
     });
   };
 
+  // Hook de reconnaissance vocale
+  const {
+    isSupported,
+    state: voiceState,
+    transcript,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useVoiceRecognition({
+    language: 'fr-FR',
+    onResult: (text, isFinal) => {
+      setVoiceTranscript(text);
+      if (isFinal) {
+        handleVoiceCommandComplete(text);
+      }
+    },
+    onError: (error) => {
+      toast.error(error);
+      setShowVoiceCard(false);
+    },
+  });
+
+  // Traiter la commande vocale complète
+  const handleVoiceCommandComplete = (text: string) => {
+    const parsed = parseVoiceCommand(text);
+    
+    if (parsed.confidence === 'low') {
+      toast.error('Commande non comprise. Veuillez réessayer.');
+      audioManager.speak('Commande non comprise');
+      return;
+    }
+
+    // Trouver le produit correspondant
+    if (parsed.productName) {
+      const product = products.find(p => p.name === parsed.productName);
+      if (product) {
+        setSelectedProduct(product.id);
+        audioManager.speak(`Produit sélectionné: ${product.name}`);
+      }
+    }
+
+    // Remplir la quantité
+    if (parsed.quantity) {
+      setQuantity(String(parsed.quantity));
+    }
+
+    // Feedback vocal
+    if (parsed.confidence === 'high') {
+      audioManager.speak('Commande bien comprise');
+      toast.success('Commande comprise ! Vérifiez et validez.');
+    } else {
+      toast.info('Commande partiellement comprise. Vérifiez les informations.');
+    }
+
+    setShowVoiceCard(false);
+  };
+
   // Démarrer l'enregistrement vocal
   const handleVoiceRecord = () => {
-    setIsRecording(true);
+    if (!isSupported) {
+      toast.error('Reconnaissance vocale non supportée par votre navigateur');
+      return;
+    }
+
+    setShowVoiceCard(true);
+    setVoiceTranscript('');
+    resetTranscript();
     audioManager.speak('Dites votre commande');
-    // TODO: Implémenter la reconnaissance vocale
-    setTimeout(() => {
-      setIsRecording(false);
-      toast.info('Reconnaissance vocale en cours de développement');
-    }, 2000);
+    startListening();
   };
+
+  // Arrêter l'enregistrement
+  const handleStopVoice = () => {
+    stopListening();
+    setShowVoiceCard(false);
+  };
+
+  // Effet pour afficher la transcription en temps réel
+  useEffect(() => {
+    if (transcript) {
+      setVoiceTranscript(transcript);
+    }
+  }, [transcript]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -121,12 +198,41 @@ export default function CashRegister() {
             variant="ghost"
             size="icon"
             onClick={handleVoiceRecord}
-            className={`text-primary-foreground hover:bg-primary-foreground/20 ${isRecording ? 'animate-pulse bg-red-500' : ''}`}
+            className={`text-primary-foreground hover:bg-primary-foreground/20 ${voiceState === 'listening' ? 'animate-pulse bg-red-500' : ''}`}
           >
             <Mic size={24} />
           </Button>
         </div>
       </div>
+
+      {/* Carte de reconnaissance vocale */}
+      {showVoiceCard && (
+        <div className="container mt-4">
+          <Alert className="border-orange-500 bg-orange-50">
+            <Mic className="h-5 w-5 text-orange-600 animate-pulse" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-semibold text-orange-900">
+                  {voiceState === 'listening' ? '🎤 Écoute en cours...' : '🔍 Traitement...'}
+                </p>
+                {voiceTranscript && (
+                  <p className="text-sm text-gray-700 italic">
+                    "{voiceTranscript}"
+                  </p>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleStopVoice}
+                  className="mt-2"
+                >
+                  Arrêter
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       {/* Statistiques du jour */}
       {todayStats && (
