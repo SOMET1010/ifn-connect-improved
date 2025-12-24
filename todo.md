@@ -293,3 +293,29 @@
 - [x] Ligne colorée fine en bas (orange/vert)
 - [x] Espacement harmonieux entre les éléments
 - [x] Responsive sur mobile et tablette
+
+
+## 🌾 SEED PRODUITS DE DÉMONSTRATION (EN COURS)
+
+### Catégories de produits à créer
+- [x] Légumes (tomates, oignons, aubergines, gombo, piment, chou, carotte)
+- [x] Céréales et tubercules (riz, maïs, manioc, igname, plantain, patate douce)
+- [x] Légumineuses (arachides, haricots, niébé, soja)
+- [x] Poissons (tilapia, carpe, poisson fumé, sardines)
+- [x] Viandes (poulet, mouton, bœuf)
+- [x] Fruits (bananes, oranges, mangues, noix de coco, ananas, papaye)
+- [x] Condiments (sel, cube Maggi, huile de palme, piment moulu)
+
+### Informations pour chaque produit
+- [x] Nom en Français
+- [x] Nom en Dioula
+- [x] Prix moyen en FCFA
+- [x] Unité de vente (kg, tas, pièce, litre, sachet)
+- [x] Catégorie
+- [x] Quantité initiale en stock (entre 10 et 100)
+
+### Script et exécution
+- [x] Créer le script de seed (scripts/seed-products.mjs)
+- [x] Exécuter le script pour peupler la base
+- [x] Vérifier que les 30 produits sont bien créés (34 produits créés !)
+- [x] Tester la caisse avec les produits
