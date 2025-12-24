@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import MerchantDashboard from "./pages/merchant/Dashboard";
+import MarketsPage from "./pages/admin/Markets";
+import MapViewPage from "./pages/admin/MapView";
 
 function Router() {
   return (
@@ -15,6 +17,8 @@ function Router() {
       <Route path={"/agent"} component={() => <div className="p-8 text-center">Page Agent - En développement</div>} />
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />
+      <Route path={"/admin/markets"} component={MarketsPage} />
+      <Route path={"/admin/map"} component={MapViewPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

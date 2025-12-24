@@ -44,16 +44,11 @@ export default function Home() {
           <header className="container py-6">
             <div className="flex items-center justify-between">
               {/* Logos institutionnels */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6">
                 <img 
-                  src="/logos/dge-logo.png" 
-                  alt="DGE" 
-                  className="h-12 object-contain"
-                />
-                <img 
-                  src="/logos/ansut-logo.png" 
-                  alt="ANSUT" 
-                  className="h-12 object-contain"
+                  src="/logos/partners.png" 
+                  alt="DGE & ANSUT" 
+                  className="h-10 md:h-12 object-contain"
                 />
               </div>
 

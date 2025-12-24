@@ -94,15 +94,15 @@ export default function ActionCard({
       <div className="flex flex-col items-center text-center gap-3 mt-2">
         {/* Pictogramme ou Icône */}
         {pictogramSrc ? (
-          <div className="pictogram-lg">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-background/80 backdrop-blur-sm p-3 shadow-lg flex items-center justify-center">
             <img
               src={pictogramSrc}
               alt={title}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain drop-shadow-md"
             />
           </div>
         ) : Icon ? (
-          <div className="pictogram-lg">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-background/80 backdrop-blur-sm p-3 shadow-lg flex items-center justify-center">
             <Icon size={48} />
           </div>
         ) : null}

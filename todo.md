@@ -141,12 +141,38 @@
 - [x] Adapter le schéma de base de données pour correspondre aux données existantes
 - [x] Créer un script d'import automatique des CSV vers la base de données
 - [x] Lier les acteurs aux marchés via market_name
-- [ ] Créer une interface de visualisation des acteurs enrôlés
-- [ ] Ajouter la recherche par identifier_code (carte)
-- [ ] Ajouter la recherche par téléphone
-- [ ] Créer des statistiques par marché (effectif, CMU, CNPS, RSTI)
+- [x] Créer une interface de visualisation des acteurs enrôlés
+- [x] Ajouter la recherche par identifier_code (carte)
+- [x] Ajouter la recherche par téléphone
+- [x] Créer des statistiques par marché (effectif, CMU, CNPS, RSTI)
 - [ ] Intégrer les données dans le module Agent Terrain
 - [ ] Intégrer les données dans le module Coopérative
 - [ ] Créer une page de détail pour chaque acteur
 - [ ] Ajouter la possibilité de mettre à jour les informations
 - [ ] Créer un système de vérification des doublons
+
+
+## 🔧 CORRECTIONS VISUELLES URGENTES
+
+- [x] Corriger l'affichage des logos DGE et ANSUT
+- [x] Améliorer l'intégration visuelle des images de rôles (arrondir, ombres)
+- [x] Retirer les fonds blancs des images
+- [x] Optimiser le design du Hero
+
+
+## 🗺️ CARTOGRAPHIE SIG
+
+- [x] Créer la page de cartographie avec Google Maps
+- [x] Afficher les 8 marchés géolocalisés sur la carte
+- [x] Marqueurs personnalisés avec couleur orange terracotta
+- [x] InfoWindow avec détails du marché (nom, effectif, CMU, CNPS)
+- [x] Mode édition pour corriger les positions GPS (drag & drop)
+- [x] Mutation tRPC pour mettre à jour la géolocalisation
+- [x] Liste des marchés avec navigation vers la carte
+- [x] Statistiques agrégées (effectif total, CMU total, CNPS total)
+- [x] Centrage automatique sur Abidjan
+- [x] Légende de la carte
+- [ ] Clustering intelligent des marqueurs (si beaucoup de marchés)
+- [ ] Heatmap de densité des acteurs
+- [ ] Filtres par marché
+- [ ] Export des données cartographiques
