@@ -4,7 +4,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { salesRouter } from "./routers/sales";
 import { productsRouter, stockRouter } from "./routers/products";
-import { marketsRouter } from "./routers/markets";
+import { marketsRouter } from './routers/markets';
+import { agentRouter } from './routers/agent';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -13,6 +14,7 @@ export const appRouter = router({
   products: productsRouter,
   stock: stockRouter,
   markets: marketsRouter,
+  agent: agentRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

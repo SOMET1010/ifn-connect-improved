@@ -467,3 +467,65 @@
 - [x] Ajuster la transformation des données pour Recharts (parsing manuel des dates YYYY-MM-DD)
 - [x] Tester l'affichage du graphique avec les données réelles (fonctionne parfaitement)
 - [x] Ajouter des données de fallback si nécessaire (non requis, les données s'affichent)
+
+
+## 👨‍💼 MODULE AGENT TERRAIN (Checkpoint 14)
+
+### Structure du Wizard
+- [x] Créer la page /agent/enrollment avec wizard multi-étapes
+- [x] Créer le composant EnrollmentWizard avec gestion d'état
+- [x] Implémenter l'indicateur de progression (1/5, 2/5, etc.)
+- [x] Ajouter la navigation entre étapes (Suivant/Précédent)
+- [x] Design optimisé pour tablettes (boutons larges, texte lisible)
+
+### Étape 1 : Informations Personnelles
+- [x] Formulaire : Nom complet, téléphone, date de naissance
+- [x] Validation en temps réel (téléphone ivoirien, âge > 18 ans)
+- [x] Champs requis avec messages d'erreur clairs
+
+### Étape 2 : Pièces Justificatives
+- [x] Capture photo de la pièce d'identité (caméra device) - UI prête
+- [x] Capture photo de la licence commerciale - UI prête
+- [x] Preview des photos avant validation
+- [x] Compression automatique des images (usePhotoCapture hook)
+- [ ] Upload vers S3 avec storagePut (à implémenter dans le backend)
+
+### Étape 3 : Localisation
+- [x] Géolocalisation GPS automatique (navigator.geolocation)
+- [ ] Affichage de la position sur carte Google Maps (à implémenter)
+- [x] Sélection du marché le plus proche (dropdown)
+- [x] Validation de la position (bouton "Confirmer ma position")
+
+### Étape 4 : Couverture Sociale
+- [x] Checkbox CNPS avec champ numéro de carte
+- [x] Checkbox CMU avec champ numéro de carte
+- [x] Validation des numéros de carte (format)
+- [x] Optionnel : possibilité de skip
+
+### Étape 5 : Récapitulatif
+- [x] Afficher toutes les informations saisies
+- [x] Permettre de revenir en arrière pour corriger
+- [x] Bouton "Valider l'enrôlement" final
+- [x] Loader pendant la création
+
+### Backend (tRPC Procedures)
+- [x] Créer agent.enrollMerchant procedure
+- [x] Générer le code marchand unique (MRC-XXXXX)
+- [x] Créer l'utilisateur (user table)
+- [x] Créer le marchand (merchant table)
+- [x] Créer l'acteur (actor table pour historique)
+- [ ] Initialiser le stock de base (optionnel - à implémenter plus tard)
+
+### UX & Feedback
+- [x] Toast de succès avec code marchand généré
+- [ ] Page de confirmation avec QR code (optionnel)
+- [x] Bouton "Enrôler un nouveau marchand" (redirection vers dashboard)
+- [x] Gestion des erreurs réseau (toast d'erreur)
+- [ ] Sauvegarde locale en cas de perte de connexion
+
+### Tests
+- [x] Tester le workflow complet d'enrôlement (navigation et validation fonctionnent)
+- [ ] Vérifier la capture photo sur mobile/tablette
+- [ ] Tester la géolocalisation GPS
+- [ ] Vérifier la génération du code marchand
+- [ ] Tester la création des données en base
