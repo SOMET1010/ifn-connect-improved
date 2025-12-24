@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import MerchantDashboard from "./pages/merchant/Dashboard";
+import CashRegister from "./pages/merchant/CashRegister";
+import Stock from "./pages/merchant/Stock";
 import MarketsPage from "./pages/admin/Markets";
 import MapViewPage from "./pages/admin/MapView";
 
@@ -14,6 +16,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/merchant"} component={MerchantDashboard} />
+      <Route path={"/merchant/cash-register"} component={CashRegister} />
+      <Route path={"/merchant/stock"} component={Stock} />
       <Route path={"/agent"} component={() => <div className="p-8 text-center">Page Agent - En développement</div>} />
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />

@@ -194,3 +194,63 @@
 - [x] Rendre les icônes plus grandes et plus visibles
 - [x] Améliorer les contrastes pour l'accessibilité
 - [x] Optimiser pour mobile avec boutons plus larges
+
+
+## 💰 MODULE CAISSE TACTILE (EN COURS)
+
+### Interface Caisse
+- [x] Créer la page de caisse tactile (/merchant/cash-register)
+- [x] Pavé numérique large et tactile (80x80px par touche)
+- [x] Sélection rapide des produits avec pictogrammes
+- [x] Calcul automatique du total
+- [x] Bouton "Enregistrer la vente" avec feedback audio
+- [x] Historique des ventes du jour
+- [x] Statistiques en temps réel (total jour, nombre de ventes)
+- [x] Mode simplifié avec actions essentielles
+
+### Enregistrement Vocal
+- [ ] Bouton microphone pour commandes vocales
+- [ ] Reconnaissance vocale en Dioula ("Vendre 3 tas de tomates")
+- [ ] Reconnaissance vocale en Français
+- [ ] Transcription automatique vers formulaire
+- [ ] Feedback vocal de confirmation
+- [ ] Gestion des erreurs de reconnaissance
+- [ ] Aide vocale contextuelle
+
+### tRPC Procedures
+- [x] sales.create - Créer une nouvelle vente
+- [x] sales.listByMerchant - Liste des ventes d'un marchand
+- [x] sales.todayStats - Statistiques du jour
+- [x] sales.history - Historique des ventes
+- [x] products.listByMerchant - Liste des produits d'un marchand
+- [x] products.create - Ajouter un produit
+- [x] products.update - Modifier un produit
+- [x] products.delete - Supprimer un produit
+
+## 📦 MODULE GESTION DE STOCK (EN COURS)
+
+### Interface Stock
+- [x] Créer la page de gestion de stock (/merchant/stock)
+- [x] Liste des produits avec quantités actuelles
+- [x] Alertes visuelles pour stock bas (< 10 unités)
+- [x] Alertes vocales pour stock critique (< 5 unités)
+- [x] Formulaire d'ajout rapide de produit
+- [x] Modification inline des quantités
+- [x] Recherche de produits (texte + vocal)
+- [ ] Catégorisation des produits
+- [x] Synchronisation automatique avec les ventes
+
+### Alertes Stock
+- [ ] Système de seuils configurables par produit
+- [ ] Notification visuelle (badge rouge)
+- [ ] Notification vocale automatique
+- [ ] Liste des produits en rupture
+- [ ] Suggestions de réapprovisionnement
+- [ ] Historique des mouvements de stock
+
+### tRPC Procedures
+- [x] stock.listByMerchant - Liste du stock d'un marchand
+- [x] stock.update - Mettre à jour les quantités
+- [x] stock.lowStock - Produits en stock bas
+- [ ] stock.movements - Historique des mouvements
+- [ ] stock.alerts - Alertes actives
