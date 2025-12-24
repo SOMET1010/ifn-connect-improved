@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Camera, Award, TrendingUp, Calendar, MapPin, Phone, CreditCard, Shield, Trophy } from 'lucide-react';
+import { ArrowLeft, Camera, Award, TrendingUp, Calendar, MapPin, Phone, CreditCard, Shield, Trophy, Download } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/useAuth';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
@@ -17,6 +17,7 @@ export default function MerchantProfile() {
 
   // Récupérer les données du marchand
   const { data: merchant, isLoading } = trpc.auth.myMerchant.useQuery();
+  const generateCertificate = trpc.certificates.generate.useMutation();
 
   // Récupérer les statistiques
   const { data: stats } = trpc.sales.totalBalance.useQuery(
@@ -273,12 +274,41 @@ export default function MerchantProfile() {
         {/* Boutons d'action */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <button
-            onClick={() => {
-              toast.info('Certificat professionnel bientôt disponible !');
+            onClick={async () => {
+              if (!merchant) return;
+              toast.info('📜 Génération du certificat en cours...');
+              try {
+                const result = await generateCertificate.mutateAsync({ merchantId: merchant.id });
+                if (result.success && result.pdf) {
+                  // Créer un blob depuis le base64
+                  const byteCharacters = atob(result.pdf);
+                  const byteNumbers = new Array(byteCharacters.length);
+                  for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                  }
+                  const byteArray = new Uint8Array(byteNumbers);
+                  const blob = new Blob([byteArray], { type: 'application/pdf' });
+                  
+                  // Télécharger le fichier
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = result.filename;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                  
+                  toast.success('✅ Certificat téléchargé avec succès !');
+                }
+              } catch (error) {
+                console.error('Erreur génération certificat:', error);
+                toast.error('❌ Erreur lors de la génération du certificat');
+              }
             }}
-            className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-3xl p-12 text-4xl font-bold shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-6"
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-3xl p-12 text-4xl font-bold shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-6"
           >
-            <Award className="w-16 h-16" />
+            <Download className="w-16 h-16" />
             Télécharger mon Certificat
           </button>
 

@@ -695,10 +695,15 @@
 - [x] Statistiques personnelles (ventes totales, ancienneté, etc.)
 
 ### Certificat Professionnel Digital
-- [ ] Génération automatique de certificat PDF
-- [ ] Design professionnel avec logos DGE/ANSUT
-- [ ] QR code de vérification
-- [ ] Bouton de téléchargement dans le profil
+- [x] Génération automatique de certificat PDF (pdfkit + qrcode)
+- [x] Design professionnel avec en-tête et bordures décoratives
+- [x] Informations complètes (nom, code MRC, niveau, badges, ventes, CNPS/CMU)
+- [x] QR code de vérification inclus
+- [x] Signature digitale Direction Générale de l'Économie
+- [x] Bouton de téléchargement dans le profil
+- [x] Procédure tRPC certificates.generate
+- [x] Tests unitaires (3 tests passent)
+- [ ] Logos DGE/ANSUT (images à intégrer)
 - [ ] Partage sur WhatsApp/Email
 
 ### Dashboard Couverture Sociale CNPS/CMU
