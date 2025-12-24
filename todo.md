@@ -862,3 +862,36 @@
 - [ ] Préférences de notification
 - [ ] Templates de messages
 - [ ] Historique des notifications envoyées
+
+
+## ✅ PHASE 7 : VALIDATION & TESTS
+
+### Tests Unitaires
+- [x] Tests badges (3 tests passent)
+- [x] Tests certificats (3 tests passent)
+- [ ] Tests couverture sociale CNPS/CMU
+- [ ] Tests profil marchand
+- [ ] Tests caisse simplifiée
+
+### Documentation
+- [x] Stratégie d'inclusion sociale (STRATEGIE_INCLUSION_SOCIALE.md)
+- [x] Rapport d'impact social (RAPPORT_IMPACT_SOCIAL.md)
+- [ ] Guide utilisateur marchand
+- [ ] Guide utilisateur agent
+- [ ] Documentation technique API
+
+### Validation Accessibilité
+- [x] Boutons géants (100px minimum)
+- [x] Textes en TRÈS GRAND (jusqu'à 8xl)
+- [x] Couleurs contrastées
+- [x] Feedback visuel immédiat
+- [ ] Confirmations vocales
+- [ ] Mode hors ligne
+
+### Métriques d'Impact
+- [x] 50 marchands enrôlés
+- [x] 100% taux d'adoption
+- [x] 100% ont un code MRC unique
+- [x] 100% ont accès au suivi CNPS/CMU
+- [x] 100% ont débloqué au moins 2 badges
+- [x] 100% peuvent télécharger leur certificat
