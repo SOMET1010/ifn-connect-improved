@@ -1,6 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { getMerchantByUserId } from "./db-merchant";
 import { publicProcedure, router } from "./_core/trpc";
 import { salesRouter } from "./routers/sales";
 import { productsRouter, stockRouter } from "./routers/products";
@@ -23,6 +24,12 @@ export const appRouter = router({
       return {
         success: true,
       } as const;
+    }),
+    // Récupérer le marchand lié à l'utilisateur connecté
+    myMerchant: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) return null;
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      return merchant;
     }),
   }),
 

@@ -558,21 +558,31 @@
 ## 🔐 AUTHENTIFICATION RÉELLE (Checkpoint 15)
 
 ### Backend
-- [ ] Utiliser ctx.user dans toutes les procedures au lieu de merchantId hardcodé
+- [ ] Utiliser ctx.user dans toutes les procedures au lieu de merchantId hardcodé (en cours)
 - [ ] Modifier sales.* pour utiliser ctx.user.id
 - [ ] Modifier stock.* pour utiliser ctx.user.id
-- [ ] Créer une procedure pour récupérer le merchant lié à l'utilisateur
+- [x] Créer une procedure pour récupérer le merchant lié à l'utilisateur (auth.myMerchant)
 - [ ] Protéger les routes agent avec role check
 
 ### Frontend
-- [ ] Utiliser useAuth() pour récupérer l'utilisateur connecté
-- [ ] Rediriger vers login si non authentifié
-- [ ] Afficher le nom de l'utilisateur dans le header
-- [ ] Gérer les rôles (merchant/agent/admin)
-- [ ] Créer une page de sélection de rôle après login
-- [ ] Protéger les routes selon le rôle
+- [x] Utiliser useAuth() pour récupérer l'utilisateur connecté
+- [x] Créer ProtectedRoute pour rediriger si non authentifié
+- [ ] Afficher le nom de l'utilisateur dans le header (à implémenter)
+- [x] Gérer les rôles (merchant/agent/admin) dans ProtectedRoute
+- [ ] Créer une page de sélection de rôle après login (optionnel)
+- [x] Protéger les routes selon le rôle (ProtectedRoute avec requiredRole)
 
 ### UX
-- [ ] Ajouter un bouton de déconnexion
-- [ ] Afficher un message de bienvenue personnalisé
-- [ ] Gérer les erreurs d'authentification
+- [x] Ajouter un bouton de déconnexion (dans useAuth hook)
+- [ ] Afficher un message de bienvenue personnalisé (à implémenter)
+- [x] Gérer les erreurs d'authentification (useAuth + ProtectedRoute)
+
+
+## 🎨 AMÉLIORATION UX AUTHENTIFICATION
+
+- [x] Créer un composant UserMenu dans le header (DropdownMenu)
+- [x] Afficher le nom de l'utilisateur connecté
+- [x] Ajouter un dropdown avec options (Profil, Paramètres, Déconnexion)
+- [x] Afficher un badge de rôle (Marchand/Agent/Admin)
+- [x] Ajouter un message de bienvenue personnalisé sur les dashboards
+- [x] Gérer l'état non connecté (afficher "Se connecter" au lieu du menu)

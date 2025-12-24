@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Volume2, VolumeX, User, Plus, Minus } from 'lucide-react';
+import { Volume2, VolumeX, User, Plus, Minus, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/accessibility/LanguageSelector';
 import { audioManager } from '@/lib/audioManager';
-import { getLoginUrl } from '@/const';
+import { useAuth, getLoginUrl } from '@/hooks/useAuth';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 /**
  * Header institutionnel optimisé pour ANSUT / IFN
  * Inclus : Persistance des préférences, Sticky mode, et Accessibilité AA+
  */
 export default function InstitutionalHeader() {
+  const { user, merchant, isAuthenticated, logout } = useAuth();
   // --- ÉTATS AVEC PERSISTANCE ---
   
   // Audio state
@@ -154,24 +156,104 @@ export default function InstitutionalHeader() {
               {audioEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
             </Button>
 
-            {/* Connexion (Mise en avant) */}
-            <Button
-              onClick={() => window.location.href = getLoginUrl()}
-              className="hidden md:flex items-center gap-2 rounded-full px-5 bg-[#000] hover:bg-[#333] text-white shadow-sm hover:shadow transition-all ml-2"
-            >
-              <User className="h-4 w-4" />
-              <span className="font-medium">Espace Agent</span>
-            </Button>
+            {/* Menu Utilisateur ou Connexion */}
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="hidden md:flex items-center gap-2 rounded-full px-5 bg-[#000] hover:bg-[#333] text-white shadow-sm hover:shadow transition-all ml-2"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="font-medium">{user?.name || 'Utilisateur'}</span>
+                    {user?.role && (
+                      <span className="ml-1 px-2 py-0.5 text-[10px] bg-orange-500 rounded-full">
+                        {user.role === 'merchant' ? 'Marchand' : user.role === 'agent' ? 'Agent' : 'Admin'}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user?.name || 'Utilisateur'}</span>
+                      {merchant && (
+                        <span className="text-xs text-gray-500">{merchant.merchantNumber}</span>
+                      )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Mon Profil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => window.location.href = '/settings'}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Paramètres</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Déconnexion</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                onClick={() => window.location.href = getLoginUrl()}
+                className="hidden md:flex items-center gap-2 rounded-full px-5 bg-[#000] hover:bg-[#333] text-white shadow-sm hover:shadow transition-all ml-2"
+              >
+                <User className="h-4 w-4" />
+                <span className="font-medium">Se connecter</span>
+              </Button>
+            )}
 
             {/* Mobile Menu / Login Icon Only */}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => window.location.href = getLoginUrl()}
-              className="md:hidden h-9 w-9 rounded-full border-gray-300"
-            >
-              <User className="h-5 w-5" />
-            </Button>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="md:hidden h-9 w-9 rounded-full border-gray-300"
+                  >
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user?.name || 'Utilisateur'}</span>
+                      {merchant && (
+                        <span className="text-xs text-gray-500">{merchant.merchantNumber}</span>
+                      )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Mon Profil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => window.location.href = '/settings'}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Paramètres</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Déconnexion</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => window.location.href = getLoginUrl()}
+                className="md:hidden h-9 w-9 rounded-full border-gray-300"
+              >
+                <User className="h-5 w-5" />
+              </Button>
+            )}
           </div>
         </div>
 

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,9 +17,31 @@ import {
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 export default function MerchantDashboard() {
-  // Pour le moment, on utilise merchantId=1 pour tester
-  // TODO: Récupérer le merchantId de l'utilisateur connecté
-  const merchantId = 1;
+  const { user, merchant, isLoading: authLoading } = useAuth();
+  
+  // Si pas de marchand lié, afficher un message
+  if (authLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
+  }
+  
+  if (!merchant) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Accès Refusé</CardTitle>
+            <CardDescription>Vous devez être enregistré comme marchand pour accéder à cette page.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+  
+  const merchantId = merchant.id;
+  
+  // Message de bienvenue personnalisé
+  const welcomeMessage = `Bienvenue, ${merchant.businessName || user?.name || 'Marchand'} !`;
+  const merchantCode = merchant.merchantNumber;
 
   // Récupérer toutes les données du dashboard
   const { data: todayStats, isLoading: loadingToday } = trpc.sales.todayStats.useQuery({ merchantId });
@@ -56,11 +80,23 @@ export default function MerchantDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
-      {/* Header */}
+      {/* Header avec message de bienvenue */}
       <div className="bg-white border-b border-orange-200 shadow-sm">
         <div className="container mx-auto py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Tableau de Bord Marchand</h1>
-          <p className="text-gray-600 mt-1">Vue d'ensemble de votre activité</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{welcomeMessage}</h1>
+              <p className="text-gray-600 mt-1">
+                Code marchand : <span className="font-semibold text-orange-600">{merchantCode}</span>
+                {' '}• Vue d'ensemble de votre activité
+              </p>
+            </div>
+            {user?.role && (
+              <div className="hidden md:block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                {user.role === 'merchant' ? '👨‍💼 Marchand' : user.role === 'agent' ? '👨‍💻 Agent' : '👑 Admin'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
