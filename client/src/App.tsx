@@ -13,6 +13,7 @@ import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
 import MerchantProfile from './pages/merchant/Profile';
 import SocialCoverage from './pages/merchant/SocialCoverage';
 import Badges from './pages/merchant/Badges';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import VirtualMarket from './pages/merchant/VirtualMarket';
 import OrderHistory from './pages/merchant/OrderHistory';
 import Stock from "./pages/merchant/Stock";
@@ -26,19 +27,30 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/merchant"} component={MerchantDashboard} />
-      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />          <Route path="/merchant/cash-register" component={CashRegisterSimple} />
-          <Route path="/merchant/profile" component={MerchantProfile} />
-          <Route path="/merchant/social-coverage" component={SocialCoverage} />
-          <Route path="/merchant/badges" component={Badges} />
-          <Route path="/merchant/market" component={VirtualMarket} />
-          <Route path="/merchant/orders" component={OrderHistory} />      <Route path={"/merchant/stock"} component={Stock} />
+      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />
+      <Route path="/merchant/cash-register" component={CashRegisterSimple} />
+      <Route path="/merchant/profile" component={MerchantProfile} />
+      <Route path="/merchant/social-coverage" component={SocialCoverage} />
+      <Route path="/merchant/badges" component={Badges} />
+      <Route path="/merchant/market" component={VirtualMarket} />
+      <Route path="/merchant/orders" component={OrderHistory} />
+      <Route path={"/merchant/stock"} component={Stock} />
+      
+      {/* Agent Routes */}
       <Route path={"/agent"} component={AgentDashboard} />
       <Route path={"/agent/dashboard"} component={AgentDashboard} />
       <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
-      <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
+      
+      {/* Admin Routes */}
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />
       <Route path={"/admin/markets"} component={MarketsPage} />
       <Route path={"/admin/map"} component={MapViewPage} />
+      
+      {/* Cooperative Routes */}
+      <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
+      
+      {/* 404 */}
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

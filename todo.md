@@ -1061,3 +1061,129 @@
 - [ ] Vérifier que le bouton "Passer" fonctionne
 - [ ] Vérifier la navigation Suivant/Précédent
 - [ ] Vérifier le spotlight sur chaque élément
+
+
+## 📊 PHASE 12 : BACKOFFICE DE PILOTAGE DGE/ANSUT
+
+### Dashboard DGE/ANSUT (Supervision Nationale)
+- [ ] Page `/admin/dashboard` avec layout admin
+- [ ] Carte KPI : Nombre total de marchands enrôlés
+- [ ] Carte KPI : Volume total des transactions (FCFA)
+- [ ] Carte KPI : Taux de couverture sociale (% CNPS+CMU actifs)
+- [ ] Carte KPI : Taux d'adoption (% marchands actifs 30 derniers jours)
+- [ ] Graphique : Évolution des enrôlements (courbe par mois)
+- [ ] Graphique : Évolution du volume de transactions (courbe par mois)
+- [ ] Tableau : Répartition géographique par marché
+- [ ] Section Alertes : Expirations CNPS/CMU < 30 jours
+- [ ] Section Alertes : Marchands inactifs > 30 jours
+
+### Dashboard Agent Terrain
+- [ ] Page `/agent/dashboard` avec layout agent
+- [ ] Liste des marchands enrôlés par l'agent
+- [ ] Filtres : Tous / Actifs / Inactifs / Alertes
+- [ ] Carte marchand : Photo, nom, code MRC, statut, dernière vente
+- [ ] Badge de statut : Actif (vert) / Inactif (rouge) / Alerte (orange)
+- [ ] Bouton "Contacter" pour chaque marchand
+- [ ] Statistiques de l'agent : Nombre de marchands, taux d'activation
+- [ ] Tâches du jour : Renouvellements CNPS/CMU à faire
+- [ ] Performance : Ventes moyennes de mes marchands
+
+### Rapports & Exports
+- [ ] Bouton "Exporter en Excel" sur dashboard DGE
+- [ ] Export Excel : Liste complète des marchands avec toutes les colonnes
+- [ ] Export Excel : Transactions par période (date début/fin)
+- [ ] Export Excel : Rapport de couverture sociale
+- [ ] Procédure tRPC `admin.exportMerchants` (génération XLSX)
+- [ ] Procédure tRPC `admin.exportTransactions` (génération XLSX)
+- [ ] Utiliser bibliothèque `exceljs` pour génération Excel
+
+### Carte Interactive
+- [ ] Carte Google Maps avec marqueurs des marchands
+- [ ] Clustering des marqueurs par zone
+- [ ] Popup au clic : Infos marchand (nom, code MRC, ventes)
+- [ ] Filtres : Tous / Actifs / Inactifs / Par marché
+- [ ] Légende : Couleurs des marqueurs (vert/rouge/orange)
+
+### Graphiques d'Évolution
+- [ ] Bibliothèque Chart.js ou Recharts
+- [ ] Graphique en ligne : Enrôlements par mois (12 derniers mois)
+- [ ] Graphique en ligne : Volume transactions par mois
+- [ ] Graphique en barres : Top 10 marchands (par volume de ventes)
+- [ ] Graphique en camembert : Répartition par marché
+- [ ] Graphique en barres : Badges débloqués (combien de marchands par badge)
+
+### Contrôle d'Accès
+- [ ] Vérifier le rôle 'admin' dans les procédures tRPC
+- [ ] Redirection si non-admin tente d'accéder à /admin
+- [ ] Route /agent accessible uniquement aux agents
+- [ ] Middleware de vérification des rôles
+
+### Base de Données
+- [ ] Procédure tRPC `admin.getStats` (tous les KPIs)
+- [ ] Procédure tRPC `admin.getMerchantsWithAlerts` (expirations)
+- [ ] Procédure tRPC `admin.getInactiveMerchants` (> 30 jours)
+- [ ] Procédure tRPC `admin.getEnrollmentTrend` (par mois)
+- [ ] Procédure tRPC `admin.getTransactionTrend` (par mois)
+- [ ] Procédure tRPC `agent.getMyMerchants` (liste filtrée)
+- [ ] Optimisation des requêtes avec indexes
+
+
+## 📊 BACKOFFICE DE PILOTAGE DGE/ANSUT (Checkpoint 29)
+
+### Dashboard DGE/ANSUT
+- [x] Créer la page /admin/dashboard (client/src/pages/admin/AdminDashboard.tsx)
+- [x] 4 grandes cartes KPI avec design gradient :
+  - [x] Nombre total de marchands enrôlés (carte bleue)
+  - [x] Volume total des transactions FCFA (carte verte)
+  - [x] Taux de couverture sociale % CNPS+CMU (carte violette)
+  - [x] Taux d'adoption % actifs 30 jours (carte orange)
+- [x] Router admin tRPC (server/routers/admin.ts) avec 7 procédures
+- [x] Procédure getStats pour les KPIs
+- [x] Contrôle d'accès admin (adminProcedure avec vérification role)
+- [x] Route /admin/dashboard dans App.tsx
+- [x] Composant InstitutionalHeader réutilisé
+
+### Section Alertes
+- [x] Carte "Alertes Couverture Sociale" (CNPS/CMU < 30 jours)
+- [x] Liste des marchands avec alertes (limite 10 affichés)
+- [x] Affichage du nombre de jours restants pour CNPS et CMU
+- [x] Carte rouge animée pour les alertes
+- [x] Carte "Marchands Inactifs" (> 30 jours sans vente)
+- [x] Liste des marchands inactifs avec jours d'inactivité
+- [x] Carte orange pour les inactifs
+- [x] Procédure getMerchantsWithAlerts
+- [x] Procédure getInactiveMerchants
+
+### Répartition Géographique
+- [x] Section répartition géographique
+- [x] Grille de cartes par marché avec compteur
+- [x] Design gradient bleu pour chaque marché
+- [x] Procédure getMarketDistribution
+- [ ] Carte interactive (Google Maps)
+- [ ] Graphique en barres ou camembert
+
+### Objectif 2025
+- [x] Affichage de l'objectif 2025 (10 000 marchands)
+- [x] Barre de progression visuelle
+- [x] Pourcentage de réalisation
+
+### Dashboard Agent Terrain
+- [ ] Page /agent/dashboard
+- [ ] Mes marchands enrôlés (liste avec statuts)
+- [ ] Performance de mes marchands (ventes moyennes, badges débloqués)
+- [ ] Tâches du jour (renouvellements CNPS/CMU à faire)
+- [ ] Marchands à contacter (inactifs > 7 jours)
+
+### Rapports & Exports
+- [ ] Export Excel des marchands (pour reporting gouvernemental)
+- [ ] Graphiques d'évolution (courbes de croissance)
+- [ ] Indicateurs d'impact social (avant/après IFN Connect)
+- [ ] Procédure getEnrollmentTrend (par mois, 12 derniers mois)
+- [ ] Procédure getTransactionTrend (par mois, 12 derniers mois)
+
+### Carte Interactive
+- [ ] Intégration Google Maps dans le dashboard admin
+- [ ] Marqueurs pour chaque marchand
+- [ ] Clustering intelligent
+- [ ] Heatmap des zones d'activité
+- [ ] Filtres par marché
