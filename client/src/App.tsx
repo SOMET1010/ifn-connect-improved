@@ -9,6 +9,8 @@ import MerchantDashboard from "./pages/merchant/Dashboard";
 import MerchantDashboardNew from "./pages/MerchantDashboard";
 import MerchantDashboardSimple from "./pages/MerchantDashboardSimple";
 import CashRegister from './pages/merchant/CashRegister';
+import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
+import MerchantProfile from './pages/merchant/Profile';
 import VirtualMarket from './pages/merchant/VirtualMarket';
 import OrderHistory from './pages/merchant/OrderHistory';
 import Stock from "./pages/merchant/Stock";
@@ -22,7 +24,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/merchant"} component={MerchantDashboard} />
-      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />          <Route path="/merchant/cash-register" component={CashRegister} />
+      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />          <Route path="/merchant/cash-register" component={CashRegisterSimple} />
+          <Route path="/merchant/profile" component={MerchantProfile} />
           <Route path="/merchant/market" component={VirtualMarket} />
           <Route path="/merchant/orders" component={OrderHistory} />      <Route path={"/merchant/stock"} component={Stock} />
       <Route path={"/agent"} component={AgentDashboard} />

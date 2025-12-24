@@ -7,7 +7,8 @@ import {
   Wallet,
   HelpCircle,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  User
 } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 
@@ -157,18 +158,18 @@ export default function MerchantDashboardSimple() {
             </div>
           </button>
 
-          {/* AIDE */}
+          {/* MON PROFIL */}
           <button
-            onClick={() => alert('Contactez votre agent terrain pour de l\'aide !')}
+            onClick={() => setLocation('/merchant/profile')}
             className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
           >
             <div className="flex flex-col items-center gap-6">
               <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <HelpCircle className="w-32 h-32 text-white" strokeWidth={2.5} />
+                <User className="w-32 h-32 text-white" strokeWidth={2.5} />
               </div>
               <div>
-                <h2 className="text-6xl font-bold mb-3">AIDE</h2>
-                <p className="text-3xl text-white/90">Appeler mon agent</p>
+                <h2 className="text-6xl font-bold mb-3">MON PROFIL</h2>
+                <p className="text-3xl text-white/90">Mon identité</p>
               </div>
             </div>
           </button>

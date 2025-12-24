@@ -660,10 +660,11 @@
 - [x] 4 boutons géants dans la grille (Vendre, Commander, Argent, Aide)
 
 ### Caisse
-- [ ] Pavé numérique géant (boutons 100px)
-- [ ] Liste de produits avec images
-- [ ] Bouton "Valider" très visible (vert, 100px)
-- [ ] Confirmation visuelle + vocale
+- [x] Pavé numérique géant (boutons 100px)
+- [x] Liste de produits avec grandes cartes
+- [x] Bouton "Valider" très visible (vert, 100px)
+- [x] Confirmation visuelle plein écran animée
+- [x] Statistiques du jour en haut
 
 ### Marché Virtuel
 - [ ] Grille de produits avec grandes images
@@ -682,3 +683,167 @@
 - [ ] Étapes numérotées visibles (1/3, 2/3, 3/3)
 - [ ] Flèches géantes pour navigation
 - [ ] Messages de succès très visibles (plein écran)
+
+
+## 🎯 PHASE 2 : IDENTITÉ & DIGNITÉ (INCLUSION SOCIALE)
+
+### Profil Marchand Complet
+- [x] Page profil marchand avec photo et informations complètes
+- [x] Upload et modification de la photo de profil (UI prête, fonctionnalité à venir)
+- [x] Affichage du code MRC-XXXXX en grand
+- [x] Badge de niveau (Débutant, Intermédiaire, Confirmé, Expert, Maître)
+- [x] Statistiques personnelles (ventes totales, ancienneté, etc.)
+
+### Certificat Professionnel Digital
+- [ ] Génération automatique de certificat PDF
+- [ ] Design professionnel avec logos DGE/ANSUT
+- [ ] QR code de vérification
+- [ ] Bouton de téléchargement dans le profil
+- [ ] Partage sur WhatsApp/Email
+
+### Dashboard Couverture Sociale CNPS/CMU
+- [x] Affichage du statut CNPS dans le profil (actif/inactif/pending)
+- [x] Affichage du statut CMU dans le profil (actif/inactif/pending)
+- [x] Numéros CNPS/CMU affichés
+- [x] Boutons pour voir les détails
+- [ ] Page dédiée à la couverture sociale (/merchant/social-coverage)
+- [ ] Dates d'expiration en grand
+- [ ] Compteur de jours restants
+- [ ] Alertes visuelles si expiration < 30 jours
+
+### Alertes Automatiques
+- [ ] Table notifications dans la base de données
+- [ ] Vérification quotidienne des dates d'expiration
+- [ ] Notification in-app pour renouvellement CNPS/CMU
+- [ ] Badge rouge sur l'icône de profil si alerte
+- [ ] Historique des notifications
+
+### Génération d'Attestations
+- [ ] Template PDF pour attestation CNPS
+- [ ] Template PDF pour attestation CMU
+- [ ] Génération avec données du marchand
+- [ ] Téléchargement direct depuis le dashboard
+- [ ] Envoi par email automatique
+
+
+## 📚 PHASE 3 : APPRENTISSAGE & GAMIFICATION
+
+### Système de Niveaux
+- [ ] Table merchant_levels dans la base de données
+- [ ] Calcul automatique du niveau basé sur les ventes
+- [ ] 5 niveaux : Débutant (0-100), Intermédiaire (100-500), Confirmé (500-2000), Expert (2000-5000), Maître (5000+)
+- [ ] Affichage du niveau dans le profil
+- [ ] Barre de progression vers le niveau suivant
+- [ ] Animation de passage de niveau
+
+### Badges de Compétences
+- [ ] Table badges et merchant_badges dans la base de données
+- [ ] 10 badges différents (Gestionnaire de Stock, Vendeur d'Or, Mentor Actif, etc.)
+- [ ] Logique de déverrouillage automatique
+- [ ] Page dédiée aux badges (/merchant/badges)
+- [ ] Animation de déverrouillage
+- [ ] Partage des badges sur les réseaux sociaux
+
+### Parcours d'Apprentissage
+- [ ] Table learning_modules dans la base de données
+- [ ] 10 modules de formation (Gestion de stock, Finance, Santé, etc.)
+- [ ] Contenu en Français et Dioula
+- [ ] Quiz à la fin de chaque module
+- [ ] Suivi de progression
+- [ ] Certificat de complétion
+
+### Tutoriels Vidéo
+- [ ] Intégration de vidéos courtes (< 2 min)
+- [ ] Sous-titres en Français et Dioula
+- [ ] Catégorisation par thème
+- [ ] Recherche de tutoriels
+- [ ] Marquage des tutoriels vus
+
+### Quiz Interactifs
+- [ ] Table quizzes et quiz_results dans la base de données
+- [ ] Questions à choix multiples
+- [ ] Feedback immédiat après chaque réponse
+- [ ] Score et classement
+- [ ] Récompenses pour bons scores
+
+
+## 🤝 PHASE 4 : COMMUNAUTÉ & MENTORAT
+
+### Système de Mentorat Pair-à-Pair
+- [ ] Table mentorships dans la base de données
+- [ ] Matching automatique mentor/mentoré
+- [ ] Profil de mentor (expérience, spécialités)
+- [ ] Demande de mentorat
+- [ ] Chat privé mentor/mentoré
+- [ ] Objectifs d'apprentissage partagés
+- [ ] Suivi de progression
+- [ ] Évaluation du mentorat
+
+### Forum Communautaire
+- [ ] Table forum_posts et forum_comments dans la base de données
+- [ ] Forum par marché
+- [ ] Catégories de discussion
+- [ ] Création de posts avec images
+- [ ] Commentaires et réponses
+- [ ] Système de likes
+- [ ] Modération automatique
+
+### Chat de Groupe
+- [ ] Table chat_groups et chat_messages dans la base de données
+- [ ] Groupes par catégorie de produits
+- [ ] Messages en temps réel
+- [ ] Partage de photos
+- [ ] Notifications de nouveaux messages
+
+### Partage de Bonnes Pratiques
+- [ ] Section dédiée aux success stories
+- [ ] Témoignages vidéo
+- [ ] Conseils pratiques
+- [ ] Astuces de vente
+- [ ] Système de votes pour les meilleures pratiques
+
+### Classement des Meilleurs Marchands
+- [ ] Calcul mensuel du classement
+- [ ] Critères multiples (ventes, couverture sociale, mentorat)
+- [ ] Page de classement par marché
+- [ ] Récompenses pour le top 10
+- [ ] Cérémonie de remise de prix virtuelle
+
+
+## 🚀 PHASE 5 : OPTIMISATION & SCALE
+
+### Analytics d'Impact Social
+- [ ] Dashboard admin pour statistiques globales
+- [ ] Taux d'adoption par marché
+- [ ] Taux de couverture sociale
+- [ ] Progression dans les niveaux
+- [ ] Engagement communautaire
+- [ ] Export de rapports PDF
+
+### Rapports pour Partenaires
+- [ ] Template de rapport mensuel pour DGE
+- [ ] Template de rapport mensuel pour ANSUT
+- [ ] Template de rapport mensuel pour DGI
+- [ ] Génération automatique
+- [ ] Envoi par email
+
+### API pour Intégrations Tierces
+- [ ] API publique documentée
+- [ ] Endpoints pour Mobile Money
+- [ ] Endpoints pour banques
+- [ ] Endpoints pour assurances
+- [ ] Authentification sécurisée
+
+### Mode Offline Complet
+- [ ] Service Worker pour cache
+- [ ] Synchronisation automatique
+- [ ] Indicateur de statut réseau
+- [ ] File d'attente pour actions offline
+- [ ] Résolution de conflits
+
+### Notifications SMS/Push
+- [ ] Intégration service SMS
+- [ ] Notifications push web
+- [ ] Préférences de notification
+- [ ] Templates de messages
+- [ ] Historique des notifications envoyées
