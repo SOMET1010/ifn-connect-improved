@@ -12,6 +12,8 @@ import { badgesRouter } from "./routers/badges";
 import { certificatesRouter } from "./routers/certificates";
 import { adminRouter } from "./routers/admin";
 import { paymentsRouter } from "./routers/payments";
+import { copilotRouter } from "./routers/copilot";
+import { scoresRouter } from "./routers/scores";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -26,6 +28,8 @@ export const appRouter = router({
   certificates: certificatesRouter,
   admin: adminRouter,
   payments: paymentsRouter,
+  copilot: copilotRouter,
+  scores: scoresRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

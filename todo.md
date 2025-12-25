@@ -1272,3 +1272,143 @@
 - [x] Créer illustration pour état "en attente" (animation de chargement)
 - [x] Améliorer les couleurs et le design général
 - [ ] Tester l'expérience utilisateur complète
+
+
+## 🤖 COPILOTE INTELLIGENT SUTA (EN COURS)
+
+### Avatar et Interface
+- [ ] Générer avatar cartoon de SUTA (assistant sympathique)
+- [ ] Créer composant CopilotAssistant (widget flottant)
+- [ ] Ajouter animations d'apparition et de disparition
+- [ ] Créer bulle de dialogue avec messages
+- [ ] Ajouter bouton pour ouvrir/fermer le copilote
+- [ ] Positionner en bas à droite de l'écran
+
+### Messages Personnalisés
+- [ ] Système de messages contextuels basés sur l'heure
+- [ ] Messages de salutation (Bonjour [Prénom]!)
+- [ ] Messages de progression (Hier tu as vendu X, aujourd'hui Y)
+- [ ] Messages d'encouragement (Bravo! Continue!)
+- [ ] Messages d'alerte stock bas (Il te reste seulement X)
+- [ ] Messages de conseil commande (Tu dois commander X)
+- [ ] Messages de fin de journée (Compte ta caisse)
+
+### Contexte du Marché
+- [ ] Compter les marchands connectés en temps réel
+- [ ] Afficher "X commerçants connectés au marché"
+- [ ] Détecter les tendances (ce que les autres commandent)
+- [ ] Messages basés sur le jour de la semaine
+- [ ] Messages basés sur l'heure (matin, midi, soir)
+
+### Intégration Météo
+- [ ] Intégrer API météo pour Abidjan
+- [ ] Détecter risque de pluie
+- [ ] Message d'alerte pluie ("Range tes marchandises")
+- [ ] Message beau temps ("Expose tes produits dehors")
+- [ ] Icônes météo dans les messages
+
+### Synthèse Vocale
+- [ ] Ajouter bouton pour lire les messages à voix haute
+- [ ] Intégrer Web Speech API (synthèse vocale)
+- [ ] Support français et dioula
+- [ ] Lecture automatique des alertes importantes
+- [ ] Contrôle volume et vitesse de lecture
+
+### Intelligence et Apprentissage
+- [ ] Analyser les habitudes du marchand
+- [ ] Suggestions personnalisées basées sur l'historique
+- [ ] Prédiction des besoins en stock
+- [ ] Comparaison avec les autres marchands
+- [ ] Conseils d'optimisation des ventes
+
+
+## 🤖 COPILOTE INTELLIGENT SUTA (CHATBOT OFFICIEL ANSUT) - EN COURS
+
+### Avatar et Interface
+- [ ] Générer avatar cartoon de SUTA (représentant ANSUT, couleurs orange/vert)
+- [ ] Créer composant CopilotAssistant (widget flottant)
+- [ ] Ajouter logo ANSUT dans l'interface du chatbot
+- [ ] Ajouter animations d'apparition et de disparition
+- [ ] Créer bulle de dialogue avec messages
+- [ ] Ajouter bouton pour ouvrir/fermer le copilote
+- [ ] Positionner en bas à droite de l'écran
+
+### Messages Personnalisés ANSUT
+- [ ] Message de présentation "Je suis SUTA, ton assistant ANSUT"
+- [ ] Système de messages contextuels basés sur l'heure
+- [ ] Messages de salutation (Bonjour [Prénom]!)
+- [ ] Messages de progression (Hier tu as vendu X, aujourd'hui Y)
+- [ ] Messages d'encouragement (Bravo! L'ANSUT est fier de toi!)
+- [ ] Messages d'alerte stock bas (Il te reste seulement X)
+- [ ] Messages de conseil commande (Tu dois commander X)
+- [ ] Messages de fin de journée (Compte ta caisse)
+
+### Contexte du Marché
+- [ ] Compter les marchands connectés en temps réel
+- [ ] Afficher "X commerçants connectés au marché aujourd'hui"
+- [ ] Détecter les tendances (ce que les autres commandent)
+- [ ] Messages basés sur le jour de la semaine
+- [ ] Messages basés sur l'heure (matin, midi, soir)
+
+### Intégration Météo
+- [ ] Intégrer API météo pour Abidjan
+- [ ] Détecter risque de pluie
+- [ ] Message d'alerte pluie ("Range tes marchandises à l'abri")
+- [ ] Message beau temps ("Expose tes produits dehors")
+- [ ] Icônes météo dans les messages
+
+### Synthèse Vocale
+- [ ] Ajouter bouton pour lire les messages à voix haute
+- [ ] Intégrer Web Speech API (synthèse vocale)
+- [ ] Support français et dioula
+- [ ] Lecture automatique des alertes importantes
+- [ ] Contrôle volume et vitesse de lecture
+
+### Intelligence et Apprentissage
+- [ ] Analyser les habitudes du marchand
+- [ ] Suggestions personnalisées basées sur l'historique
+- [ ] Prédiction des besoins en stock
+- [ ] Comparaison avec les autres marchands
+- [ ] Conseils d'optimisation des ventes
+- [ ] Messages motivants de l'ANSUT
+
+
+## 🎯 SCORE SUTA - PRÉ-SCORING CRÉDIT (EN COURS)
+
+### Base de Données
+- [x] Créer table `merchant_scores` avec historique
+- [x] Créer table `savings_goals` pour les cagnottes
+- [x] Ajouter champs de tracking dans `merchants`
+
+### Algorithme de Calcul
+- [x] Calculer régularité des ventes (30%)
+- [x] Calculer volume de transactions (20%)
+- [x] Calculer épargne régulière (20%)
+- [x] Calculer utilisation de l'app (15%)
+- [x] Calculer ancienneté (15%)
+- [x] Score final sur 100
+
+### Router tRPC
+- [x] Procédure `getScore` - Récupérer le score actuel
+- [x] Procédure `calculateScore` - Recalculer le score
+- [x] Procédure `getScoreHistory` - Historique du score
+- [x] Procédure `getCreditEligibility` - Éligibilité micro-crédit
+
+### Interface Utilisateur
+- [x] Composant ScoreCard avec jauge visuelle
+- [x] Afficher le score dans le dashboard
+- [x] Afficher les critères détaillés
+- [x] Afficher l'éligibilité crédit
+- [x] Conseils pour améliorer le score
+
+### Intégration SUTA
+- [ ] Messages de progression du score
+- [ ] Alertes éligibilité crédit
+- [ ] Encouragements quand le score augmente
+- [ ] Conseils pour atteindre le prochain palier
+
+### Micro-Crédit
+- [ ] Définir les seuils d'éligibilité
+- [ ] Calculer le montant maximum empruntable
+- [ ] Interface de demande de crédit
+- [ ] Historique des crédits

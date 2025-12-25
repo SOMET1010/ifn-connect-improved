@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date } from "drizzle-orm/mysql-core";
 
 /**
  * Schéma de base de données pour IFN Connect
@@ -414,6 +414,113 @@ export const actors = mysqlTable("actors", {
 
 export type Actor = typeof actors.$inferSelect;
 export type InsertActor = typeof actors.$inferInsert;
+
+// ============================================================================
+// SCORE SUTA - PRÉ-SCORING CRÉDIT
+// ============================================================================
+
+/**
+ * Scores des marchands pour l'inclusion financière
+ * Calculé basé sur : régularité, volume, épargne, utilisation, ancienneté
+ */
+export const merchantScores = mysqlTable("merchant_scores", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  
+  // Score global (0-100)
+  totalScore: int("totalScore").notNull().default(0),
+  
+  // Détail des composantes du score
+  regularityScore: int("regularityScore").notNull().default(0), // 30%
+  volumeScore: int("volumeScore").notNull().default(0), // 20%
+  savingsScore: int("savingsScore").notNull().default(0), // 20%
+  usageScore: int("usageScore").notNull().default(0), // 15%
+  seniorityScore: int("seniorityScore").notNull().default(0), // 15%
+  
+  // Métriques utilisées pour le calcul
+  consecutiveSalesDays: int("consecutiveSalesDays").notNull().default(0),
+  totalSalesAmount: decimal("totalSalesAmount", { precision: 15, scale: 2 }).notNull().default("0"),
+  totalSavingsAmount: decimal("totalSavingsAmount", { precision: 15, scale: 2 }).notNull().default("0"),
+  appUsageDays: int("appUsageDays").notNull().default(0),
+  accountAgeDays: int("accountAgeDays").notNull().default(0),
+  
+  // Éligibilité crédit
+  isEligibleForCredit: boolean("isEligibleForCredit").notNull().default(false),
+  maxCreditAmount: decimal("maxCreditAmount", { precision: 15, scale: 2 }).notNull().default("0"),
+  creditTier: mysqlEnum("creditTier", ["none", "bronze", "silver", "gold", "platinum"]).default("none").notNull(),
+  
+  // Historique
+  lastCalculatedAt: timestamp("lastCalculatedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("merchant_score_idx").on(table.merchantId),
+  scoreIdx: index("total_score_idx").on(table.totalScore),
+  eligibilityIdx: index("credit_eligibility_idx").on(table.isEligibleForCredit),
+}));
+
+export type MerchantScore = typeof merchantScores.$inferSelect;
+export type InsertMerchantScore = typeof merchantScores.$inferInsert;
+
+/**
+ * Historique des scores pour suivre la progression
+ */
+export const scoreHistory = mysqlTable("score_history", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  totalScore: int("totalScore").notNull(),
+  creditTier: mysqlEnum("creditTier", ["none", "bronze", "silver", "gold", "platinum"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("score_history_merchant_idx").on(table.merchantId),
+  dateIdx: index("score_history_date_idx").on(table.createdAt),
+}));
+
+export type ScoreHistory = typeof scoreHistory.$inferSelect;
+export type InsertScoreHistory = typeof scoreHistory.$inferInsert;
+
+/**
+ * Objectifs d'épargne (Tontine Digitale)
+ */
+export const savingsGoals = mysqlTable("savings_goals", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(), // "Tabaski", "Rentrée", "Stock"
+  targetAmount: decimal("targetAmount", { precision: 15, scale: 2 }).notNull(),
+  currentAmount: decimal("currentAmount", { precision: 15, scale: 2 }).notNull().default("0"),
+  deadline: date("deadline"),
+  isCompleted: boolean("isCompleted").notNull().default(false),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("savings_merchant_idx").on(table.merchantId),
+  statusIdx: index("savings_status_idx").on(table.isCompleted),
+}));
+
+export type SavingsGoal = typeof savingsGoals.$inferSelect;
+export type InsertSavingsGoal = typeof savingsGoals.$inferInsert;
+
+/**
+ * Transactions d'épargne
+ */
+export const savingsTransactions = mysqlTable("savings_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  savingsGoalId: int("savingsGoalId").notNull().references(() => savingsGoals.id, { onDelete: "cascade" }),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  type: mysqlEnum("type", ["deposit", "withdrawal"]).notNull(),
+  source: varchar("source", { length: 50 }), // "manual", "auto_after_sale", "mobile_money"
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  goalIdx: index("savings_tx_goal_idx").on(table.savingsGoalId),
+  merchantIdx: index("savings_tx_merchant_idx").on(table.merchantId),
+  dateIdx: index("savings_tx_date_idx").on(table.createdAt),
+}));
+
+export type SavingsTransaction = typeof savingsTransactions.$inferSelect;
+export type InsertSavingsTransaction = typeof savingsTransactions.$inferInsert;
 
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";
