@@ -1574,3 +1574,14 @@
 - [x] Ajouter recommandations de stock pour Nouvel An (6 produits)
 - [x] Exécuter le script et vérifier les données
 - [x] Tester l'affichage dans le calendrier
+
+
+## 🤖 INTÉGRATION ALERTES ÉVÉNEMENTS DANS SUTA (TERMINÉ)
+- [x] Modifier CopilotAssistant pour récupérer les alertes événements
+- [x] Afficher les événements à venir dans les messages SUTA
+- [x] Ajouter countdown dans les messages ("dans 3 jours")
+- [ ] Afficher les recommandations de stock par événement
+- [x] Créer fonction generateEventAlerts() pour génération automatique
+- [x] Implémenter job quotidien pour créer les alertes 7j, 3j, 1j avant
+- [ ] Ajouter badge de notification sur le widget SUTA (optionnel)
+- [x] Tester l'affichage des alertes

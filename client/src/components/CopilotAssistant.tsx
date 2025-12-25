@@ -44,6 +44,12 @@ export function CopilotAssistant() {
     { enabled: !!merchant, refetchInterval: 120000 } // Rafraîchir toutes les 2 minutes
   );
 
+  // Récupérer les événements à venir (30 prochains jours)
+  const { data: upcomingEvents } = trpc.events.getUpcoming.useQuery(
+    { daysAhead: 30 },
+    { enabled: !!merchant, refetchInterval: 3600000 } // Rafraîchir toutes les heures
+  );
+
   // Générer les messages personnalisés
   useEffect(() => {
     if (!merchant || !user) return;
@@ -151,6 +157,31 @@ export function CopilotAssistant() {
       });
     }
 
+    // Alertes événements à venir
+    if (upcomingEvents && upcomingEvents.length > 0) {
+      // Prendre les 2 événements les plus proches
+      upcomingEvents.slice(0, 2).forEach((event) => {
+        const eventDate = new Date(event.date);
+        const today = new Date();
+        const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysUntil <= 7 && daysUntil > 0) {
+          let urgencyText = "";
+          if (daysUntil === 1) urgencyText = "demain";
+          else if (daysUntil <= 3) urgencyText = `dans ${daysUntil} jours`;
+          else urgencyText = `dans ${daysUntil} jours`;
+
+          newMessages.push({
+            id: `event-${event.id}`,
+            text: `${event.iconEmoji || "📅"} ${firstName}, ${event.name} commence ${urgencyText} ! Fais ton stock maintenant pour ne rien manquer !`,
+            type: "alert",
+            icon: event.iconEmoji || "📅",
+            timestamp: new Date(),
+          });
+        }
+      });
+    }
+
     // Message basé sur le jour de la semaine
     const dayOfWeek = new Date().getDay();
     if (dayOfWeek === 1 && hour < 12) {
@@ -196,7 +227,7 @@ export function CopilotAssistant() {
     }
 
     setMessages(newMessages);
-  }, [merchant, user, todayStats, lowStock, weather, marketStats]);
+  }, [merchant, user, todayStats, lowStock, weather, marketStats, upcomingEvents]);
 
   // Rotation automatique des messages
   useEffect(() => {
