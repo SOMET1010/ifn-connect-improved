@@ -251,9 +251,9 @@ export function CopilotAssistant() {
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-green-500 p-1 shadow-2xl animate-bounce">
               <div className="w-full h-full rounded-full bg-white p-1">
                 <img
-                  src="/suta-avatar.png"
+                  src="/suta-avatar-3d.png"
                   alt="SUTA"
-                  className="w-full h-full object-cover rounded-full"
+                  className="w-full h-full object-contain rounded-full"
                 />
               </div>
             </div>
@@ -288,9 +288,9 @@ export function CopilotAssistant() {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-white p-1">
                 <img
-                  src="/suta-avatar.png"
+                  src="/suta-avatar-3d.png"
                   alt="SUTA"
-                  className="w-full h-full object-cover rounded-full"
+                  className="w-full h-full object-contain rounded-full"
                 />
               </div>
               <div className="text-white">

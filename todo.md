@@ -1412,3 +1412,10 @@
 - [ ] Calculer le montant maximum empruntable
 - [ ] Interface de demande de crédit
 - [ ] Historique des crédits
+
+
+## 🎨 AVATAR SUTA 3D MODERNE (TERMINÉ)
+- [x] Copier l'image SUTA 3D dans /client/public/
+- [x] Mettre à jour CopilotAssistant pour utiliser la nouvelle image
+- [x] Ajuster la taille et le style
+- [x] Tester l'affichage
