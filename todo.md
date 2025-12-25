@@ -1593,3 +1593,16 @@
 - [x] Ajouter l'augmentation de demande estimée par produit
 - [x] Formater les messages de manière lisible et concise
 - [x] Tester l'affichage des recommandations
+
+
+## 📊 WIDGET SCORE SUTA DASHBOARD (EN COURS)
+- [x] Créer composant ScoreGauge avec jauge circulaire SVG
+- [x] Animation de progression du score
+- [x] Couleurs dynamiques selon le tier (Bronze, Argent, Or, Platine)
+- [x] Créer widget ScoreCard complet
+- [x] Afficher le score sur 100
+- [x] Afficher le tier actuel avec badge
+- [x] Afficher l'éligibilité micro-crédit (montant max)
+- [x] Afficher les critères détaillés (régularité, volume, épargne)
+- [x] Intégrer dans MerchantDashboardSimple
+- [x] Tester l'affichage et les animations

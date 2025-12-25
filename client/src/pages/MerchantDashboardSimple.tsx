@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { StockAlertsBadge } from '@/components/StockAlertsBadge';
+import { ScoreCard } from '@/components/ScoreCard';
 
 /**
  * Dashboard Marchand - VERSION ULTRA-SIMPLIFIÉE
@@ -127,6 +128,11 @@ export default function MerchantDashboardSimple() {
             <p className="text-6xl font-bold mb-2">{lowStock}</p>
             <p className="text-2xl text-white/90">Produits bas</p>
           </div>
+        </div>
+
+        {/* WIDGET SCORE SUTA */}
+        <div className="mb-16 max-w-2xl mx-auto">
+          <ScoreCard merchantId={merchantId} />
         </div>
 
         {/* 5 GROS BOUTONS D'ACTION */}

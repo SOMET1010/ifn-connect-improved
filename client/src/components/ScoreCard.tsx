@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { RefreshCw, TrendingUp, Award, Info } from "lucide-react";
 import { useState } from "react";
+import { ScoreGauge } from "./ScoreGauge";
 
 interface ScoreCardProps {
   merchantId: number;
@@ -14,6 +15,14 @@ const tierColors = {
   silver: "text-gray-400",
   gold: "text-yellow-500",
   platinum: "text-purple-600",
+};
+
+const tierBgColors = {
+  none: "bg-gray-100 border-gray-300",
+  bronze: "bg-orange-100 border-orange-300",
+  silver: "bg-gray-100 border-gray-300",
+  gold: "bg-yellow-100 border-yellow-300",
+  platinum: "bg-purple-100 border-purple-300",
 };
 
 const tierLabels = {
@@ -81,9 +90,6 @@ export function ScoreCard({ merchantId }: ScoreCardProps) {
   const isEligible = score.isEligibleForCredit;
   const maxCredit = parseFloat(score.maxCreditAmount);
 
-  // Calculer le pourcentage pour la jauge
-  const percentage = totalScore;
-
   return (
     <Card className="p-6">
       {/* En-tête */}
@@ -107,26 +113,16 @@ export function ScoreCard({ merchantId }: ScoreCardProps) {
         </Button>
       </div>
 
-      {/* Score principal */}
-      <div className="mb-6">
-        <div className="flex items-end justify-center gap-2 mb-2">
-          <span className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-            {totalScore}
-          </span>
-          <span className="text-2xl text-muted-foreground mb-2">/100</span>
-        </div>
-        
-        {/* Jauge de progression */}
-        <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-500"
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+      {/* Jauge circulaire au centre */}
+      <div className="flex justify-center mb-6">
+        <ScoreGauge score={totalScore} size={220} strokeWidth={24} />
+      </div>
 
-        {/* Tier */}
-        <div className="text-center mt-4">
-          <span className={`text-lg font-semibold ${tierColors[tier]}`}>
+      {/* Badge Tier */}
+      <div className="flex justify-center mb-6">
+        <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 ${tierBgColors[tier]}`}>
+          <Award className={`w-6 h-6 ${tierColors[tier]}`} />
+          <span className={`text-xl font-bold ${tierColors[tier]}`}>
             {tierLabels[tier]}
           </span>
         </div>
@@ -134,32 +130,32 @@ export function ScoreCard({ merchantId }: ScoreCardProps) {
 
       {/* Éligibilité crédit */}
       {isEligible ? (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-              <Award className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <Award className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-green-900 mb-1">
+              <h4 className="font-bold text-green-900 mb-1 text-lg">
                 🎉 Éligible au Micro-Crédit !
               </h4>
-              <p className="text-sm text-green-700">
+              <p className="text-base text-green-700">
                 Vous pouvez emprunter jusqu'à{" "}
-                <span className="font-bold">{maxCredit.toLocaleString()} FCFA</span>
+                <span className="font-bold text-xl">{maxCredit.toLocaleString()} FCFA</span>
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+        <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <Info className="w-6 h-6 text-orange-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-orange-900 mb-1">
+              <h4 className="font-bold text-orange-900 mb-1 text-lg">
                 Continuez vos efforts !
               </h4>
-              <p className="text-sm text-orange-700">
-                Score minimum requis : 35/100 pour le niveau Bronze
+              <p className="text-base text-orange-700">
+                Score minimum requis : <span className="font-bold">35/100</span> pour le niveau Bronze
               </p>
             </div>
           </div>
@@ -167,9 +163,9 @@ export function ScoreCard({ merchantId }: ScoreCardProps) {
       )}
 
       {/* Détail des composantes */}
-      <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-muted-foreground">
-          Détail du score
+      <div className="space-y-4">
+        <h4 className="text-base font-bold text-gray-700 mb-3">
+          📊 Détail du score
         </h4>
         
         <ScoreComponent
@@ -209,7 +205,7 @@ export function ScoreCard({ merchantId }: ScoreCardProps) {
       </div>
 
       {/* Conseils */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
         <p className="text-sm text-blue-900">
           <strong>💡 Conseil :</strong> Enregistrez vos ventes chaque jour et épargnez
           régulièrement pour améliorer votre score !
@@ -231,19 +227,19 @@ function ScoreComponent({ label, score, max, detail }: ScoreComponentProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between text-sm mb-1">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-semibold">
+      <div className="flex items-center justify-between text-sm mb-1.5">
+        <span className="text-gray-700 font-medium">{label}</span>
+        <span className="font-bold text-base">
           {score}/{max}
         </span>
       </div>
-      <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden mb-1">
+      <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden mb-1.5">
         <div
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-300"
+          className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-500"
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <p className="text-xs text-muted-foreground">{detail}</p>
+      <p className="text-xs text-gray-600">{detail}</p>
     </div>
   );
 }
