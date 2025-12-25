@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { orders, products } from "../drizzle/schema";
+import { virtualMarketOrders, products } from "../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 
 /**
@@ -17,7 +17,7 @@ export async function createOrder(orderData: {
   if (!db) throw new Error("Database not available");
 
   const [order] = await db
-    .insert(orders)
+    .insert(virtualMarketOrders)
     .values({
       merchantId: orderData.merchantId,
       productId: orderData.productId,
@@ -44,20 +44,20 @@ export async function getOrdersByMerchant(
 
   const result = await db
     .select({
-      id: orders.id,
-      productId: orders.productId,
+      id: virtualMarketOrders.id,
+      productId: virtualMarketOrders.productId,
       productName: products.name,
-      quantity: orders.quantity,
-      unitPrice: orders.unitPrice,
-      totalAmount: orders.totalAmount,
-      status: orders.status,
-      orderDate: orders.orderDate,
-      deliveryDate: orders.deliveryDate,
+      quantity: virtualMarketOrders.quantity,
+      unitPrice: virtualMarketOrders.unitPrice,
+      totalAmount: virtualMarketOrders.totalAmount,
+      status: virtualMarketOrders.status,
+      orderDate: virtualMarketOrders.orderDate,
+      deliveryDate: virtualMarketOrders.deliveryDate,
     })
-    .from(orders)
-    .leftJoin(products, eq(orders.productId, products.id))
-    .where(eq(orders.merchantId, merchantId))
-    .orderBy(desc(orders.orderDate))
+    .from(virtualMarketOrders)
+    .leftJoin(products, eq(virtualMarketOrders.productId, products.id))
+    .where(eq(virtualMarketOrders.merchantId, merchantId))
+    .orderBy(desc(virtualMarketOrders.orderDate))
     .limit(limit)
     .offset(offset);
 
@@ -75,9 +75,9 @@ export async function updateOrderStatus(
   if (!db) throw new Error("Database not available");
 
   await db
-    .update(orders)
+    .update(virtualMarketOrders)
     .set({ status })
-    .where(eq(orders.id, orderId));
+    .where(eq(virtualMarketOrders.id, orderId));
 
   return { success: true };
 }
@@ -112,11 +112,11 @@ export async function getOrderStats(merchantId: number) {
 
   const result = await db
     .select({
-      totalSpent: sql<string>`COALESCE(SUM(${orders.totalAmount}), 0)`,
+      totalSpent: sql<string>`COALESCE(SUM(${virtualMarketOrders.totalAmount}), 0)`,
       orderCount: sql<number>`COUNT(*)`,
     })
-    .from(orders)
-    .where(eq(orders.merchantId, merchantId));
+    .from(virtualMarketOrders)
+    .where(eq(virtualMarketOrders.merchantId, merchantId));
 
   return {
     totalSpent: parseFloat(result[0]?.totalSpent || '0'),

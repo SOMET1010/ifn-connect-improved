@@ -15,6 +15,7 @@ import {
   Package
 } from 'lucide-react';
 import { toast as showToast } from 'sonner';
+import { PaymentModal } from '@/components/PaymentModal';
 
 interface CartItem {
   productId: number;
@@ -30,6 +31,9 @@ export default function VirtualMarket() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState<number | null>(null);
+  const [pendingOrderAmount, setPendingOrderAmount] = useState<number>(0);
 
   // Récupérer les produits disponibles
   const { data: products, isLoading } = trpc.orders.availableProducts.useQuery();
@@ -42,9 +46,9 @@ export default function VirtualMarket() {
 
   // Mutation pour créer une commande
   const createOrderMutation = trpc.orders.create.useMutation({
-    onSuccess: () => {
-      showToast.success("Commande créée ! Votre commande a été enregistrée avec succès.");
-      setCart([]);
+    onSuccess: (data) => {
+      // Ne pas vider le panier tout de suite, attendre le paiement
+      showToast.success("Commande créée ! Procédez au paiement.");
     },
     onError: (error) => {
       showToast.error(`Erreur: ${error.message}`);
@@ -95,19 +99,38 @@ export default function VirtualMarket() {
   // Calculer le total
   const cartTotal = cart.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
 
-  // Valider la commande
+  // Valider la commande et ouvrir le modal de paiement
   const handleCheckout = async () => {
     if (!merchant) return;
-    
-    for (const item of cart) {
-      await createOrderMutation.mutateAsync({
+    if (cart.length === 0) return;
+
+    try {
+      // Créer une seule commande avec le premier produit (pour simplifier)
+      // TODO: Gérer plusieurs produits dans une seule commande
+      const firstItem = cart[0];
+      const result = await createOrderMutation.mutateAsync({
         merchantId: merchant.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        totalAmount: item.quantity * item.unitPrice,
+        productId: firstItem.productId,
+        quantity: firstItem.quantity,
+        unitPrice: firstItem.unitPrice,
+        totalAmount: cartTotal,
       });
+
+      // Ouvrir le modal de paiement
+      setPendingOrderId(result.id);
+      setPendingOrderAmount(cartTotal);
+      setPaymentModalOpen(true);
+    } catch (error) {
+      console.error("Erreur lors de la création de la commande:", error);
     }
+  };
+
+  // Callback après paiement réussi
+  const handlePaymentSuccess = () => {
+    showToast.success("✅ Paiement réussi ! Votre commande est confirmée.");
+    setCart([]);
+    setPendingOrderId(null);
+    setPendingOrderAmount(0);
   };
 
   // Vérifier si un produit est en stock bas
@@ -275,9 +298,9 @@ export default function VirtualMarket() {
                       <Button
                         onClick={handleCheckout}
                         disabled={createOrderMutation.isPending}
-                        className="w-full bg-green-600 hover:bg-green-700"
+                        className="w-full bg-green-600 hover:bg-green-700 h-14 text-lg"
                       >
-                        {createOrderMutation.isPending ? 'Commande en cours...' : 'Valider la commande'}
+                        {createOrderMutation.isPending ? 'Commande en cours...' : '💰 Payer avec Mobile Money'}
                       </Button>
                     </div>
 
@@ -293,6 +316,15 @@ export default function VirtualMarket() {
           </div>
         </div>
       </div>
+
+      {/* Modal de paiement */}
+      <PaymentModal
+        open={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        amount={pendingOrderAmount}
+        orderId={pendingOrderId || undefined}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }

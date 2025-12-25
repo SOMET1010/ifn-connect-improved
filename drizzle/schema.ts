@@ -198,7 +198,7 @@ export type InsertCooperativeStock = typeof cooperativeStock.$inferInsert;
 // ORDERS (Merchant orders from Cooperative)
 // ============================================================================
 
-export const orders = mysqlTable("orders", {
+export const virtualMarketOrders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),
   merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
   cooperativeId: int("cooperativeId").references(() => cooperatives.id),
@@ -216,8 +216,8 @@ export const orders = mysqlTable("orders", {
   cooperativeStatusIdx: index("cooperative_status_idx").on(table.cooperativeId, table.status),
 }));
 
-export type Order = typeof orders.$inferSelect;
-export type InsertOrder = typeof orders.$inferInsert;
+export type VirtualMarketOrder = typeof virtualMarketOrders.$inferSelect;
+export type InsertVirtualMarketOrder = typeof virtualMarketOrders.$inferInsert;
 
 // ============================================================================
 // ENROLLMENT DOCUMENTS

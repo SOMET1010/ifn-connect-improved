@@ -8,7 +8,7 @@ import {
   products, InsertProduct,
   merchantStock, InsertMerchantStock,
   sales, InsertSale,
-  orders, InsertOrder,
+  virtualMarketOrders, InsertVirtualMarketOrder,
   cooperativeStock, InsertCooperativeStock,
   enrollmentDocuments, InsertEnrollmentDocument,
   notifications, InsertNotification,
@@ -419,11 +419,11 @@ export async function markSalesAsSynced(saleIds: number[]) {
 // ORDER MANAGEMENT
 // ============================================================================
 
-export async function createOrder(order: InsertOrder) {
+export async function createOrder(order: InsertVirtualMarketOrder) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.insert(orders).values(order);
+  return await db.insert(virtualMarketOrders).values(order);
 }
 
 export async function getMerchantOrders(merchantId: number) {
@@ -432,13 +432,13 @@ export async function getMerchantOrders(merchantId: number) {
 
   return await db
     .select({
-      order: orders,
+      order: virtualMarketOrders,
       product: products
     })
-    .from(orders)
-    .leftJoin(products, eq(orders.productId, products.id))
-    .where(eq(orders.merchantId, merchantId))
-    .orderBy(desc(orders.orderDate));
+    .from(virtualMarketOrders)
+    .leftJoin(products, eq(virtualMarketOrders.productId, products.id))
+    .where(eq(virtualMarketOrders.merchantId, merchantId))
+    .orderBy(desc(virtualMarketOrders.orderDate));
 }
 
 export async function getCooperativeOrders(cooperativeId: number) {
@@ -447,22 +447,22 @@ export async function getCooperativeOrders(cooperativeId: number) {
 
   return await db
     .select({
-      order: orders,
+      order: virtualMarketOrders,
       product: products,
       merchant: merchants
     })
-    .from(orders)
-    .leftJoin(products, eq(orders.productId, products.id))
-    .leftJoin(merchants, eq(orders.merchantId, merchants.id))
-    .where(eq(orders.cooperativeId, cooperativeId))
-    .orderBy(desc(orders.orderDate));
+    .from(virtualMarketOrders)
+    .leftJoin(products, eq(virtualMarketOrders.productId, products.id))
+    .leftJoin(merchants, eq(virtualMarketOrders.merchantId, merchants.id))
+    .where(eq(virtualMarketOrders.cooperativeId, cooperativeId))
+    .orderBy(desc(virtualMarketOrders.orderDate));
 }
 
 export async function updateOrderStatus(orderId: number, status: "pending" | "confirmed" | "delivered" | "cancelled") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.update(orders).set({ status }).where(eq(orders.id, orderId));
+  return await db.update(virtualMarketOrders).set({ status }).where(eq(virtualMarketOrders.id, orderId));
 }
 
 // ============================================================================
