@@ -16,7 +16,8 @@ import Badges from './pages/merchant/Badges';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import VirtualMarket from './pages/merchant/VirtualMarket';
 import OrderHistory from './pages/merchant/OrderHistory';
-import Savings from './pages/merchant/Savings';
+import Savings from "./pages/merchant/Savings";
+import Events from "./pages/merchant/Events";
 import Stock from "./pages/merchant/Stock";
 import MarketsPage from "./pages/admin/Markets";
 import MapViewPage from "./pages/admin/MapView";
@@ -36,7 +37,8 @@ function Router() {
       <Route path="/merchant/market" component={VirtualMarket} />
       <Route path="/merchant/orders" component={OrderHistory} />
       <Route path={"/merchant/stock"} component={Stock} />
-      <Route path="/merchant/savings" component={Savings} />
+            <Route path="/merchant/savings" component={Savings} />
+            <Route path="/merchant/events" component={Events} />
       
       {/* Agent Routes */}
       <Route path={"/agent"} component={AgentDashboard} />

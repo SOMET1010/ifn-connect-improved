@@ -1457,3 +1457,102 @@
 - [x] Stock (réapprovisionnement)
 - [x] Urgence (imprévus)
 - [x] Personnalisée (libre)
+
+
+## 📅 CALENDRIER ÉVÉNEMENTS LOCAUX (TERMINÉ)
+
+### Base de Données
+- [x] Créer table `local_events` (nom, date, type, description)
+- [x] Créer table `event_stock_recommendations` (produits recommandés par événement)
+- [x] Créer table `event_alerts` (alertes envoyées aux marchands)
+
+### Événements Prédéfinis
+- [ ] Ramadan (date variable, calculée automatiquement)
+- [ ] Tabaski / Aïd el-Kebir (date variable)
+- [ ] Noël (25 décembre)
+- [ ] Rentrée scolaire (septembre)
+- [ ] Fête de l'Indépendance (7 août)
+- [ ] Pâques (date variable)
+- [ ] Nouvel An (1er janvier)
+
+### Système d'Alertes
+- [ ] Alerte 7 jours avant l'événement
+- [ ] Alerte 3 jours avant l'événement
+- [ ] Alerte 1 jour avant l'événement
+- [ ] Alerte le jour même
+- [ ] Marquer les alertes comme lues
+
+### Conseils de Stock par Événement
+- [ ] Ramadan : sucre, lait, dattes, farine
+- [ ] Tabaski : mouton, riz, huile, condiments
+- [ ] Noël : poulet, vin, gâteaux, décorations
+- [ ] Rentrée : cahiers, stylos, uniformes, sacs
+- [ ] Indépendance : boissons, snacks, drapeaux
+
+### Router tRPC
+- [x] Procédure `getUpcomingEvents` - Événements à venir
+- [x] Procédure `getEventAlerts` - Alertes pour un marchand
+- [x] Procédure `markAlertAsRead` - Marquer comme lu
+- [x] Procédure `getStockRecommendations` - Produits recommandés
+- [ ] Procédure `createCustomEvent` - Créer événement personnalisé
+
+### Interface Utilisateur
+- [ ] Composant EventsCalendar (vue calendrier)
+- [ ] Composant EventCard (carte événement avec countdown)
+- [ ] Composant StockRecommendations (liste produits recommandés)
+- [ ] Page /merchant/events (calendrier complet)
+- [ ] Badge notifications sur le dashboard
+
+### Intégration SUTA
+- [ ] Messages d'alerte événements dans le copilote
+- [ ] Conseils de stock contextuels
+- [ ] Countdown dans les messages SUTA
+- [ ] Notifications vocales pour événements proches
+
+
+## 🏛️ CORRECTION HEADER INSTITUTIONNEL (TERMINÉ)
+- [x] Retirer la DGI du header
+- [x] Afficher uniquement DGE • ANSUT
+- [x] Vérifier tous les fichiers concernés
+
+## 📅 CALENDRIER ÉVÉNEMENTS LOCAUX (TERMINÉ)
+
+### Base de Données
+- [x] Créer table `local_events` (nom, date, type, description)
+- [x] Créer table `event_stock_recommendations` (produits recommandés par événement)
+- [x] Créer table `event_alerts` (alertes envoyées aux marchands)
+
+### Événements Prédéfinis
+- [ ] Ramadan (date variable, calculée automatiquement)
+- [ ] Tabaski / Aïd el-Kebir (date variable)
+- [ ] Noël (25 décembre)
+- [ ] Rentrée scolaire (septembre)
+- [ ] Fête de l'Indépendance (7 août)
+
+### Système d'Alertes
+- [ ] Alerte 7 jours avant l'événement
+- [ ] Alerte 3 jours avant l'événement
+- [ ] Alerte 1 jour avant l'événement
+- [ ] Marquer les alertes comme lues
+
+### Conseils de Stock par Événement
+- [ ] Ramadan : sucre, lait, dattes, farine
+- [ ] Tabaski : mouton, riz, huile, condiments
+- [ ] Noël : poulet, vin, gâteaux
+- [ ] Rentrée : cahiers, stylos, uniformes
+
+### Router tRPC
+- [x] Procédure `getUpcomingEvents` - Événements à venir
+- [x] Procédure `getEventAlerts` - Alertes pour un marchand
+- [x] Procédure `markAlertAsRead` - Marquer comme lu
+- [x] Procédure `getStockRecommendations` - Produits recommandés
+
+### Interface Utilisateur
+- [x] Composant EventsCalendar (vue calendrier)
+- [x] Composant EventCard (carte événement avec countdown)
+- [x] Bouton ÉVÉNEMENTS sur le dashboard
+
+### Intégration SUTA
+- [ ] Messages d'alerte événements dans le copilote
+- [ ] Conseils de stock contextuels
+- [ ] Countdown dans les messages SUTA

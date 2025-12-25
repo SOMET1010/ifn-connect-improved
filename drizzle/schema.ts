@@ -522,5 +522,69 @@ export const savingsTransactions = mysqlTable("savings_transactions", {
 export type SavingsTransaction = typeof savingsTransactions.$inferSelect;
 export type InsertSavingsTransaction = typeof savingsTransactions.$inferInsert;
 
+/**
+ * Événements locaux (Ramadan, Tabaski, Noël, Rentrée)
+ */
+export const localEvents = mysqlTable("local_events", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(), // "Ramadan", "Tabaski"
+  type: mysqlEnum("type", ["religious", "national", "cultural", "commercial"]).notNull(),
+  date: date("date").notNull(),
+  endDate: date("endDate"), // Pour Ramadan (30 jours)
+  description: text("description"),
+  isRecurring: boolean("isRecurring").notNull().default(false), // Répété chaque année
+  iconEmoji: varchar("iconEmoji", { length: 10 }), // "🌙", "🐑", "🎄"
+  color: varchar("color", { length: 20 }), // "green", "purple", "red"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  dateIdx: index("events_date_idx").on(table.date),
+  typeIdx: index("events_type_idx").on(table.type),
+}));
+
+export type LocalEvent = typeof localEvents.$inferSelect;
+export type InsertLocalEvent = typeof localEvents.$inferInsert;
+
+/**
+ * Recommandations de stock par événement
+ */
+export const eventStockRecommendations = mysqlTable("event_stock_recommendations", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull().references(() => localEvents.id, { onDelete: "cascade" }),
+  productName: varchar("productName", { length: 100 }).notNull(), // "Sucre", "Riz", "Mouton"
+  category: varchar("category", { length: 50 }), // "Alimentaire", "Scolaire"
+  priority: mysqlEnum("priority", ["high", "medium", "low"]).notNull().default("medium"),
+  estimatedDemandIncrease: int("estimatedDemandIncrease"), // Pourcentage d'augmentation (ex: 150%)
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  eventIdx: index("stock_rec_event_idx").on(table.eventId),
+  priorityIdx: index("stock_rec_priority_idx").on(table.priority),
+}));
+
+export type EventStockRecommendation = typeof eventStockRecommendations.$inferSelect;
+export type InsertEventStockRecommendation = typeof eventStockRecommendations.$inferInsert;
+
+/**
+ * Alertes événements pour les marchands
+ */
+export const eventAlerts = mysqlTable("event_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull().references(() => localEvents.id, { onDelete: "cascade" }),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  alertType: mysqlEnum("alertType", ["7_days", "3_days", "1_day", "today"]).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("isRead").notNull().default(false),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  eventIdx: index("alerts_event_idx").on(table.eventId),
+  merchantIdx: index("alerts_merchant_idx").on(table.merchantId),
+  readIdx: index("alerts_read_idx").on(table.isRead),
+}));
+
+export type EventAlert = typeof eventAlerts.$inferSelect;
+export type InsertEventAlert = typeof eventAlerts.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

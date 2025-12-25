@@ -139,7 +139,7 @@ export default function Home() {
                 République de Côte d'Ivoire
               </p>
               <p className="text-lg text-gray-600 mt-1">
-                DGE • ANSUT • DGI
+                DGE • ANSUT
               </p>
             </div>
           </footer>
