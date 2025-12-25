@@ -1606,3 +1606,36 @@
 - [x] Afficher les critères détaillés (régularité, volume, épargne)
 - [x] Intégrer dans MerchantDashboardSimple
 - [x] Tester l'affichage et les animations
+
+## 📸 PRODUITS DE DÉMONSTRATION AVEC IMAGES (EN COURS)
+
+### Analyse et Planification
+- [x] Récupérer la liste des 34 produits existants
+- [x] Identifier les catégories principales (légumes, céréales, légumineuses, etc.)
+- [x] Planifier les styles d'images (fond blanc, éclairage naturel, haute qualité)
+
+### Génération des Images
+- [x] Générer images pour les légumes (tomates, oignons, aubergines, gombo, piment, chou, carotte)
+- [x] Générer images pour les céréales et tubercules (riz, maïs, manioc, igname, plantain, patate douce)
+- [x] Générer images pour les légumineuses (arachides, haricots, niébé, soja)
+- [x] Générer images pour les fruits (mangue, banane, papaye, ananas, orange, citron)
+- [x] Générer images pour les condiments (sel, poivre, cube Maggi, huile, vinaigre)
+- [x] Générer images pour les produits transformés (farine, sucre, lait en poudre, café, thé)
+
+### Upload et Base de Données
+- [x] Uploader toutes les images vers le stockage S3
+- [x] Créer un script de migration pour ajouter les URLs d'images
+- [x] Mettre à jour la table `products` avec les imageUrl
+- [x] Vérifier que toutes les images sont accessibles
+
+### Amélioration Interface
+- [x] Améliorer l'affichage des cartes produits dans le marché virtuel
+- [x] Ajouter les images dans la caisse tactile
+- [x] Optimiser le chargement des images (lazy loading)
+- [x] Ajouter des placeholders pendant le chargement
+
+### Tests et Validation
+- [x] Tester l'affichage sur desktop
+- [x] Tester l'affichage sur mobile
+- [x] Vérifier la performance de chargement
+- [ ] Sauvegarder le checkpoint
