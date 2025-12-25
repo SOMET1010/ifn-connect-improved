@@ -1556,3 +1556,21 @@
 - [ ] Messages d'alerte événements dans le copilote
 - [ ] Conseils de stock contextuels
 - [ ] Countdown dans les messages SUTA
+
+
+## 📅 PEUPLEMENT CALENDRIER 2025-2026 (TERMINÉ)
+- [x] Créer script SQL pour insérer les événements
+- [x] Insérer Ramadan 2025 (1er mars - 30 mars)
+- [x] Insérer Tabaski 2025 (7 juin)
+- [x] Insérer Fête de l'Indépendance (7 août)
+- [x] Insérer Rentrée Scolaire 2025 (15 septembre)
+- [x] Insérer Noël 2025 (25 décembre)
+- [x] Insérer Nouvel An 2026 (1er janvier)
+- [x] Ajouter recommandations de stock pour Ramadan (8 produits)
+- [x] Ajouter recommandations de stock pour Tabaski (8 produits)
+- [x] Ajouter recommandations de stock pour Indépendance (6 produits)
+- [x] Ajouter recommandations de stock pour Rentrée (8 produits)
+- [x] Ajouter recommandations de stock pour Noël (8 produits)
+- [x] Ajouter recommandations de stock pour Nouvel An (6 produits)
+- [x] Exécuter le script et vérifier les données
+- [x] Tester l'affichage dans le calendrier

@@ -1,0 +1,52 @@
+{
+  "query": "SELECT id, name, date, type, iconEmoji FROM local_events ORDER BY date;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT id, name, date, type, iconEmoji FROM local_events ORDER BY date;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Ramadan 2025",
+      "date": "2025-03-01",
+      "type": "religious",
+      "iconEmoji": "🌙"
+    },
+    {
+      "id": "2",
+      "name": "Tabaski 2025 (Aïd el-Kebir)",
+      "date": "2025-06-07",
+      "type": "religious",
+      "iconEmoji": "🐑"
+    },
+    {
+      "id": "3",
+      "name": "Fête de l'Indépendance",
+      "date": "2025-08-07",
+      "type": "national",
+      "iconEmoji": "🇨🇮"
+    },
+    {
+      "id": "4",
+      "name": "Rentrée Scolaire 2025",
+      "date": "2025-09-15",
+      "type": "cultural",
+      "iconEmoji": "📚"
+    },
+    {
+      "id": "5",
+      "name": "Noël 2025",
+      "date": "2025-12-25",
+      "type": "religious",
+      "iconEmoji": "🎄"
+    },
+    {
+      "id": "6",
+      "name": "Nouvel An 2026",
+      "date": "2026-01-01",
+      "type": "cultural",
+      "iconEmoji": "🎉"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdate\ttype\ticonEmoji\n1\tRamadan 2025\t2025-03-01\treligious\t🌙\n2\tTabaski 2025 (Aïd el-Kebir)\t2025-06-07\treligious\t🐑\n3\tFête de l'Indépendance\t2025-08-07\tnational\t🇨🇮\n4\tRentrée Scolaire 2025\t2025-09-15\tcultural\t📚\n5\tNoël 2025\t2025-12-25\treligious\t🎄\n6\tNouvel An 2026\t2026-01-01\tcultural\t🎉\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}
