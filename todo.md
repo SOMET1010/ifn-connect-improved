@@ -1419,3 +1419,41 @@
 - [x] Mettre à jour CopilotAssistant pour utiliser la nouvelle image
 - [x] Ajuster la taille et le style
 - [x] Tester l'affichage
+
+
+## 💰 ASSISTANT ÉPARGNE - TONTINE DIGITALE (TERMINÉ)
+
+### Backend
+- [x] Créer db-savings.ts avec fonctions CRUD
+- [x] Router tRPC savings avec procédures
+- [x] Fonction createGoal (créer une cagnotte)
+- [x] Fonction addDeposit (ajouter un dépôt)
+- [x] Fonction withdraw (retirer de l'épargne)
+- [x] Fonction getGoals (récupérer les cagnottes)
+- [x] Fonction getTransactions (historique)
+
+### Interface Utilisateur
+- [x] Composant SavingsGoals (liste des cagnottes)
+- [x] Composant SavingsGoalCard (carte individuelle avec progression)
+- [x] Composant CreateGoalDialog (créer nouvelle cagnotte)
+- [x] Composant DepositDialog (ajouter un dépôt)
+- [x] Page /merchant/savings (gestion épargne)
+
+### Proposition Automatique
+- [x] Détecter les grosses ventes (> 20 000 FCFA)
+- [x] Afficher modal de proposition d'épargne
+- [x] Calculer le montant suggéré (5-10% de la vente)
+- [ ] Intégration avec Mobile Money (optionnel)
+
+### Intégration SUTA
+- [ ] Messages d'encouragement épargne
+- [ ] Alertes objectif atteint
+- [ ] Statistiques d'épargne dans le copilote
+- [ ] Impact sur le Score SUTA
+
+### Cagnottes Prédéfinies
+- [x] Tabaski (fête religieuse)
+- [x] Rentrée scolaire
+- [x] Stock (réapprovisionnement)
+- [x] Urgence (imprévus)
+- [x] Personnalisée (libre)

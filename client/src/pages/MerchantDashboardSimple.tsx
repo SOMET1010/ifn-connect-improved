@@ -10,7 +10,8 @@ import {
   HelpCircle,
   TrendingUp,
   AlertTriangle,
-  User
+  User,
+  PiggyBank
 } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 
@@ -124,8 +125,8 @@ export default function MerchantDashboardSimple() {
           </div>
         </div>
 
-        {/* 4 GROS BOUTONS D'ACTION */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        {/* 5 GROS BOUTONS D'ACTION */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     {/* VENDRE - Action principale */}
           <button
             id="btn-cash-register"
@@ -176,6 +177,22 @@ export default function MerchantDashboardSimple() {
               <div>
                 <h2 className="text-6xl font-bold mb-3">MON ARGENT</h2>
                 <p className="text-3xl text-white/90">Voir mon Bédou</p>
+              </div>
+            </div>
+          </button>
+
+          {/* MON ÉPARGNE */}
+          <button
+            onClick={() => setLocation('/merchant/savings')}
+            className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
+          >
+            <div className="flex flex-col items-center gap-6">
+              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
+                <PiggyBank className="w-32 h-32 text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <h2 className="text-6xl font-bold mb-3">ÉPARGNER</h2>
+                <p className="text-3xl text-white/90">Mes Cagnottes</p>
               </div>
             </div>
           </button>

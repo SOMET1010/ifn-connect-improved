@@ -10,6 +10,7 @@ import LanguageSelector from '@/components/LanguageSelector';
 import { useOffline } from '@/hooks/useOffline';
 import { useSpeech } from '@/hooks/useSpeech';
 import { useLanguage } from '@/hooks/useLanguage';
+import { SavingsSuggestionDialog } from '@/components/SavingsSuggestionDialog';
 
 /**
  * Caisse ULTRA-SIMPLIFIÉE pour utilisateurs non habitués à l'informatique
@@ -20,6 +21,8 @@ export default function CashRegisterSimple() {
   const [quantity, setQuantity] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSavingsSuggestion, setShowSavingsSuggestion] = useState(false);
+  const [lastSaleAmount, setLastSaleAmount] = useState(0);
   const { isOnline, saveSaleOffline, updatePendingSalesCount } = useOffline();
   const { speakSaleSuccess, speakError, speakAlert, isEnabled: speechEnabled } = useSpeech();
 
@@ -38,16 +41,24 @@ export default function CashRegisterSimple() {
   // Mutation pour créer une vente
   const createSale = trpc.sales.create.useMutation({
     onSuccess: () => {
+      const saleAmount = lastSaleAmountRef.current;
+      
       // Afficher l'écran de succès GÉANT
       setShowSuccess(true);
       
       // Annonce vocale du succès avec le montant sauvegardé
-      speakSaleSuccess(lastSaleAmountRef.current);
+      speakSaleSuccess(saleAmount);
       
       setTimeout(() => {
         setShowSuccess(false);
         setQuantity('');
         setSelectedProduct(null);
+        
+        // Proposer l'épargne si vente > 20 000 FCFA
+        if (saleAmount >= 20000) {
+          setLastSaleAmount(saleAmount);
+          setShowSavingsSuggestion(true);
+        }
       }, 3000);
       // Mettre à jour le compteur de ventes en attente
       updatePendingSalesCount();
@@ -306,6 +317,13 @@ export default function CashRegisterSimple() {
           </div>
         </div>
       </div>
+
+      {/* Dialog de proposition d'épargne */}
+      <SavingsSuggestionDialog
+        isOpen={showSavingsSuggestion}
+        onClose={() => setShowSavingsSuggestion(false)}
+        saleAmount={lastSaleAmount}
+      />
     </div>
   );
 }
