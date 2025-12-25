@@ -14,6 +14,7 @@ import {
   PiggyBank
 } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
+import { StockAlertsBadge } from '@/components/StockAlertsBadge';
 
 /**
  * Dashboard Marchand - VERSION ULTRA-SIMPLIFIÉE
@@ -77,6 +78,9 @@ export default function MerchantDashboardSimple() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
       {/* Header institutionnel */}
       <InstitutionalHeader />
+      
+      {/* Badge d'alertes de stock */}
+      {merchant && <StockAlertsBadge merchantId={merchant.id} />}
 
       {/* Contenu principal */}
       <main className="container mx-auto px-4 py-12">

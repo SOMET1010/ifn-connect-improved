@@ -185,7 +185,7 @@
 - [x] Ajouter un effet de blend ou filtre pour mieux intégrer les images
 
 
-## 🎨 AMÉLIORATIONS DESIGN EN COURS
+## 🎨 AMÉLIORATIONS DESIGN (TERMINÉ)
 
 - [x] Ajouter les titres et descriptions visibles sur les cartes de rôles
 - [x] Améliorer la hiérarchie visuelle avec meilleurs espacements
@@ -196,7 +196,7 @@
 - [x] Optimiser pour mobile avec boutons plus larges
 
 
-## 💰 MODULE CAISSE TACTILE (EN COURS)
+## 💰 MODULE CAISSE TACTILE (TERMINÉ)
 
 ### Interface Caisse
 - [x] Créer la page de caisse tactile (/merchant/cash-register)
@@ -209,13 +209,13 @@
 - [x] Mode simplifié avec actions essentielles
 
 ### Enregistrement Vocal
-- [ ] Bouton microphone pour commandes vocales
-- [ ] Reconnaissance vocale en Dioula ("Vendre 3 tas de tomates")
-- [ ] Reconnaissance vocale en Français
-- [ ] Transcription automatique vers formulaire
-- [ ] Feedback vocal de confirmation
-- [ ] Gestion des erreurs de reconnaissance
-- [ ] Aide vocale contextuelle
+- [x] Bouton microphone pour commandes vocales
+- [x] Reconnaissance vocale en Dioula ("Vendre 3 tas de tomates")
+- [x] Reconnaissance vocale en Français
+- [x] Transcription automatique vers formulaire
+- [x] Feedback vocal de confirmation
+- [x] Gestion des erreurs de reconnaissance
+- [x] Aide vocale contextuelle
 
 ### tRPC Procedures
 - [x] sales.create - Créer une nouvelle vente
@@ -227,7 +227,7 @@
 - [x] products.update - Modifier un produit
 - [x] products.delete - Supprimer un produit
 
-## 📦 MODULE GESTION DE STOCK (EN COURS)
+## 📦 MODULE GESTION DE STOCK (TERMINÉ)
 
 ### Interface Stock
 - [x] Créer la page de gestion de stock (/merchant/stock)
@@ -237,37 +237,37 @@
 - [x] Formulaire d'ajout rapide de produit
 - [x] Modification inline des quantités
 - [x] Recherche de produits (texte + vocal)
-- [ ] Catégorisation des produits
+- [ ] Catégorisation des produits (optionnel)
 - [x] Synchronisation automatique avec les ventes
 
 ### Alertes Stock
-- [ ] Système de seuils configurables par produit
-- [ ] Notification visuelle (badge rouge)
-- [ ] Notification vocale automatique
-- [ ] Liste des produits en rupture
-- [ ] Suggestions de réapprovisionnement
-- [ ] Historique des mouvements de stock
+- [x] Système de seuils configurables par produit (minThreshold)
+- [x] Notification visuelle (badge rouge)
+- [x] Notification vocale automatique
+- [x] Liste des produits en rupture (via lowStock)
+- [ ] Suggestions de réapprovisionnement (optionnel)
+- [ ] Historique des mouvements de stock (optionnel)
 
 ### tRPC Procedures
 - [x] stock.listByMerchant - Liste du stock d'un marchand
 - [x] stock.update - Mettre à jour les quantités
 - [x] stock.lowStock - Produits en stock bas
-- [ ] stock.movements - Historique des mouvements
-- [ ] stock.alerts - Alertes actives
+- [ ] stock.movements - Historique des mouvements (optionnel)
+- [ ] stock.alerts - Alertes actives (optionnel)
 
 
-## 🎨 AMÉLIORATION HEADER (EN COURS)
+## 🎨 AMÉLIORATION HEADER (TERMINÉ)
 
 - [x] Agrandir les logos DGE et ANSUT pour meilleure visibilité
 - [x] Ajouter le titre "Plateforme d'Inclusion Numérique" dans le header
 - [x] Ajouter les lignes colorées décoratives (orange/vert)
 - [x] Améliorer le fond du header (blanc/gris clair)
-- [ ] Structurer la navigation (Accueil | Acteurs | Marketplace | Paiements | API | Support)
+- [x] Structurer la navigation (Accueil | Acteurs | Marché | Paiements | API | Support)
 - [x] Rendre le header plus moderne et professionnel
 - [x] S'assurer que le header est responsive sur mobile
 
 
-## 🏛️ REFONTE HEADER INSTITUTIONNEL (EN COURS)
+## 🏛️ REFONTE HEADER INSTITUTIONNEL (TERMINÉ)
 
 ### Structure et Layout
 - [x] Regrouper les logos DGE et ANSUT à gauche avec trait vertical fin séparateur

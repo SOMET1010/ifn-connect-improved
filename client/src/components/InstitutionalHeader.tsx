@@ -100,12 +100,15 @@ export default function InstitutionalHeader() {
             </div>
           </div>
 
-          {/* --- ZONE CENTRE : TITRE (Desktop) --- */}
-          <div className="hidden lg:flex flex-1 justify-center items-center">
-            <h1 className="text-xl xl:text-2xl font-bold text-gray-800 tracking-tight text-center uppercase">
-              Plateforme d'Inclusion Numérique
-            </h1>
-          </div>
+          {/* --- ZONE CENTRE : NAVIGATION (Desktop) --- */}
+          <nav className="hidden lg:flex flex-1 justify-center items-center gap-6">
+            <a href="/" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Accueil</a>
+            <a href="/actors" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Acteurs</a>
+            <a href="/marketplace" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Marché</a>
+            <a href="/payments" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Paiements</a>
+            <a href="/api" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">API</a>
+            <a href="/support" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Support</a>
+          </nav>
 
           {/* --- ZONE DROITE : OUTILS --- */}
           <div className="flex items-center gap-2 md:gap-3">

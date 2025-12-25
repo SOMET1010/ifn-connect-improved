@@ -11,6 +11,7 @@ import { useOffline } from '@/hooks/useOffline';
 import { useSpeech } from '@/hooks/useSpeech';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SavingsSuggestionDialog } from '@/components/SavingsSuggestionDialog';
+import { VoiceSaleInput } from '@/components/VoiceSaleInput';
 
 /**
  * Caisse ULTRA-SIMPLIFIÉE pour utilisateurs non habitués à l'informatique
@@ -203,6 +204,19 @@ export default function CashRegisterSimple() {
             </div>
             <ShoppingCart className="w-32 h-32 opacity-50" />
           </div>
+        </div>
+
+        {/* Enregistrement vocal */}
+        <div className="bg-white rounded-3xl p-8 mb-8 shadow-xl">
+          <h2 className="text-4xl font-bold mb-6 text-center text-gray-900">🎤 Enregistrement vocal</h2>
+          <VoiceSaleInput
+            products={products}
+            onVoiceCommand={(productId, qty) => {
+              setSelectedProduct(productId);
+              setQuantity(qty.toString());
+            }}
+            language="fr"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
