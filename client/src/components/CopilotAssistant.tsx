@@ -44,9 +44,9 @@ export function CopilotAssistant() {
     { enabled: !!merchant, refetchInterval: 120000 } // Rafraîchir toutes les 2 minutes
   );
 
-  // Récupérer les événements à venir (30 prochains jours)
-  const { data: upcomingEvents } = trpc.events.getUpcoming.useQuery(
-    { daysAhead: 30 },
+  // Récupérer les événements à venir avec recommandations (30 prochains jours)
+  const { data: upcomingEvents } = trpc.events.getWithRecommendations.useQuery(
+    undefined,
     { enabled: !!merchant, refetchInterval: 3600000 } // Rafraîchir toutes les heures
   );
 
@@ -171,9 +171,23 @@ export function CopilotAssistant() {
           else if (daysUntil <= 3) urgencyText = `dans ${daysUntil} jours`;
           else urgencyText = `dans ${daysUntil} jours`;
 
+          // Construire le message avec recommandations de stock
+          let message = `${event.iconEmoji || "📅"} ${firstName}, ${event.name} commence ${urgencyText} !`;
+          
+          // Ajouter les recommandations de stock (top 3-5 produits)
+          if (event.recommendations && event.recommendations.length > 0) {
+            const topProducts = event.recommendations
+              .slice(0, 5)
+              .map((r: any) => `${r.productName} (+${r.demandIncrease}%)`)
+              .join(", ");
+            message += ` Commande : ${topProducts}.`;
+          } else {
+            message += " Fais ton stock maintenant pour ne rien manquer !";
+          }
+
           newMessages.push({
             id: `event-${event.id}`,
-            text: `${event.iconEmoji || "📅"} ${firstName}, ${event.name} commence ${urgencyText} ! Fais ton stock maintenant pour ne rien manquer !`,
+            text: message,
             type: "alert",
             icon: event.iconEmoji || "📅",
             timestamp: new Date(),

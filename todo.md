@@ -1585,3 +1585,11 @@
 - [x] Implémenter job quotidien pour créer les alertes 7j, 3j, 1j avant
 - [ ] Ajouter badge de notification sur le widget SUTA (optionnel)
 - [x] Tester l'affichage des alertes
+
+
+## 📦 RECOMMANDATIONS DE STOCK DANS SUTA (TERMINÉ)
+- [x] Récupérer les recommandations de stock pour chaque événement
+- [x] Afficher les 3-5 produits prioritaires dans les messages SUTA
+- [x] Ajouter l'augmentation de demande estimée par produit
+- [x] Formater les messages de manière lisible et concise
+- [x] Tester l'affichage des recommandations
