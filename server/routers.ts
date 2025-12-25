@@ -8,9 +8,10 @@ import { productsRouter, stockRouter } from "./routers/products";
 import { marketsRouter } from './routers/markets';
 import { agentRouter } from './routers/agent';
 import { ordersRouter } from './routers/orders';
-import { badgesRouter } from './routers/badges';
-import { certificatesRouter } from './routers/certificates';
-import { adminRouter } from './routers/admin';
+import { badgesRouter } from "./routers/badges";
+import { certificatesRouter } from "./routers/certificates";
+import { adminRouter } from "./routers/admin";
+import { paymentsRouter } from "./routers/payments";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -24,6 +25,7 @@ export const appRouter = router({
   badges: badgesRouter,
   certificates: certificatesRouter,
   admin: adminRouter,
+  payments: paymentsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -414,3 +414,6 @@ export const actors = mysqlTable("actors", {
 
 export type Actor = typeof actors.$inferSelect;
 export type InsertActor = typeof actors.$inferInsert;
+
+// Export payments tables
+export { transactions, marketplaceOrders } from "./schema-payments";
