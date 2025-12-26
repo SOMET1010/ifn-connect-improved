@@ -2305,3 +2305,20 @@ Permettre aux marchands de renouveler leur couverture sociale (CNPS retraite et 
 - [ ] Documenter les procédures tRPC
 - [ ] Créer un guide utilisateur pour les marchands
 - [ ] Créer un guide admin pour l'approbation
+
+
+## ✅ Intégration ExpirationAlert dans Dashboard Marchand
+
+**Statut** : ✅ TERMINÉ (26 déc 2024)
+**Priorité** : P1
+**Effort** : 30 minutes
+
+### Objectif
+Afficher automatiquement les alertes d'expiration de couverture sociale (CNPS/CMU/RSTI) dans le dashboard marchand principal dès la connexion.
+
+### Tâches
+- [x] Identifier la page dashboard marchand principale
+- [x] Importer et intégrer le composant ExpirationAlert
+- [x] Récupérer les dates d'expiration depuis le backend
+- [x] Tester l'affichage avec des dates d'expiration proches
+- [x] Vérifier le bouton "Renouveler maintenant" redirige vers /merchant/social-protection

@@ -6,6 +6,8 @@ import AudioButton from '@/components/accessibility/AudioButton';
 import LanguageSelector from '@/components/accessibility/LanguageSelector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ExpirationAlert } from '@/components/ExpirationAlert';
+import { trpc } from '@/lib/trpc';
 
 /**
  * Dashboard Marchand - Mode Simplifié
@@ -77,6 +79,9 @@ export default function MerchantDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Alertes d'expiration de couverture sociale */}
+          <ExpirationAlertWrapper />
 
           {/* Statistiques du jour */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -215,5 +220,22 @@ export default function MerchantDashboard() {
         onItemClick={handleNavigation}
       />
     </div>
+  );
+}
+
+/**
+ * Wrapper pour ExpirationAlert qui récupère les données du marchand
+ */
+function ExpirationAlertWrapper() {
+  const { data: merchant } = trpc.auth.myMerchant.useQuery();
+
+  if (!merchant || !merchant.socialProtection) return null;
+
+  return (
+    <ExpirationAlert
+      cnpsExpiryDate={merchant.socialProtection.cnpsExpiryDate}
+      cmuExpiryDate={merchant.socialProtection.cmuExpiryDate}
+      rstiExpiryDate={merchant.socialProtection.rstiExpiryDate}
+    />
   );
 }
