@@ -18,22 +18,33 @@ import { StockAlertsBadge } from '@/components/StockAlertsBadge';
 import { ScoreCard } from '@/components/ScoreCard';
 
 /**
- * Dashboard Marchand - VERSION ULTRA-SIMPLIFIÉE
- * 4 gros boutons d'action + 3 KPIs essentiels
+ * Composant interne qui contient toute la logique du dashboard
+ * Ne rend que si merchant existe
  */
-export default function MerchantDashboardSimple() {
+function DashboardContent({ merchantId, businessName, merchantNumber }: { 
+  merchantId: number; 
+  businessName: string | null; 
+  merchantNumber: string; 
+}) {
   const [, setLocation] = useLocation();
-  const { merchant, isLoading: authLoading } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Tous les hooks sont maintenant appelés inconditionnellement
+  const { data: todayStats } = trpc.sales.todayStats.useQuery({ merchantId });
+  const { data: totalBalance } = trpc.sales.totalBalance.useQuery({ merchantId });
+  const { data: lowStockCount } = trpc.sales.lowStockCount.useQuery({ merchantId });
+
+  const todayAmount = todayStats?.totalAmount || 0;
+  const balance = totalBalance || 0;
+  const lowStock = lowStockCount || 0;
   
   // Vérifier si c'est le premier lancement
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('ifn-onboarding-completed');
-    if (!hasSeenOnboarding && merchant) {
-      // Attendre 1 seconde pour que la page se charge complètement
+    if (!hasSeenOnboarding) {
       setTimeout(() => setShowOnboarding(true), 1000);
     }
-  }, [merchant]);
+  }, []);
   
   const handleOnboardingComplete = () => {
     localStorage.setItem('ifn-onboarding-completed', 'true');
@@ -44,36 +55,6 @@ export default function MerchantDashboardSimple() {
     localStorage.setItem('ifn-onboarding-completed', 'true');
     setShowOnboarding(false);
   };
-  
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 to-green-50">
-        <div className="text-4xl font-bold text-gray-700">Chargement...</div>
-      </div>
-    );
-  }
-  
-  if (!merchant) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 to-green-50">
-        <div className="bg-white rounded-3xl p-12 shadow-2xl text-center max-w-2xl">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">⚠️ Accès Refusé</h1>
-          <p className="text-3xl text-gray-700">Vous devez être enregistré comme marchand.</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const merchantId = merchant.id;
-  
-  // Récupérer les 3 KPIs essentiels
-  const { data: todayStats } = trpc.sales.todayStats.useQuery({ merchantId });
-  const { data: totalBalance } = trpc.sales.totalBalance.useQuery({ merchantId });
-  const { data: lowStockCount } = trpc.sales.lowStockCount.useQuery({ merchantId });
-
-  const todayAmount = todayStats?.totalAmount || 0;
-  const balance = totalBalance || 0;
-  const lowStock = lowStockCount || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
@@ -81,7 +62,7 @@ export default function MerchantDashboardSimple() {
       <InstitutionalHeader />
       
       {/* Badge d'alertes de stock */}
-      {merchant && <StockAlertsBadge merchantId={merchant.id} />}
+      <StockAlertsBadge merchantId={merchantId} />
 
       {/* Contenu principal */}
       <main className="container mx-auto px-4 py-12">
@@ -89,10 +70,10 @@ export default function MerchantDashboardSimple() {
         {/* Message de bienvenue GÉANT */}
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-            Bonjour {merchant.businessName || 'Marchand'} ! 👋
+            Bonjour {businessName || 'Marchand'} ! 👋
           </h1>
           <p className="text-3xl text-gray-700">
-            Code : <span className="font-bold text-orange-600">{merchant.merchantNumber}</span>
+            Code : <span className="font-bold text-orange-600">{merchantNumber}</span>
           </p>
         </div>
 
@@ -264,5 +245,41 @@ export default function MerchantDashboardSimple() {
         />
       )}
     </div>
+  );
+}
+
+/**
+ * Composant wrapper qui gère l'authentification
+ * Ne rend DashboardContent que si les conditions sont remplies
+ */
+export default function MerchantDashboardSimple() {
+  const { merchant, isLoading: authLoading } = useAuth();
+  
+  // Vérification AVANT d'appeler les hooks du composant interne
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 to-green-50">
+        <div className="text-4xl font-bold text-gray-700">Chargement...</div>
+      </div>
+    );
+  }
+  
+  if (!merchant) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 to-green-50">
+        <div className="bg-white rounded-3xl p-12 shadow-2xl text-center max-w-2xl">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">⚠️ Accès Refusé</h1>
+          <p className="text-3xl text-gray-700">Vous devez être enregistré comme marchand.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DashboardContent 
+      merchantId={merchant.id}
+      businessName={merchant.businessName}
+      merchantNumber={merchant.merchantNumber}
+    />
   );
 }

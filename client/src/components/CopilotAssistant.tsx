@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+// import { WeatherWidget } from "@/components/WeatherWidget";
 
 interface CopilotMessage {
   id: string;
@@ -279,6 +280,7 @@ export function CopilotAssistant() {
     window.speechSynthesis.speak(utterance);
   };
 
+  // Vérifier les conditions APRÈS tous les hooks
   if (!merchant || messages.length === 0) return null;
 
   const currentMessage = messages[currentMessageIndex];
@@ -410,8 +412,13 @@ export function CopilotAssistant() {
               </div>
             )}
 
+            {/* Widget Météo - Temporairement désactivé pour débogage */}
+            {/* <div className="mt-4">
+              <WeatherWidget enabled={!!merchant} />
+            </div> */}
+
             {/* Footer */}
-            <div className="text-center text-xs text-gray-500 pt-2 border-t">
+            <div className="text-center text-xs text-gray-500 pt-2 border-t mt-4">
               💡 SUTA est là pour t'aider 24h/24
             </div>
           </div>

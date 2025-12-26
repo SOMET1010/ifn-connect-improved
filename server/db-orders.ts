@@ -96,6 +96,7 @@ export async function getAvailableProducts() {
       category: products.category,
       unit: products.unit,
       basePrice: products.basePrice,
+      imageUrl: products.imageUrl,
     })
     .from(products)
     .orderBy(products.name);

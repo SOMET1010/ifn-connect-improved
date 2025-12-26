@@ -196,14 +196,31 @@ export default function VirtualMarket() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredProducts.map((product) => (
-                  <Card key={product.id} className="hover:shadow-lg transition-shadow">
+                  <Card key={product.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                    {/* Image du produit */}
+                    {product.imageUrl && (
+                      <div className="relative h-48 bg-gray-100">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        {isLowStock(product.id) && (
+                          <Badge variant="destructive" className="absolute top-2 right-2">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Stock bas
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg">{product.name}</CardTitle>
                           <CardDescription>{product.category}</CardDescription>
                         </div>
-                        {isLowStock(product.id) && (
+                        {!product.imageUrl && isLowStock(product.id) && (
                           <Badge variant="destructive" className="ml-2">
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             Stock bas
