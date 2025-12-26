@@ -1877,3 +1877,32 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Tester avec des données réelles
 - [x] Vérifier la performance du graphique
 - [x] Sauvegarder le checkpoint 52
+
+
+---
+
+## 📥 EXTRACTION ET IMPORT DONNÉES MARCHANDS (Checkpoint 53)
+
+### Phase 1 : Extraction des données textuelles
+- [x] Installer les dépendances Python (pdfplumber, pandas, pillow)
+- [x] Créer le script d'extraction pour les listes (COVIYOP, UNICOVIA, etc.)
+- [x] Parser les noms, identifiants, téléphones, coopératives
+- [x] Générer un fichier CSV consolidé (1431 marchands extraits)
+
+### Phase 2 : Extraction des photos
+- [x] Extraire les photos du document FICHEMARCHESION.pdf (50 pages)
+- [x] Sauvegarder les photos avec nommage cohérent (identifiant_nom.jpg)
+- [x] Uploader les photos sur S3 (23 photos de profil)
+- [x] Créer un mapping photo_url <-> identifiant
+
+### Phase 3 : Script d'import en base de données
+- [x] Créer une fonction d'import bulk dans server/db.ts
+- [x] Mapper les champs CSV vers la table merchants
+- [x] Gérer les doublons (vérifier par identifiant unique)
+- [x] Associer les photos S3 aux marchands
+
+### Phase 4 : Exécution et vérification
+- [x] Exécuter l'import via script Node.js (1431 marchands importés)
+- [x] Vérifier le nombre de marchands importés (2590 total)
+- [x] Vérifier la répartition par coopérative
+- [x] Sauvegarder le checkpoint 53
