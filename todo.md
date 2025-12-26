@@ -3019,3 +3019,71 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
   - [x] Table support_tickets (agentId, subject, description, priority, status, assignedTo)
   - [x] Procédures tRPC pour FAQ (search, getByCategory, vote, incrementViews)
   - [x] Procédures tRPC pour chatbot (sendMessage, getHistory, escalate)
+
+
+## 🎯 AMÉLIORATIONS POST-SPRINT 3 (En cours)
+
+### 1. Peupler la FAQ avec 20-30 articles réels
+- [x] Catégorie Enrôlement (5 articles)
+  - [x] Comment enrôler un nouveau marchand ?
+  - [x] Quelles sont les pièces obligatoires pour l'enrôlement ?
+  - [x] Comment géolocaliser un marchand ?
+  - [x] Que faire si la photo ne se charge pas ?
+  - [x] Comment générer un code MRC ?
+- [x] Catégorie Paiements (5 articles)
+  - [x] Comment fonctionne Orange Money ?
+  - [x] Que faire si un paiement échoue ?
+  - [x] Comment vérifier le statut d'une transaction ?
+  - [x] Quels sont les frais de transaction ?
+  - [x] Comment rembourser un client ?
+- [x] Catégorie Technique (5 articles)
+  - [x] Comment activer le mode hors ligne ?
+  - [x] Que faire si l'application ne se synchronise pas ?
+  - [x] Comment réinitialiser mon mot de passe ?
+  - [x] L'application est lente, que faire ?
+  - [x] Comment mettre à jour l'application ?
+- [x] Catégorie CNPS/CMU (5 articles)
+  - [x] C'est quoi la CNPS ?
+  - [x] Comment s'inscrire à la CMU ?
+  - [x] Quand payer mes cotisations ?
+  - [x] Comment renouveler ma couverture sociale ?
+  - [x] Que faire si ma CNPS expire bientôt ?
+- [x] Catégorie Coopératives (5 articles)
+  - [x] Comment créer une commande groupée ?
+  - [x] Comment inviter des membres à rejoindre ?
+  - [x] Comment confirmer une commande ?
+  - [x] Comment générer un rapport PDF ?
+  - [x] Comment gérer les stocks centralisés ?
+- [x] Catégorie Général (5 articles)
+  - [x] Comment contacter le support ?
+  - [x] Où trouver mon code MRC ?
+  - [x] Comment changer ma photo de profil ?
+  - [x] Comment télécharger mon certificat ?
+  - [x] Comment voir mes badges ?
+
+### 2. Générer des données de test CNPS/CMU
+- [x] Script seed-cnps-payments.mjs
+  - [x] Générer 100 paiements CNPS pour 50 marchands (3-6 mois)
+  - [x] Montants réalistes (5 000 - 15 000 FCFA/mois)
+  - [x] Statuts variés (completed, pending, failed)
+  - [x] Références de transaction uniques
+- [x] Script seed-cmu-reimbursements.mjs
+  - [x] Générer 80 remboursements CMU pour 40 marchands (3-6 mois)
+  - [x] Types variés (consultation, medication, hospitalization, surgery, dental, optical, maternity, emergency)
+  - [x] Montants réalistes selon le type de soin
+  - [x] Statuts variés (approved, pending, rejected)
+
+### 3. Intégrer les paiements en ligne Mobile Money pour CNPS/CMU
+- [x] Backend
+  - [x] Procédure tRPC cnps.payContribution (amount, paymentMethod, phoneNumber)
+  - [x] Procédure tRPC cmu.renewCoverage (paymentMethod, phoneNumber)
+  - [x] Routers cnps.ts et cmu.ts créés et enregistrés
+  - [x] Mise à jour automatique des dates d'expiration après paiement
+  - [x] Création d'une entrée dans cnps_payments
+- [x] Frontend
+  - [x] Page /cnps/payment (formulaire de paiement CNPS)
+  - [x] Page /cmu/renewal (formulaire de renouvellement CMU)
+  - [x] Sélection de méthode de paiement (Mobile Money, Virement, Espèces, Carte)
+  - [x] Champ numéro de téléphone pour Mobile Money
+  - [x] Confirmation visuelle après paiement réussi
+  - [x] Affichage de la référence de transaction
