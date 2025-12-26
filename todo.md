@@ -2688,3 +2688,82 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Test de détection du premier login
 - [ ] Test de redirection automatique
 - [ ] Test de la synthèse vocale
+
+## ✅ WORKFLOW SUTA - PHASE 3 & 4 TERMINÉES (26 DÉC 2024)
+
+### Phase 3 : Micro-Objectifs Dynamiques
+- [x] Composant MicroGoalsWidget créé
+- [x] Génération dynamique de 4 types d'objectifs basés sur l'historique
+- [x] Objectif 1 : Dépasser hier de 10%
+- [x] Objectif 2 : Faire 5 ventes dans la journée
+- [x] Objectif 3 : Améliorer son score SUTA à 80
+- [x] Objectif 4 : Atteindre 50 000 FCFA dans la journée
+- [x] Barres de progression animées
+- [x] Confetti automatique quand objectif atteint
+- [x] Synthèse vocale de félicitations
+- [x] Bouton "Faire une vente maintenant" pour action immédiate
+- [x] Système de dismiss avec localStorage
+- [x] Réinitialisation automatique chaque jour
+- [x] Intégration dans MerchantDashboardSimple
+
+### Phase 4 : Bilan de Journée Automatique
+- [x] Composant DailyReportModal créé
+- [x] Déclenchement automatique à 19h00
+- [x] Vérification localStorage pour éviter les doublons
+- [x] Comparaison ventes du jour vs hier
+- [x] Graphiques de tendance (TrendingUp/TrendingDown/Minus)
+- [x] Affichage du Score SUTA
+- [x] Message d'éligibilité au micro-crédit (si score ≥ 70)
+- [x] Objectif de demain (+10% par rapport à aujourd'hui)
+- [x] Avatar SUTA qui applaudit
+- [x] Confetti si bonne journée
+- [x] Synthèse vocale complète du bilan
+- [x] Design festif avec gradients et animations
+- [x] Intégration dans MerchantDashboardSimple
+
+### Bibliothèques Installées
+- [x] canvas-confetti (animations festives)
+- [x] @types/canvas-confetti (types TypeScript)
+
+## ✅ ROW LEVEL SECURITY (RLS) - PHASE 3 TERMINÉE (26 DÉC 2024)
+
+### Middleware de Sécurité
+- [x] Fichier `server/_core/rls-middleware.ts` créé
+- [x] `merchantProcedure` : Injecte automatiquement le merchantId dans le contexte
+- [x] `agentProcedure` : Vérifie le rôle agent
+- [x] `adminProcedure` : Vérifie le rôle admin
+- [x] `cooperativeProcedure` : Vérifie le rôle coopérative
+- [x] `validateMerchantOwnership()` : Helper pour valider l'ownership des ressources
+- [x] `filterByMerchant()` : Helper pour filtrer les résultats par merchantId
+
+### Documentation
+- [x] Guide de migration RLS créé (`RLS_MIGRATION_GUIDE.md`)
+- [x] Exemples de migration avant/après
+- [x] Checklist de migration par router
+- [x] Bonnes pratiques de sécurité
+- [x] Tests de sécurité recommandés
+
+### Approche Implémentée
+Au lieu d'utiliser les politiques RLS natives de MySQL/TiDB (non disponibles), nous avons implémenté une **sécurité au niveau application** avec :
+1. Middleware tRPC qui injecte le merchantId dans toutes les requêtes
+2. Helpers de base de données qui filtrent systématiquement par merchantId
+3. Validation stricte dans chaque procédure tRPC
+
+Cette approche est **plus robuste et portable** que les RLS natifs de base de données.
+
+### Routers à Migrer (Prochaine Étape)
+**Haute Priorité (Données Sensibles) :**
+- [ ] salesRouter - Ventes et transactions financières
+- [ ] savingsRouter - Épargne et cagnottes
+- [ ] ordersRouter - Commandes et paiements
+- [ ] scoresRouter - Score SUTA et éligibilité crédit
+- [ ] stockRouter - Inventaire et stock
+
+**Moyenne Priorité :**
+- [ ] badgesRouter - Badges et achievements
+- [ ] certificatesRouter - Certificats e-learning
+- [ ] challengesRouter - Défis entre marchands
+- [ ] coursesRouter - Cours e-learning
+- [ ] achievementsRouter - Accomplissements
+
+**Note :** La migration des routers existants peut être faite progressivement sans casser le système actuel.

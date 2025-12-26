@@ -18,6 +18,8 @@ import { StockAlertsBadge } from '@/components/StockAlertsBadge';
 import { ScoreCard } from '@/components/ScoreCard';
 import { CopilotAssistant } from '@/components/CopilotAssistant';
 import { Tooltip } from '@/components/Tooltip';
+import { DailyReportModal } from '@/components/DailyReportModal';
+import { MicroGoalsWidget } from '@/components/MicroGoalsWidget';
 import { SalesChart } from '@/components/SalesChart';
 import { GroupedOrderOpportunityCard } from '@/components/GroupedOrderOpportunityCard';
 
@@ -69,6 +71,7 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
 }) {
   const [, setLocation] = useLocation();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showDailyReport, setShowDailyReport] = useState(false);
   
   // Tous les hooks sont maintenant appelés inconditionnellement
   const { data: todayStats } = trpc.sales.todayStats.useQuery({ merchantId });
@@ -85,6 +88,32 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
     if (!hasSeenOnboarding) {
       setTimeout(() => setShowOnboarding(true), 1000);
     }
+  }, []);
+
+  // Déclenchement automatique du bilan de journée à 19h00
+  useEffect(() => {
+    const checkDailyReport = () => {
+      const now = new Date();
+      const hour = now.getHours();
+      
+      // Vérifier si déjà affiché aujourd'hui
+      const lastShown = localStorage.getItem('lastDailyReport');
+      const today = new Date().toDateString();
+      
+      if (lastShown !== today && hour >= 19) {
+        // Afficher le modal après 2 secondes
+        setTimeout(() => {
+          setShowDailyReport(true);
+          localStorage.setItem('lastDailyReport', today);
+        }, 2000);
+      }
+    };
+    
+    // Vérifier toutes les minutes
+    const interval = setInterval(checkDailyReport, 60000);
+    checkDailyReport(); // Vérifier immédiatement
+    
+    return () => clearInterval(interval);
   }, []);
   
   const handleOnboardingComplete = () => {
@@ -214,6 +243,9 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         <div className="mb-8">
           <SalesChart merchantId={merchantId} />
         </div>
+
+        {/* MICRO-OBJECTIFS DYNAMIQUES */}
+        <MicroGoalsWidget merchantId={merchantId} />
 
         {/* OPPORTUNITÉS DE COMMANDES GROUPÉES */}
         {/* <GroupedOrderOpportunities merchantId={merchantId} /> */}
@@ -354,6 +386,12 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
       
       {/* Copilote SUTA */}
       <CopilotAssistant />
+      
+      {/* Bilan de journée automatique */}
+      <DailyReportModal
+        open={showDailyReport}
+        onClose={() => setShowDailyReport(false)}
+      />
     </div>
   );
 }
