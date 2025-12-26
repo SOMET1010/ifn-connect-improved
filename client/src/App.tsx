@@ -33,6 +33,8 @@ import RenewalsAdmin from "./pages/admin/RenewalsAdmin";
 import Learning from "./pages/Learning";
 import CourseDetail from "./pages/CourseDetail";
 import AuditLogs from "./pages/admin/AuditLogs";
+import MyBadges from "./pages/MyBadges";
+import Leaderboard from "./pages/Leaderboard";
 
 function Router() {
   return (
@@ -73,6 +75,8 @@ function Router() {
       {/* Learning Routes */}
       <Route path="/learning" component={Learning} />
       <Route path="/learning/:id" component={CourseDetail} />
+      <Route path="/my-badges" component={MyBadges} />
+      <Route path="/leaderboard" component={Leaderboard} />
       
       {/* 404 */}
       <Route path={"/404"} component={NotFound} />

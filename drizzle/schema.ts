@@ -790,5 +790,76 @@ export const quizAttempts = mysqlTable("quiz_attempts", {
 export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
 
+// ============================================================================
+// GAMIFICATION E-LEARNING
+// ============================================================================
+
+/**
+ * Badges sociaux obtenus par les utilisateurs
+ */
+export const userAchievements = mysqlTable("user_achievements", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  badgeName: varchar("badgeName", { length: 100 }).notNull(), // "Expert Marketing", "Pro CNPS", "Maître Stock"
+  badgeIcon: varchar("badgeIcon", { length: 10 }), // Emoji du badge: "🏆", "💼", "📦"
+  courseId: int("courseId").references(() => courses.id, { onDelete: "set null" }), // Cours associé (optionnel)
+  scoreObtained: int("scoreObtained").notNull(), // Score du quiz (0-100)
+  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_achievements_user_idx").on(table.userId),
+  badgeIdx: index("user_achievements_badge_idx").on(table.badgeName),
+}));
+
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type InsertUserAchievement = typeof userAchievements.$inferInsert;
+
+/**
+ * Défis entre marchands
+ */
+export const challenges = mysqlTable("challenges", {
+  id: int("id").autoincrement().primaryKey(),
+  challengerId: int("challengerId").notNull().references(() => users.id, { onDelete: "cascade" }), // Qui lance le défi
+  challengedId: int("challengedId").notNull().references(() => users.id, { onDelete: "cascade" }), // Qui est défié
+  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  challengerScore: int("challengerScore"), // Score du lanceur
+  challengedScore: int("challengedScore"), // Score du défié
+  status: mysqlEnum("status", ["pending", "accepted", "completed", "declined"]).default("pending").notNull(),
+  winnerId: int("winnerId").references(() => users.id), // Gagnant du défi
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+}, (table) => ({
+  challengerIdx: index("challenges_challenger_idx").on(table.challengerId),
+  challengedIdx: index("challenges_challenged_idx").on(table.challengedId),
+  statusIdx: index("challenges_status_idx").on(table.status),
+}));
+
+export type Challenge = typeof challenges.$inferSelect;
+export type InsertChallenge = typeof challenges.$inferInsert;
+
+/**
+ * Classement hebdomadaire régional
+ */
+export const weeklyLeaderboard = mysqlTable("weekly_leaderboard", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  weekNumber: int("weekNumber").notNull(), // Numéro de la semaine (1-52)
+  year: int("year").notNull(), // Année
+  region: varchar("region", { length: 100 }), // "Abidjan Nord", "Cocody", "Yopougon"
+  totalPoints: int("totalPoints").notNull().default(0), // Points cumulés
+  quizzesCompleted: int("quizzesCompleted").notNull().default(0), // Nombre de quiz terminés
+  averageScore: int("averageScore").notNull().default(0), // Score moyen (0-100)
+  rank: int("rank"), // Classement dans la région (1, 2, 3...)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("weekly_leaderboard_user_idx").on(table.userId),
+  weekIdx: index("weekly_leaderboard_week_idx").on(table.weekNumber, table.year),
+  regionIdx: index("weekly_leaderboard_region_idx").on(table.region),
+  rankIdx: index("weekly_leaderboard_rank_idx").on(table.rank),
+}));
+
+export type WeeklyLeaderboard = typeof weeklyLeaderboard.$inferSelect;
+export type InsertWeeklyLeaderboard = typeof weeklyLeaderboard.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

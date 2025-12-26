@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { courses, courseProgress, quizzes, quizAttempts } from '../../drizzle/schema';
+import { courses, courseProgress, quizzes, quizAttempts, userAchievements } from '../../drizzle/schema';
+import { getBadgeForCourse, checkPerfectionistBadge, checkAssiduousBadge } from '../../shared/badges';
 import { eq, and, desc } from 'drizzle-orm';
 
 export const coursesRouter = router({
@@ -375,6 +376,135 @@ export const coursesRouter = router({
             progress: 100,
             completed: true,
             completedAt: new Date(),
+          });
+        }
+        
+        // 🎯 GAMIFICATION : Attribuer les badges
+        const badgesToAward: Array<{ badgeName: string; badgeIcon: string; courseId: number | null; scoreObtained: number }> = [];
+        
+        // Badge spécifique au cours (si score >= 80%)
+        const courseBadge = getBadgeForCourse(input.courseId, score);
+        if (courseBadge) {
+          badgesToAward.push({
+            badgeName: courseBadge.name,
+            badgeIcon: courseBadge.icon,
+            courseId: input.courseId,
+            scoreObtained: score,
+          });
+        }
+        
+        // Badge "Perfectionniste" (score 100%)
+        const perfectionistBadge = checkPerfectionistBadge(score);
+        if (perfectionistBadge) {
+          badgesToAward.push({
+            badgeName: perfectionistBadge.name,
+            badgeIcon: perfectionistBadge.icon,
+            courseId: input.courseId,
+            scoreObtained: score,
+          });
+        }
+        
+        // Badge "Apprenant Assidu" (5 cours terminés)
+        const completedCoursesCount = await db.select().from(courseProgress)
+          .where(and(
+            eq(courseProgress.userId, ctx.user.id),
+            eq(courseProgress.completed, true)
+          ));
+        
+        const assiduousBadge = checkAssiduousBadge(completedCoursesCount.length);
+        if (assiduousBadge) {
+          // Vérifier si le badge n'a pas déjà été attribué
+          const [existingBadge] = await db.select().from(userAchievements)
+            .where(and(
+              eq(userAchievements.userId, ctx.user.id),
+              eq(userAchievements.badgeName, assiduousBadge.name)
+            ));
+          
+          if (!existingBadge) {
+            badgesToAward.push({
+              badgeName: assiduousBadge.name,
+              badgeIcon: assiduousBadge.icon,
+              courseId: null,
+              scoreObtained: score,
+            });
+          }
+        }
+        
+        // Insérer tous les badges gagnés
+        if (badgesToAward.length > 0) {
+          for (const badge of badgesToAward) {
+            // Vérifier si le badge n'existe pas déjà
+            const whereConditions = [
+              eq(userAchievements.userId, ctx.user.id),
+              eq(userAchievements.badgeName, badge.badgeName)
+            ];
+            
+            if (badge.courseId) {
+              whereConditions.push(eq(userAchievements.courseId, badge.courseId));
+            }
+            
+            const [existing] = await db.select().from(userAchievements)
+              .where(and(...whereConditions));
+            
+            if (!existing) {
+              await db.insert(userAchievements).values({
+                userId: ctx.user.id,
+                badgeName: badge.badgeName,
+                badgeIcon: badge.badgeIcon,
+                courseId: badge.courseId,
+                scoreObtained: badge.scoreObtained,
+              });
+            }
+          }
+        }
+        
+        // 🏆 CLASSEMENT : Mettre à jour le leaderboard hebdomadaire
+        // Récupérer la région du marchand
+        const { merchants } = await import('../../drizzle/schema');
+        const [merchant] = await db.select({ location: merchants.location })
+          .from(merchants)
+          .where(eq(merchants.userId, ctx.user.id))
+          .limit(1);
+        
+        const region = merchant?.location || 'Abidjan';
+        
+        // Calculer la semaine actuelle
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+        const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        const year = now.getFullYear();
+        
+        // Mettre à jour ou créer l'entrée du leaderboard
+        const { weeklyLeaderboard } = await import('../../drizzle/schema');
+        const [existingLeaderboard] = await db.select().from(weeklyLeaderboard)
+          .where(and(
+            eq(weeklyLeaderboard.userId, ctx.user.id),
+            eq(weeklyLeaderboard.weekNumber, weekNumber),
+            eq(weeklyLeaderboard.year, year)
+          ));
+        
+        if (existingLeaderboard) {
+          const newQuizzesCompleted = existingLeaderboard.quizzesCompleted + 1;
+          const newTotalPoints = existingLeaderboard.totalPoints + score;
+          const newAverageScore = Math.round(newTotalPoints / newQuizzesCompleted);
+          
+          await db.update(weeklyLeaderboard)
+            .set({
+              totalPoints: newTotalPoints,
+              quizzesCompleted: newQuizzesCompleted,
+              averageScore: newAverageScore,
+            })
+            .where(eq(weeklyLeaderboard.id, existingLeaderboard.id));
+        } else {
+          await db.insert(weeklyLeaderboard).values({
+            userId: ctx.user.id,
+            weekNumber,
+            year,
+            region,
+            totalPoints: score,
+            quizzesCompleted: 1,
+            averageScore: score,
           });
         }
       }

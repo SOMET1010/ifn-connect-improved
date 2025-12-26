@@ -10,7 +10,8 @@ import {
   Download,
   ArrowLeft,
   Award,
-  Play
+  Play,
+  Share2
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { Quiz } from '@/components/Quiz';
@@ -81,6 +82,16 @@ export default function CourseDetail() {
       showToast('Erreur : Impossible de générer le certificat.');
     },
   });
+  
+  /**
+   * Partager le certificat sur WhatsApp
+   */
+  const handleShareCertificate = () => {
+    const message = encodeURIComponent(
+      `🎓 Je viens de terminer le cours "${course?.title}" sur IFN Connect !\n\n🏆 J'ai obtenu mon certificat de complétion.\n\nRejoignez la plateforme d'inclusion financière numérique pour les marchands de Côte d'Ivoire.`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
 
   /**
    * Extraire l'ID vidéo YouTube ou Vimeo
@@ -333,23 +344,34 @@ export default function CourseDetail() {
                 )}
 
                 {isCompleted && (
-                  <Button 
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                    onClick={handleDownloadCertificate}
-                    disabled={generateCertificateMutation.isPending}
-                  >
-                    {generateCertificateMutation.isPending ? (
-                      <>
-                        <Download className="w-5 h-5 mr-2 animate-bounce" />
-                        Génération...
-                      </>
-                    ) : (
-                      <>
-                        <Award className="w-5 h-5 mr-2" />
-                        Télécharger le certificat
-                      </>
-                    )}
-                  </Button>
+                  <div className="space-y-3">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      onClick={handleDownloadCertificate}
+                      disabled={generateCertificateMutation.isPending}
+                    >
+                      {generateCertificateMutation.isPending ? (
+                        <>
+                          <Download className="w-5 h-5 mr-2 animate-bounce" />
+                          Génération...
+                        </>
+                      ) : (
+                        <>
+                          <Award className="w-5 h-5 mr-2" />
+                          Télécharger le certificat
+                        </>
+                      )}
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      className="w-full border-green-600 text-green-600 hover:bg-green-50"
+                      onClick={handleShareCertificate}
+                    >
+                      <Share2 className="w-5 h-5 mr-2" />
+                      Partager sur WhatsApp
+                    </Button>
+                  </div>
                 )}
               </div>
             </Card>

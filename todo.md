@@ -2530,3 +2530,55 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Afficher le score et le feedback (réussi/échoué)
 - [ ] Bloquer le certificat si score < 70%
 - [ ] Permettre de repasser le quiz en cas d'échec
+
+
+## 🎮 GAMIFICATION DU SYSTÈME DE QUIZ E-LEARNING (PRIORITÉ HAUTE)
+
+### Phase 1 : Simplification et Accessibilité
+- [x] Simplifier radicalement les 70 questions existantes (phrases courtes, mots simples)
+- [x] Réduire les options de réponse de 4 à 2-3 maximum
+- [x] Remplacer le vocabulaire technique par des mots du quotidien
+- [ ] Ajouter des exemples visuels concrets ivoiriens
+
+### Phase 2 : Quiz Audio (Inclusion Sociale)
+- [x] Implémenter la lecture automatique des questions avec Web Speech API
+- [x] Ajouter un bouton "Écouter la question" sur chaque question
+- [x] Permettre la réponse vocale avec reconnaissance vocale
+- [x] Ajouter un mode "100% audio" pour les personnes non-alphabétisées
+
+### Phase 3 : Badges Sociaux et Certifications
+- [x] Créer table user_achievements (badge_name, earned_at, score_obtained)
+- [x] Définir 10 badges sociaux (Expert Marketing, Pro CNPS, Maître Stock, etc.)
+- [x] Afficher les badges sur le profil marchand
+- [x] Générer des images de certificat partageables (PNG avec score et logo)
+- [x] Ajouter bouton "Partager sur WhatsApp" après réussite du quiz
+
+### Phase 4 : Défis et Classements
+- [x] Créer table challenges (challenger_id, challenged_id, quiz_id, status)
+- [x] Créer table weekly_leaderboard (user_id, total_points, week_number, region)
+- [x] Implémenter le système de défis entre marchands
+- [x] Créer page /leaderboard avec classement régional hebdomadaire
+- [x] Mettre à jour automatiquement le leaderboard après chaque quiz
+- [x] Afficher les statistiques globales (participants, quiz, score moyen)
+- [x] Filtrage par région
+- [ ] Implémenter le système de défis entre marchands
+- [ ] Créer les classements régionaux hebdomadaires (Abidjan Nord, Cocody, etc.)
+- [ ] Afficher le Top 3 de la semaine sur la page d'accueil
+- [ ] Récompense : Visibilité gratuite 24h pour les 3 premiers
+
+### Phase 5 : Partage Social WhatsApp
+- [x] Générer des messages WhatsApp formatés avec émojis
+- [x] Créer des liens de partage directs (wa.me avec texte pré-rempli)
+- [x] Ajouter bouton "Défier un ami" avec partage WhatsApp
+- [x] Créer des visuels attractifs pour les résultats (score, badges)
+
+### Phase 6 : Apprentissage Communautaire
+- [ ] Afficher les statistiques d'erreurs ("34% des marchands ont aussi fait cette erreur")
+- [ ] Ajouter une section "Trucs et astuces" sous chaque quiz
+- [ ] Permettre aux marchands de partager leurs propres techniques
+- [ ] Créer un forum de discussion par module de formation
+
+### Phase 7 : Loterie Éducative (Optionnel)
+- [ ] Créer "Le Quiz du Vendredi" avec tirage au sort
+- [ ] Intégrer les gains Orange Money (2000 FCFA ou crédit communication)
+- [ ] Système de points cumulables pour augmenter les chances de gagner
