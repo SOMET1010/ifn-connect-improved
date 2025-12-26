@@ -160,3 +160,102 @@ export async function getMerchantsByMarket() {
 
   return byMarket;
 }
+
+/**
+ * Récupérer les enrôlements des 7 derniers jours (pour graphique)
+ */
+export async function getEnrollmentTrends() {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const results = await db
+    .select({
+      date: sql<string>`DATE(${merchants.enrolledAt})`,
+      count: count(),
+    })
+    .from(merchants)
+    .where(sql`${merchants.enrolledAt} >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)`)
+    .groupBy(sql`DATE(${merchants.enrolledAt})`)
+    .orderBy(sql`DATE(${merchants.enrolledAt})`);
+
+  return results;
+}
+
+/**
+ * Récupérer la répartition de la couverture sociale
+ */
+export async function getSocialCoverageStats() {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const cnpsStats = await db
+    .select({
+      active: sql<number>`SUM(CASE WHEN ${merchants.cnpsStatus} = 'active' THEN 1 ELSE 0 END)`,
+      inactive: sql<number>`SUM(CASE WHEN ${merchants.cnpsStatus} = 'inactive' THEN 1 ELSE 0 END)`,
+      pending: sql<number>`SUM(CASE WHEN ${merchants.cnpsStatus} = 'pending' THEN 1 ELSE 0 END)`,
+      none: sql<number>`SUM(CASE WHEN ${merchants.cnpsStatus} IS NULL THEN 1 ELSE 0 END)`,
+    })
+    .from(merchants);
+
+  const cmuStats = await db
+    .select({
+      active: sql<number>`SUM(CASE WHEN ${merchants.cmuStatus} = 'active' THEN 1 ELSE 0 END)`,
+      inactive: sql<number>`SUM(CASE WHEN ${merchants.cmuStatus} = 'inactive' THEN 1 ELSE 0 END)`,
+      pending: sql<number>`SUM(CASE WHEN ${merchants.cmuStatus} = 'pending' THEN 1 ELSE 0 END)`,
+      none: sql<number>`SUM(CASE WHEN ${merchants.cmuStatus} IS NULL THEN 1 ELSE 0 END)`,
+    })
+    .from(merchants);
+
+  return {
+    cnps: cnpsStats[0] || { active: 0, inactive: 0, pending: 0, none: 0 },
+    cmu: cmuStats[0] || { active: 0, inactive: 0, pending: 0, none: 0 },
+  };
+}
+
+/**
+ * Récupérer les enrôlements récents (derniers 10)
+ */
+export async function getRecentEnrollments(limit: number = 10) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const results = await db
+    .select({
+      id: merchants.id,
+      merchantNumber: merchants.merchantNumber,
+      businessName: merchants.businessName,
+      userName: users.name,
+      phone: users.phone,
+      marketName: actors.marketName,
+      enrolledAt: merchants.enrolledAt,
+      cnpsStatus: merchants.cnpsStatus,
+      cmuStatus: merchants.cmuStatus,
+    })
+    .from(merchants)
+    .innerJoin(users, eq(merchants.userId, users.id))
+    .leftJoin(actors, eq(actors.actorKey, merchants.merchantNumber))
+    .orderBy(desc(merchants.enrolledAt))
+    .limit(limit);
+
+  return results;
+}
+
+/**
+ * Récupérer les statistiques par marché
+ */
+export async function getEnrollmentsByMarket() {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const results = await db
+    .select({
+      marketName: actors.marketName,
+      count: count(),
+    })
+    .from(merchants)
+    .leftJoin(actors, eq(actors.actorKey, merchants.merchantNumber))
+    .groupBy(actors.marketName)
+    .orderBy(desc(count()));
+
+  return results;
+}

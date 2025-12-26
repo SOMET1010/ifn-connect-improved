@@ -1,42 +1,92 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { trpc } from '@/lib/trpc';
-import { MapView } from '@/components/Map';
 import {
   Users,
   TrendingUp,
   MapPin,
   Plus,
-  Search,
   Calendar,
-  Phone,
+  Shield,
   CheckCircle,
   XCircle,
   Clock,
+  Target,
+  Award,
+  BarChart3,
 } from 'lucide-react';
+import { AgentMap } from '@/components/AgentMap';
+import { EnrollmentTrendsChart } from '@/components/EnrollmentTrendsChart';
 
 export default function AgentDashboard() {
   const [, setLocation] = useLocation();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [filterMarket, setFilterMarket] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  // Récupérer les statistiques
+  // Récupérer toutes les statistiques
   const { data: stats, isLoading: statsLoading } = trpc.agent.stats.useQuery();
-
-  // Récupérer la liste des marchands
-  const { data: merchantsData, isLoading: merchantsLoading } = trpc.agent.listMerchants.useQuery({
-    page: currentPage,
-    limit: 10,
-    search: searchTerm || undefined,
-  });
-
-  // Récupérer les marchands pour la carte
+  const { data: trends } = trpc.agent.enrollmentTrends.useQuery();
+  const { data: socialCoverage } = trpc.agent.socialCoverageStats.useQuery();
+  const { data: recentEnrollments } = trpc.agent.recentEnrollments.useQuery({ limit: 5 });
+  const { data: enrollmentsByMarket } = trpc.agent.enrollmentsByMarket.useQuery();
   const { data: merchantsByMarket } = trpc.agent.merchantsByMarket.useQuery();
 
-  const getStatusIcon = (status: string) => {
+  // Filtrer les marchands selon les critères
+  const filteredMerchants = useMemo(() => {
+    if (!merchantsByMarket) return {};
+
+    let filtered = { ...merchantsByMarket };
+
+    // Filtrer par marché
+    if (filterMarket !== 'all') {
+      filtered = { [filterMarket]: filtered[filterMarket] || [] };
+    }
+
+    // Filtrer par statut CNPS/CMU
+    if (filterStatus !== 'all') {
+      const result: Record<string, any[]> = {};
+      Object.entries(filtered).forEach(([market, merchants]) => {
+        const filteredMerchants = (merchants as any[]).filter((m: any) => {
+          if (filterStatus === 'cnps-active') return m.cnpsStatus === 'active';
+          if (filterStatus === 'cmu-active') return m.cmuStatus === 'active';
+          if (filterStatus === 'no-coverage') return !m.cnpsStatus && !m.cmuStatus;
+          return true;
+        });
+        if (filteredMerchants.length > 0) {
+          result[market] = filteredMerchants;
+        }
+      });
+      filtered = result;
+    }
+
+    return filtered;
+  }, [merchantsByMarket, filterMarket, filterStatus]);
+
+  // Liste des marchés pour le filtre
+  const marketNames = useMemo(() => {
+    if (!merchantsByMarket) return [];
+    return Object.keys(merchantsByMarket).sort();
+  }, [merchantsByMarket]);
+
+  // Calculer les pourcentages de couverture sociale
+  const totalMerchants = stats?.totalEnrollments || 0;
+  const cnpsActivePercent = totalMerchants > 0 
+    ? Math.round(((socialCoverage?.cnps.active || 0) / totalMerchants) * 100)
+    : 0;
+  const cmuActivePercent = totalMerchants > 0
+    ? Math.round(((socialCoverage?.cmu.active || 0) / totalMerchants) * 100)
+    : 0;
+
+  // Calculer la progression hebdomadaire
+  const weeklyGoal = 50; // Objectif hebdomadaire
+  const weeklyProgress = stats?.enrollmentsThisMonth 
+    ? Math.min(100, Math.round((stats.enrollmentsThisMonth / weeklyGoal) * 100))
+    : 0;
+
+  const getStatusIcon = (status: string | null) => {
     switch (status) {
       case 'active':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
@@ -45,11 +95,11 @@ export default function AgentDashboard() {
       case 'pending':
         return <Clock className="h-4 w-4 text-yellow-600" />;
       default:
-        return null;
+        return <XCircle className="h-4 w-4 text-gray-400" />;
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string | null) => {
     switch (status) {
       case 'active':
         return 'Actif';
@@ -58,297 +108,437 @@ export default function AgentDashboard() {
       case 'pending':
         return 'En attente';
       default:
-        return status;
+        return 'Non enregistré';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
+      <div className="bg-white border-b-2 border-gray-200 shadow-sm">
+        <div className="container mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard Agent Terrain</h1>
-              <p className="text-gray-600 mt-1">Gestion des enrôlements marchands</p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                🚀 Dashboard Agent Terrain
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Gestion et suivi des enrôlements marchands
+              </p>
             </div>
             <Button
               size="lg"
               onClick={() => setLocation('/agent/enrollment')}
-              className="bg-orange-600 hover:bg-orange-700"
+              className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg h-14 px-8 text-lg"
             >
-              <Plus className="h-5 w-5 mr-2" />
-              Enrôler un Nouveau Marchand
+              <Plus className="h-6 w-6 mr-2" />
+              Nouvel Enrôlement
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* KPIs */}
+      <div className="container mx-auto px-6 py-8">
+        {/* KPIs Principaux */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Enrôlements Aujourd'hui
+          {/* Enrôlements du jour */}
+          <Card className="border-2 border-blue-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-blue-600" />
+                Aujourd'hui
               </CardTitle>
-              <Calendar className="h-5 w-5 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {statsLoading ? '...' : stats?.enrollmentsToday || 0}
-              </div>
-              <p className="text-sm text-gray-500 mt-1">Nouveaux marchands</p>
+              {statsLoading ? (
+                <p className="text-2xl text-gray-400">Chargement...</p>
+              ) : (
+                <>
+                  <p className="text-4xl font-bold text-blue-600">
+                    {stats?.enrollmentsToday || 0}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">enrôlements</p>
+                </>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Enrôlements ce Mois
+          {/* Enrôlements du mois */}
+          <Card className="border-2 border-green-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                Ce Mois
               </CardTitle>
-              <TrendingUp className="h-5 w-5 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {statsLoading ? '...' : stats?.enrollmentsThisMonth || 0}
-              </div>
-              <p className="text-sm text-gray-500 mt-1">Ce mois-ci</p>
+              {statsLoading ? (
+                <p className="text-2xl text-gray-400">Chargement...</p>
+              ) : (
+                <>
+                  <p className="text-4xl font-bold text-green-600">
+                    {stats?.enrollmentsThisMonth || 0}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">enrôlements</p>
+                </>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Total Enrôlés
+          {/* Total enrôlements */}
+          <Card className="border-2 border-purple-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-600" />
+                Total
               </CardTitle>
-              <Users className="h-5 w-5 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {statsLoading ? '...' : stats?.totalEnrollments || 0}
-              </div>
-              <p className="text-sm text-gray-500 mt-1">Tous les marchands</p>
+              {statsLoading ? (
+                <p className="text-2xl text-gray-400">Chargement...</p>
+              ) : (
+                <>
+                  <p className="text-4xl font-bold text-purple-600">
+                    {stats?.totalEnrollments || 0}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">marchands</p>
+                </>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Marchés Couverts
+          {/* Marchés couverts */}
+          <Card className="border-2 border-orange-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-orange-600" />
+                Marchés
               </CardTitle>
-              <MapPin className="h-5 w-5 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {statsLoading ? '...' : stats?.marketsCovered || 0}
+              {statsLoading ? (
+                <p className="text-2xl text-gray-400">Chargement...</p>
+              ) : (
+                <>
+                  <p className="text-4xl font-bold text-orange-600">
+                    {stats?.marketsCovered || 0}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">couverts</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Graphique de tendances */}
+        <div className="mb-8">
+          <EnrollmentTrendsChart data={trends || []} />
+        </div>
+
+        {/* Couverture sociale et Répartition par marché */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Couverture sociale */}
+          <Card className="border-2 border-gray-200">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+              <CardTitle className="flex items-center gap-3">
+                <Shield className="h-6 w-6 text-blue-600" />
+                Couverture Sociale
+              </CardTitle>
+              <CardDescription>
+                Répartition CNPS et CMU des marchands enrôlés
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                {/* CNPS */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-gray-900">CNPS (Retraite)</h3>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      {cnpsActivePercent}% actifs
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        Actifs
+                      </span>
+                      <span className="font-bold text-green-600">
+                        {socialCoverage?.cnps.active || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-yellow-600" />
+                        En attente
+                      </span>
+                      <span className="font-bold text-yellow-600">
+                        {socialCoverage?.cnps.pending || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        Inactifs
+                      </span>
+                      <span className="font-bold text-red-600">
+                        {socialCoverage?.cnps.inactive || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-gray-400" />
+                        Non enregistrés
+                      </span>
+                      <span className="font-bold text-gray-600">
+                        {socialCoverage?.cnps.none || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CMU */}
+                <div className="pt-6 border-t-2 border-gray-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-gray-900">CMU (Santé)</h3>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      {cmuActivePercent}% actifs
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        Actifs
+                      </span>
+                      <span className="font-bold text-green-600">
+                        {socialCoverage?.cmu.active || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-yellow-600" />
+                        En attente
+                      </span>
+                      <span className="font-bold text-yellow-600">
+                        {socialCoverage?.cmu.pending || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        Inactifs
+                      </span>
+                      <span className="font-bold text-red-600">
+                        {socialCoverage?.cmu.inactive || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-gray-400" />
+                        Non enregistrés
+                      </span>
+                      <span className="font-bold text-gray-600">
+                        {socialCoverage?.cmu.none || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-gray-500 mt-1">Marchés actifs</p>
+            </CardContent>
+          </Card>
+
+          {/* Répartition par marché */}
+          <Card className="border-2 border-gray-200">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50">
+              <CardTitle className="flex items-center gap-3">
+                <BarChart3 className="h-6 w-6 text-orange-600" />
+                Répartition par Marché
+              </CardTitle>
+              <CardDescription>
+                Top 5 des marchés avec le plus d'enrôlements
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {enrollmentsByMarket && enrollmentsByMarket.length > 0 ? (
+                <div className="space-y-4">
+                  {enrollmentsByMarket.slice(0, 5).map((market, index) => {
+                    const maxCount = enrollmentsByMarket[0]?.count || 1;
+                    const percentage = Math.round((market.count / maxCount) * 100);
+                    
+                    return (
+                      <div key={index}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">
+                            {market.marketName || 'Marché inconnu'}
+                          </span>
+                          <span className="text-sm font-bold text-orange-600">
+                            {market.count} marchand{market.count > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  Aucune donnée disponible
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
         {/* Carte interactive */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Carte des Enrôlements</CardTitle>
-            <CardDescription>Localisation des marchands enrôlés</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[500px] rounded-lg overflow-hidden">
-              <MapView
-                onMapReady={(map) => {
-                  // Créer les markers pour chaque marchand avec GPS
-                  const markers: any[] = [];
-                  const infoWindows: any[] = [];
-
-                  if (merchantsByMarket) {
-                    Object.entries(merchantsByMarket).forEach(([marketName, merchants]) => {
-                      merchants.forEach((merchant) => {
-                        if (merchant.latitude && merchant.longitude) {
-                          const marker = new (window as any).google.maps.Marker({
-                            position: {
-                              lat: parseFloat(merchant.latitude),
-                              lng: parseFloat(merchant.longitude),
-                            },
-                            map,
-                            title: merchant.businessName || merchant.userName,
-                            icon: {
-                              path: (window as any).google.maps.SymbolPath.CIRCLE,
-                              scale: 8,
-                              fillColor: '#ea580c',
-                              fillOpacity: 0.8,
-                              strokeColor: '#fff',
-                              strokeWeight: 2,
-                            },
-                          });
-
-                          const infoWindow = new (window as any).google.maps.InfoWindow({
-                            content: `
-                              <div style="padding: 8px; min-width: 200px;">
-                                <h3 style="font-weight: bold; margin-bottom: 4px; color: #ea580c;">${merchant.merchantNumber}</h3>
-                                <p style="margin: 4px 0;"><strong>${merchant.businessName || merchant.userName}</strong></p>
-                                <p style="margin: 4px 0; color: #666;">📞 ${merchant.phone || 'N/A'}</p>
-                                <p style="margin: 4px 0; color: #666;">📍 ${marketName}</p>
-                                <p style="margin: 4px 0; font-size: 12px; color: #999;">Enrôlé le ${merchant.enrolledAt ? new Date(merchant.enrolledAt).toLocaleDateString('fr-FR') : 'N/A'}</p>
-                              </div>
-                            `,
-                          });
-
-                          marker.addListener('click', () => {
-                            // Fermer toutes les autres info windows
-                            infoWindows.forEach((iw) => iw.close());
-                            infoWindow.open(map, marker);
-                          });
-
-                          markers.push(marker);
-                          infoWindows.push(infoWindow);
-                        }
-                      });
-                    });
-                  }
-
-                  // Ajuster la vue pour afficher tous les markers
-                  if (markers.length > 0) {
-                    const bounds = new (window as any).google.maps.LatLngBounds();
-                    markers.forEach((marker) => {
-                      const position = marker.getPosition();
-                      if (position) bounds.extend(position);
-                    });
-                    map.fitBounds(bounds);
-                  } else {
-                    // Par défaut, centrer sur Abidjan
-                    map.setCenter({ lat: 5.3600, lng: -4.0083 });
-                    map.setZoom(12);
-                  }
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Liste des marchands */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Marchands Enrôlés</CardTitle>
-                <CardDescription>Liste complète des marchands enregistrés</CardDescription>
-              </div>
-              <div className="w-64">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Rechercher..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="pl-10"
-                  />
+        <div className="mb-8">
+          <Card className="border-2 border-gray-200">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <CardTitle className="flex items-center gap-3 mb-2">
+                    <MapPin className="h-6 w-6 text-green-600" />
+                    Carte Interactive des Marchands
+                  </CardTitle>
+                  <CardDescription>
+                    Visualisation géographique avec clustering intelligent
+                  </CardDescription>
                 </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {merchantsLoading ? (
-              <div className="text-center py-8 text-gray-500">Chargement...</div>
-            ) : merchantsData?.merchants.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                Aucun marchand trouvé
-              </div>
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Code</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Nom</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Téléphone</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Marché</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">CNPS</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">CMU</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {merchantsData?.merchants.map((merchant) => (
-                        <tr key={merchant.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4">
-                            <span className="font-mono text-sm font-semibold text-orange-600">
-                              {merchant.merchantNumber}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div>
-                              <div className="font-medium text-gray-900">{merchant.businessName}</div>
-                              <div className="text-sm text-gray-500">{merchant.userName}</div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center text-gray-700">
-                              <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                              {merchant.phone || 'N/A'}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center text-gray-700">
-                              <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                              {merchant.marketName || 'N/A'}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              {getStatusIcon(merchant.cnpsStatus || 'pending')}
-                              <span className="text-sm">{getStatusText(merchant.cnpsStatus || 'pending')}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              {getStatusIcon(merchant.cmuStatus || 'pending')}
-                              <span className="text-sm">{getStatusText(merchant.cmuStatus || 'pending')}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">
-                            {merchant.enrolledAt
-                              ? new Date(merchant.enrolledAt).toLocaleDateString('fr-FR')
-                              : 'N/A'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+
+              {/* Filtres */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Filtrer par marché
+                  </label>
+                  <select
+                    value={filterMarket}
+                    onChange={(e) => setFilterMarket(e.target.value)}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none bg-white"
+                  >
+                    <option value="all">Tous les marchés</option>
+                    {marketNames.map(market => (
+                      <option key={market} value={market}>{market}</option>
+                    ))}
+                  </select>
                 </div>
 
-                {/* Pagination */}
-                {merchantsData && merchantsData.pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-6">
-                    <div className="text-sm text-gray-600">
-                      Page {merchantsData.pagination.page} sur {merchantsData.pagination.totalPages}
-                      {' · '}
-                      {merchantsData.pagination.total} marchand(s) au total
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Filtrer par couverture sociale
+                  </label>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none bg-white"
+                  >
+                    <option value="all">Tous les statuts</option>
+                    <option value="cnps-active">CNPS actif</option>
+                    <option value="cmu-active">CMU actif</option>
+                    <option value="no-coverage">Sans couverture</option>
+                  </select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="h-[600px] rounded-lg overflow-hidden border-2 border-gray-200">
+                <AgentMap merchants={filteredMerchants} />
+              </div>
+              
+              {/* Compteur de marchands filtrés */}
+              <div className="mt-4 text-center text-sm text-gray-600">
+                {Object.values(filteredMerchants).flat().length} marchand(s) affiché(s)
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Enrôlements récents */}
+        <Card className="border-2 border-gray-200">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+            <CardTitle className="flex items-center gap-3">
+              <Clock className="h-6 w-6 text-purple-600" />
+              Enrôlements Récents
+            </CardTitle>
+            <CardDescription>
+              Les 5 derniers marchands enrôlés
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {recentEnrollments && recentEnrollments.length > 0 ? (
+              <div className="space-y-4">
+                {recentEnrollments.map((enrollment) => (
+                  <div
+                    key={enrollment.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-bold text-gray-900">
+                          {enrollment.businessName || 'Commerce'}
+                        </h3>
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          {enrollment.merchantNumber}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          {enrollment.userName}
+                        </span>
+                        <span>{enrollment.phone}</span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {enrollment.marketName || 'Marché inconnu'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 1}
-                      >
-                        Précédent
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage === merchantsData.pagination.totalPages}
-                      >
-                        Suivant
-                      </Button>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="flex items-center gap-2 mb-1">
+                          {getStatusIcon(enrollment.cnpsStatus)}
+                          <span className="text-sm text-gray-600">CNPS</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(enrollment.cmuStatus)}
+                          <span className="text-sm text-gray-600">CMU</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">
+                          {enrollment.enrolledAt
+                            ? new Date(enrollment.enrolledAt).toLocaleDateString('fr-FR', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                            : 'N/A'}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {enrollment.enrolledAt
+                            ? new Date(enrollment.enrolledAt).toLocaleTimeString('fr-FR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })
+                            : ''}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                )}
-              </>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Users className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-lg">Aucun enrôlement récent</p>
+              </div>
             )}
           </CardContent>
         </Card>

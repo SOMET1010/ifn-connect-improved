@@ -48,7 +48,7 @@
 - [x] Graphiques de tendances des ventes
 
 ## Module Agent Terrain (15% utilisateurs)
-- [ ] Dashboard agent avec statistiques d'enrôlement
+- [x] Dashboard agent avec statistiques d'enrôlement
 - [x] Wizard d'enrôlement en 5 étapes
 - [x] Capture photo des pièces justificatives
 - [x] Compression automatique des photos
@@ -2906,3 +2906,14 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Tester l'envoi d'email avec pièce jointe
 - [ ] Vérifier le format et le contenu du reçu
 - [ ] Créer le checkpoint final
+
+## Dashboard Agent (Nouvelles tâches)
+- [x] Procédures tRPC pour statistiques d'enrôlement
+- [x] KPIs : Enrôlements du jour/semaine/mois
+- [x] Graphiques de tendances d'enrôlement
+- [x] Répartition par marché (diagramme circulaire)
+- [x] Taux de couverture sociale (CNPS/CMU)
+- [x] Carte interactive avec Google Maps
+- [x] Clustering intelligent des marqueurs
+- [x] Filtres par marché et statut CNPS/CMU
+- [x] Liste des enrôlements récents

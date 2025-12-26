@@ -5,7 +5,15 @@ import { users, merchants, actors, markets } from '../../drizzle/schema';
 import { storagePut } from '../storage';
 import { randomBytes } from 'crypto';
 import { eq, sql } from 'drizzle-orm';
-import { listMerchants, getAgentStats, getMerchantsByMarket } from '../db-agent';
+import { 
+  listMerchants, 
+  getAgentStats, 
+  getMerchantsByMarket,
+  getEnrollmentTrends,
+  getSocialCoverageStats,
+  getRecentEnrollments,
+  getEnrollmentsByMarket
+} from '../db-agent';
 
 /**
  * Générer un code marchand unique au format MRC-XXXXX
@@ -341,5 +349,35 @@ export const agentRouter = router({
     tasks.sort((a, b) => priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder]);
 
     return tasks;
+  }),
+
+  /**
+   * Tendances d'enrôlement (7 derniers jours)
+   */
+  enrollmentTrends: publicProcedure.query(async () => {
+    return await getEnrollmentTrends();
+  }),
+
+  /**
+   * Statistiques de couverture sociale
+   */
+  socialCoverageStats: publicProcedure.query(async () => {
+    return await getSocialCoverageStats();
+  }),
+
+  /**
+   * Enrôlements récents
+   */
+  recentEnrollments: publicProcedure
+    .input(z.object({ limit: z.number().optional().default(10) }))
+    .query(async ({ input }) => {
+      return await getRecentEnrollments(input.limit);
+    }),
+
+  /**
+   * Répartition des enrôlements par marché
+   */
+  enrollmentsByMarket: publicProcedure.query(async () => {
+    return await getEnrollmentsByMarket();
   }),
 });
