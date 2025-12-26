@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { PriceTiersDisplay } from '@/components/PriceTiersDisplay';
 import { CountdownDisplay } from '@/components/CountdownTimer';
+import { GroupOrderPaymentModal } from '@/components/GroupOrderPaymentModal';
+import { PaymentProgress } from '@/components/PaymentProgress';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,6 +63,14 @@ export default function GroupedOrders() {
     { groupedOrderId: selectedOrderId! },
     { enabled: !!selectedOrderId }
   );
+  const { data: paymentStatus } = trpc.groupedOrders.getPaymentStatus.useQuery(
+    { groupedOrderId: selectedOrderId! },
+    { enabled: !!selectedOrderId }
+  );
+
+  // États pour le modal de paiement
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<{ id: number; amount: number } | null>(null);
 
   // Mutations
   const createMutation = trpc.groupedOrders.create.useMutation({
@@ -387,6 +397,8 @@ export default function GroupedOrders() {
                         variant="default"
                         className="gap-2"
                         onClick={() => confirmMutation.mutate({ groupedOrderId: order.id })}
+                        disabled={!paymentStatus?.isFullyPaid}
+                        title={!paymentStatus?.isFullyPaid ? 'Tous les participants doivent payer avant de confirmer' : ''}
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         Confirmer la commande
@@ -409,36 +421,74 @@ export default function GroupedOrders() {
                   </div>
                 )}
 
+                {/* Statut des paiements */}
+                {selectedOrderId === order.id && paymentStatus && (
+                  <div className="mt-6 pt-6 border-t">
+                    <PaymentProgress
+                      totalParticipants={paymentStatus.totalParticipants}
+                      paidParticipants={paymentStatus.paidParticipants}
+                      totalAmount={paymentStatus.totalAmount}
+                      percentagePaid={paymentStatus.percentagePaid}
+                      isFullyPaid={paymentStatus.isFullyPaid}
+                    />
+                  </div>
+                )}
+
                 {/* Liste des participants */}
-                {selectedOrderId === order.id && participants && participants.length > 0 && (
+                {selectedOrderId === order.id && paymentStatus && paymentStatus.participants.length > 0 && (
                   <div className="mt-6 pt-6 border-t">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Users className="h-5 w-5" />
-                      Participants ({participants.length})
+                      Participants ({paymentStatus.participants.length})
                     </h3>
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Marchand</TableHead>
-                          <TableHead>Commerce</TableHead>
-                          <TableHead className="text-right">Quantité</TableHead>
-                          <TableHead className="text-right">Date d'adhésion</TableHead>
+                          <TableHead>Quantité</TableHead>
+                          <TableHead>Statut</TableHead>
+                          <TableHead className="text-right">Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {participants.map((participant) => (
-                          <TableRow key={participant.id}>
-                            <TableCell className="font-medium">{participant.merchantName}</TableCell>
-                            <TableCell>{participant.businessName}</TableCell>
-                            <TableCell className="text-right font-semibold">{participant.quantity}</TableCell>
-                            <TableCell className="text-right text-sm text-muted-foreground">
-                              {new Date(participant.joinedAt).toLocaleDateString('fr-FR', {
-                                day: 'numeric',
-                                month: 'short',
-                              })}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {paymentStatus.participants.map((participant) => {
+                          const currentPrice = currentPriceData?.currentPrice || parseFloat(order.unitPrice || '0');
+                          const amount = currentPrice * participant.quantity;
+                          
+                          return (
+                            <TableRow key={participant.id}>
+                              <TableCell className="font-medium">{participant.merchantName}</TableCell>
+                              <TableCell className="text-right font-semibold">{participant.quantity} unités</TableCell>
+                              <TableCell>
+                                {participant.hasPaid ? (
+                                  <Badge className="bg-green-600 text-white">
+                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                    Payé
+                                  </Badge>
+                                ) : (
+                                  <Badge className="bg-orange-600 text-white">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    En attente
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {!participant.hasPaid && (
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700"
+                                    onClick={() => {
+                                      setSelectedParticipant({ id: participant.id, amount });
+                                      setPaymentModalOpen(true);
+                                    }}
+                                  >
+                                    Payer {amount.toLocaleString('fr-FR')} FCFA
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
@@ -490,6 +540,18 @@ export default function GroupedOrders() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de paiement */}
+      {selectedParticipant && selectedOrderId && (
+        <GroupOrderPaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          participantId={selectedParticipant.id}
+          groupedOrderId={selectedOrderId}
+          amount={selectedParticipant.amount}
+          productName={orders?.find(o => o.id === selectedOrderId)?.productName || 'Produit'}
+        />
+      )}
     </div>
   );
 }

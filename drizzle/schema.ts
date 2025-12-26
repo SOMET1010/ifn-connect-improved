@@ -967,5 +967,30 @@ export const priceTiers = mysqlTable("price_tiers", {
 export type PriceTier = typeof priceTiers.$inferSelect;
 export type InsertPriceTier = typeof priceTiers.$inferInsert;
 
+// ============================================================================
+// GROUP ORDER PAYMENTS (Paiements des commandes groupées)
+// ============================================================================
+
+export const groupOrderPayments = mysqlTable("grp_order_payments", {
+  id: int("id").autoincrement().primaryKey(),
+  participantId: int("participantId").notNull().references(() => groupedOrderParticipants.id, { onDelete: "cascade" }),
+  groupedOrderId: int("groupedOrderId").notNull().references(() => groupedOrders.id, { onDelete: "cascade" }),
+  merchantId: int("merchantId").notNull().references(() => merchants.id),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(), // Montant payé
+  status: mysqlEnum("status", ["pending", "completed", "failed", "refunded"]).notNull().default("pending"),
+  paymentMethod: varchar("paymentMethod", { length: 50 }), // Mobile money, cash, bank transfer, etc.
+  transactionId: varchar("transactionId", { length: 255 }), // ID de transaction externe
+  paidAt: timestamp("paidAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  participantIdx: index("participant_idx").on(table.participantId),
+  groupedOrderIdx: index("grouped_order_payment_idx").on(table.groupedOrderId),
+  merchantIdx: index("merchant_payment_idx").on(table.merchantId),
+  statusIdx: index("payment_status_idx").on(table.status),
+}));
+
+export type GroupOrderPayment = typeof groupOrderPayments.$inferSelect;
+export type InsertGroupOrderPayment = typeof groupOrderPayments.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

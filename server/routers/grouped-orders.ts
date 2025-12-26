@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants, priceTiers } from '../../drizzle/schema';
+import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants, priceTiers, groupOrderPayments } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { createNotification } from './in-app-notifications';
 
@@ -277,6 +277,32 @@ export const groupedOrdersRouter = router({
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'Cette commande a déjà été confirmée',
+        });
+      }
+
+      // Vérifier que tous les participants ont payé
+      const participants = await db
+        .select()
+        .from(groupedOrderParticipants)
+        .where(eq(groupedOrderParticipants.groupedOrderId, input.groupedOrderId));
+
+      const payments = await db
+        .select()
+        .from(groupOrderPayments)
+        .where(
+          and(
+            eq(groupOrderPayments.groupedOrderId, input.groupedOrderId),
+            eq(groupOrderPayments.status, 'completed')
+          )
+        );
+
+      const paidParticipants = new Set(payments.map(p => p.participantId));
+      const unpaidParticipants = participants.filter(p => !paidParticipants.has(p.id));
+
+      if (unpaidParticipants.length > 0) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Impossible de confirmer : ${unpaidParticipants.length} participant(s) n'ont pas encore payé`,
         });
       }
 
@@ -606,5 +632,155 @@ export const groupedOrdersRouter = router({
         topProducts,
         monthlySavings,
       };
+    }),
+
+  /**
+   * Enregistrer un paiement pour une participation
+   */
+  recordPayment: protectedProcedure
+    .input(z.object({
+      participantId: z.number(),
+      groupedOrderId: z.number(),
+      amount: z.number(),
+      paymentMethod: z.string().optional(),
+      transactionId: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Vérifier que la participation existe
+      const [participant] = await db
+        .select()
+        .from(groupedOrderParticipants)
+        .where(eq(groupedOrderParticipants.id, input.participantId))
+        .limit(1);
+
+      if (!participant) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Participation introuvable' });
+      }
+
+      // Vérifier que c'est bien le marchand qui paie
+      if (participant.merchantId !== ctx.user.id && ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Vous ne pouvez payer que pour vos propres participations' });
+      }
+
+      // Vérifier qu'il n'y a pas déjà un paiement completed pour cette participation
+      const [existingPayment] = await db
+        .select()
+        .from(groupOrderPayments)
+        .where(
+          and(
+            eq(groupOrderPayments.participantId, input.participantId),
+            eq(groupOrderPayments.status, 'completed')
+          )
+        )
+        .limit(1);
+
+      if (existingPayment) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Cette participation a déjà été payée' });
+      }
+
+      // Enregistrer le paiement
+      const [payment] = await db.insert(groupOrderPayments).values({
+        participantId: input.participantId,
+        groupedOrderId: input.groupedOrderId,
+        merchantId: participant.merchantId,
+        amount: input.amount.toString(),
+        status: 'completed',
+        paymentMethod: input.paymentMethod || 'cash',
+        transactionId: input.transactionId,
+        paidAt: new Date(),
+      }).$returningId();
+
+      return { success: true, paymentId: payment.id };
+    }),
+
+  /**
+   * Récupérer le statut de paiement d'une commande groupée
+   */
+  getPaymentStatus: protectedProcedure
+    .input(z.object({ groupedOrderId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer tous les participants
+      const participants = await db
+        .select({
+          id: groupedOrderParticipants.id,
+          merchantId: groupedOrderParticipants.merchantId,
+          merchantName: merchants.businessName,
+          quantity: groupedOrderParticipants.quantity,
+        })
+        .from(groupedOrderParticipants)
+        .leftJoin(merchants, eq(groupedOrderParticipants.merchantId, merchants.id))
+        .where(eq(groupedOrderParticipants.groupedOrderId, input.groupedOrderId));
+
+      // Récupérer tous les paiements completed
+      const payments = await db
+        .select()
+        .from(groupOrderPayments)
+        .where(
+          and(
+            eq(groupOrderPayments.groupedOrderId, input.groupedOrderId),
+            eq(groupOrderPayments.status, 'completed')
+          )
+        );
+
+      // Calculer les statistiques
+      const totalParticipants = participants.length;
+      const paidParticipants = new Set(payments.map(p => p.participantId)).size;
+      const totalAmount = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      const percentagePaid = totalParticipants > 0 ? (paidParticipants / totalParticipants) * 100 : 0;
+
+      // Créer une map des paiements par participant
+      const paymentMap = new Map();
+      payments.forEach(p => {
+        paymentMap.set(p.participantId, p);
+      });
+
+      // Enrichir les participants avec leur statut de paiement
+      const participantsWithStatus = participants.map(p => ({
+        ...p,
+        hasPaid: paymentMap.has(p.id),
+        payment: paymentMap.get(p.id) || null,
+      }));
+
+      return {
+        totalParticipants,
+        paidParticipants,
+        totalAmount,
+        percentagePaid: Math.round(percentagePaid),
+        participants: participantsWithStatus,
+        isFullyPaid: percentagePaid === 100,
+      };
+    }),
+
+  /**
+   * Récupérer l'historique des paiements d'un marchand
+   */
+  getParticipantPayments: protectedProcedure
+    .input(z.object({ merchantId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      const payments = await db
+        .select({
+          id: groupOrderPayments.id,
+          amount: groupOrderPayments.amount,
+          status: groupOrderPayments.status,
+          paymentMethod: groupOrderPayments.paymentMethod,
+          paidAt: groupOrderPayments.paidAt,
+          productName: groupedOrders.productName,
+          groupedOrderId: groupedOrders.id,
+        })
+        .from(groupOrderPayments)
+        .leftJoin(groupedOrders, eq(groupOrderPayments.groupedOrderId, groupedOrders.id))
+        .where(eq(groupOrderPayments.merchantId, input.merchantId))
+        .orderBy(desc(groupOrderPayments.createdAt));
+
+      return payments;
     }),
 });

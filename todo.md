@@ -2804,3 +2804,69 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Utiliser l'API Web Share si disponible, sinon liens directs
 - [x] Inclure les détails du palier (prix, économies, quantité)
 - [x] Ajouter l'option "Copier le lien" dans le menu
+
+
+## 💳 MODULE DE PAIEMENT GROUPÉ - SPRINT 5
+
+### Phase 1 : Schéma de base de données
+- [ ] Créer la table group_order_payments pour tracer les paiements
+- [ ] Ajouter les champs : participantId, groupedOrderId, amount, status, paymentMethod, transactionId
+- [ ] Ajouter les status : pending, completed, failed, refunded
+- [ ] Ajouter les timestamps : paidAt, createdAt
+- [ ] Appliquer la migration de schéma
+
+### Phase 2 : Procédures backend
+- [ ] Créer la procédure recordPayment(participantId, groupedOrderId, amount, paymentMethod)
+- [ ] Créer la procédure getPaymentStatus(groupedOrderId) pour calculer le % payé
+- [ ] Créer la procédure getParticipantPayments(merchantId) pour l'historique
+- [ ] Ajouter la validation : montant = quantité × prix du palier actif
+- [ ] Implémenter la logique de confirmation automatique à 100%
+
+### Phase 3 : Interface de paiement
+- [ ] Créer le composant PaymentModal pour enregistrer un paiement
+- [ ] Ajouter le bouton "Payer ma part" sur chaque participation
+- [ ] Créer le composant PaymentProgress pour afficher le % collecté
+- [ ] Afficher la liste des participants avec leur statut de paiement
+- [ ] Ajouter des badges visuels (payé/en attente)
+
+### Phase 4 : Validation et confirmation
+- [ ] Calculer automatiquement le montant dû par participant
+- [ ] Vérifier le statut de paiement avant confirmation de commande
+- [ ] Bloquer la confirmation si tous les paiements ne sont pas reçus
+- [ ] Envoyer une notification quand 100% est atteint
+- [ ] Mettre à jour le status de la commande automatiquement
+
+### Phase 5 : Tests et livraison
+- [ ] Tester le flux complet de paiement
+- [ ] Vérifier les calculs de montants
+- [ ] Tester la confirmation automatique
+- [ ] Créer le checkpoint final
+
+## ✅ MODULE DE PAIEMENT - TÂCHES TERMINÉES
+
+### Phase 1 : Schéma de base de données
+- [x] Créer la table grp_order_payments pour tracer les paiements
+- [x] Ajouter les champs : participantId, groupedOrderId, amount, status, paymentMethod, transactionId
+- [x] Ajouter les status : pending, completed, failed, refunded
+- [x] Ajouter les timestamps : paidAt, createdAt
+- [x] Appliquer la migration de schéma
+
+### Phase 2 : Procédures backend
+- [x] Créer la procédure recordPayment(participantId, groupedOrderId, amount, paymentMethod)
+- [x] Créer la procédure getPaymentStatus(groupedOrderId) pour calculer le % payé
+- [x] Créer la procédure getParticipantPayments(merchantId) pour l'historique
+- [x] Ajouter la validation : montant = quantité × prix du palier actif
+- [x] Implémenter la logique de vérification des paiements avant confirmation
+
+### Phase 3 : Interface de paiement
+- [x] Créer le composant GroupOrderPaymentModal pour enregistrer un paiement
+- [x] Ajouter le bouton "Payer ma part" sur chaque participation
+- [x] Créer le composant PaymentProgress pour afficher le % collecté
+- [x] Afficher la liste des participants avec leur statut de paiement
+- [x] Ajouter des badges visuels (payé/en attente)
+
+### Phase 4 : Validation et confirmation
+- [x] Calculer automatiquement le montant dû par participant
+- [x] Vérifier le statut de paiement avant confirmation de commande
+- [x] Bloquer la confirmation si tous les paiements ne sont pas reçus
+- [x] Désactiver le bouton confirmer tant que 100% n'est pas atteint
