@@ -2102,3 +2102,54 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Tester la suppression individuelle
 - [x] Tester la suppression en masse
 - [x] Sauvegarder le checkpoint 58
+
+
+## 🚀 DÉVELOPPEMENT PRIORITAIRE - 3 MODULES MÉTIER
+
+### PRIORITÉ 1 : Interface de Caisse Tactile Complète ✅ TERMINÉ
+- [x] Page caisse tactile simplifiée (/merchant/cash-register)
+- [x] Pavé numérique GÉANT (boutons 100px minimum)
+- [x] Sélection produits avec grandes cartes visuelles
+- [x] Affichage en temps réel (quantité, prix unitaire, total)
+- [x] Bouton VALIDER géant (vert) et EFFACER géant (rouge)
+- [x] Écran de succès plein écran animé avec "✅ VENDU !"
+- [x] Statistiques du jour en haut (gradient bleu)
+- [x] Procédure tRPC sales.create pour enregistrer les ventes
+- [x] Procédure tRPC sales.todayStats pour statistiques
+- [x] Gestion des erreurs avec toast
+- [x] Mode hors ligne avec sauvegarde locale (IndexedDB)
+- [x] Synchronisation automatique quand connexion revient
+
+### PRIORITÉ 2 : Wizard d'Enrôlement Agent Terrain ✅ TERMINÉ
+- [x] Page wizard d'enrôlement (/agent/enroll)
+- [x] Étape 1 : Informations personnelles (nom, prénom, téléphone)
+- [x] Étape 2 : Informations professionnelles (marché, activité)
+- [x] Étape 3 : Capture photo (caméra + compression)
+- [x] Étape 4 : Géolocalisation GPS automatique
+- [x] Étape 5 : Récapitulatif et validation
+- [x] Barre de progression visuelle (5 étapes)
+- [x] Navigation Précédent/Suivant avec validation
+- [x] Génération automatique du code marchand (MRC-XXXXX)
+- [x] Upload photo vers S3
+- [x] Procédure tRPC agent.enrollMerchant
+- [x] Feedback visuel de succès avec code marchand
+- [x] Mode hors ligne avec queue de synchronisation
+- [x] Interface optimisée tablettes (boutons tactiles)
+
+### PRIORITÉ 3 : Dashboard Analytique Admin ✅ TERMINÉ
+- [x] Page dashboard admin (/admin/dashboard)
+- [x] 4 grandes cartes KPI (Total marchands, Volume transactions, Couverture sociale, Adoption)
+- [x] Graphique évolution enrôlements (30 derniers jours)
+- [x] Graphique évolution transactions (30 derniers jours)
+- [x] Répartition géographique par marché (grille de cartes)
+- [x] Section alertes CNPS/CMU (< 30 jours)
+- [x] Section marchands inactifs (> 30 jours sans vente)
+- [x] Objectif 2025 (10 000 marchands) avec barre de progression
+- [x] Procédure tRPC admin.getStats
+- [x] Procédure tRPC admin.getMerchantsWithAlerts
+- [x] Procédure tRPC admin.getInactiveMerchants
+- [x] Procédure tRPC admin.getEnrollmentTrend
+- [x] Procédure tRPC admin.getTransactionTrend
+- [x] Procédure tRPC admin.getMarketDistribution
+- [x] Contrôle d'accès admin (adminProcedure)
+- [x] Export des données en CSV
