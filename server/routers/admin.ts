@@ -254,4 +254,138 @@ export const adminRouter = router({
 
     return distribution;
   }),
+
+  /**
+   * Lister tous les marchands avec filtres et pagination
+   */
+  listMerchants: adminProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(50),
+      search: z.string().optional(),
+      cooperative: z.string().optional(),
+      hasPhone: z.boolean().optional(),
+      isVerified: z.boolean().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      const { page, limit, search, cooperative, hasPhone, isVerified } = input;
+      const offset = (page - 1) * limit;
+
+      // Construire les conditions de filtrage
+      const conditions = [];
+
+      if (search) {
+        conditions.push(
+          sql`(
+            ${merchants.businessName} LIKE ${`%${search}%`} OR
+            ${merchants.merchantNumber} LIKE ${`%${search}%`} OR
+            ${users.phone} LIKE ${`%${search}%`}
+          )`
+        );
+      }
+
+      if (cooperative) {
+        conditions.push(eq(merchants.location, cooperative));
+      }
+
+      if (hasPhone !== undefined) {
+        if (hasPhone) {
+          conditions.push(sql`${users.phone} IS NOT NULL AND ${users.phone} != ''`);
+        } else {
+          conditions.push(sql`${users.phone} IS NULL OR ${users.phone} = ''`);
+        }
+      }
+
+      if (isVerified !== undefined) {
+        conditions.push(eq(merchants.isVerified, isVerified));
+      }
+
+      // Compter le total
+      const totalResult = await db
+        .select({ count: count() })
+        .from(merchants)
+        .leftJoin(users, eq(merchants.userId, users.id))
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      const total = totalResult[0]?.count || 0;
+
+      // Récupérer les marchands
+      const merchantsList = await db
+        .select({
+          id: merchants.id,
+          merchantNumber: merchants.merchantNumber,
+          businessName: merchants.businessName,
+          businessType: merchants.businessType,
+          location: merchants.location,
+          isVerified: merchants.isVerified,
+          cnpsStatus: merchants.cnpsStatus,
+          cmuStatus: merchants.cmuStatus,
+          createdAt: merchants.createdAt,
+          userId: users.id,
+          userName: users.name,
+          userPhone: users.phone,
+          userEmail: users.email,
+        })
+        .from(merchants)
+        .leftJoin(users, eq(merchants.userId, users.id))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(merchants.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      return {
+        merchants: merchantsList,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    }),
+
+  /**
+   * Obtenir les statistiques pour la page admin marchands
+   */
+  getMerchantsStats: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+    // Total marchands
+    const totalResult = await db.select({ count: count() }).from(merchants);
+    const total = totalResult[0]?.count || 0;
+
+    // Marchands avec téléphone
+    const withPhoneResult = await db
+      .select({ count: count() })
+      .from(merchants)
+      .leftJoin(users, eq(merchants.userId, users.id))
+      .where(sql`${users.phone} IS NOT NULL AND ${users.phone} != ''`);
+    const withPhone = withPhoneResult[0]?.count || 0;
+
+    // Marchands vérifiés
+    const verifiedResult = await db
+      .select({ count: count() })
+      .from(merchants)
+      .where(eq(merchants.isVerified, true));
+    const verified = verifiedResult[0]?.count || 0;
+
+    // Coopératives uniques
+    const cooperativesResult = await db
+      .selectDistinct({ location: merchants.location })
+      .from(merchants)
+      .where(sql`${merchants.location} IS NOT NULL`);
+    const cooperatives = cooperativesResult.length;
+
+    return {
+      total,
+      withPhone,
+      verified,
+      cooperatives,
+    };
+  }),
 });
+

@@ -24,6 +24,7 @@ import MarketsPage from "./pages/admin/Markets";
 import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
+import MerchantsAdmin from "./pages/MerchantsAdmin";
 
 function Router() {
   return (
@@ -52,6 +53,7 @@ function Router() {
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />
       <Route path={"/admin/markets"} component={MarketsPage} />
       <Route path={"/admin/map"} component={MapViewPage} />
+      <Route path={"/admin/merchants"} component={MerchantsAdmin} />
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />

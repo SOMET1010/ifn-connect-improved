@@ -1906,3 +1906,33 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Vérifier le nombre de marchands importés (2590 total)
 - [x] Vérifier la répartition par coopérative
 - [x] Sauvegarder le checkpoint 53
+
+
+---
+
+## 👥 PAGE ADMIN GESTION MARCHANDS (Checkpoint 54)
+
+### Phase 1 : Backend - Procédures tRPC
+- [x] Créer la procédure `merchants.list` avec pagination
+- [x] Ajouter les filtres (coopérative, téléphone, vérification, recherche)
+- [x] Créer la procédure `merchants.stats` pour les statistiques
+- [x] Export CSV sera fait côté client
+
+### Phase 2 : Frontend - Interface Admin
+- [x] Créer le composant MerchantsAdmin.tsx
+- [x] Tableau avec colonnes (ID, Nom, Coopérative, Téléphone, Statut)
+- [x] Barre de recherche (nom, ID, téléphone)
+- [x] Filtres dropdown (coopérative, statut vérification)
+- [x] Pagination (50 marchands par page)
+- [x] Cartes statistiques (Total, Avec téléphone, Vérifiés, Coopératives)
+
+### Phase 3 : Export CSV
+- [x] Bouton "Exporter CSV" avec icône download
+- [x] Générer le CSV côté client avec tous les filtres appliqués
+- [x] Nom de fichier dynamique (marchands_YYYY-MM-DD.csv)
+
+### Phase 4 : Intégration et Tests
+- [x] Ajouter la route /admin/merchants dans App.tsx
+- [x] Ajouter l'import du composant MerchantsAdmin
+- [x] Tester le serveur (fonctionnel)
+- [x] Sauvegarder le checkpoint 54
