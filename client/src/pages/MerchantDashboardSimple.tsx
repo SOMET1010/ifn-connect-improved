@@ -16,6 +16,7 @@ import {
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { StockAlertsBadge } from '@/components/StockAlertsBadge';
 import { ScoreCard } from '@/components/ScoreCard';
+import { CopilotAssistant } from '@/components/CopilotAssistant';
 
 /**
  * Composant interne qui contient toute la logique du dashboard
@@ -244,6 +245,9 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           onSkip={handleOnboardingSkip}
         />
       )}
+      
+      {/* Copilote SUTA */}
+      <CopilotAssistant />
     </div>
   );
 }
