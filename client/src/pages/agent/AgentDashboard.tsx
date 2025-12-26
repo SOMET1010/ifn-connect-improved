@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ import {
   Target,
   Award,
   BarChart3,
+  Download,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { AgentMap } from '@/components/AgentMap';
 import { EnrollmentTrendsChart } from '@/components/EnrollmentTrendsChart';
@@ -70,6 +73,53 @@ export default function AgentDashboard() {
     if (!merchantsByMarket) return [];
     return Object.keys(merchantsByMarket).sort();
   }, [merchantsByMarket]);
+
+  // Fonction d'export Excel
+  const handleExportExcel = () => {
+    // Préparer les données pour l'export
+    const dataToExport = Object.values(filteredMerchants).flat().map((merchant: any) => ({
+      'Code MRC': merchant.merchantNumber,
+      'Nom du Commerce': merchant.businessName || 'N/A',
+      'Propriétaire': merchant.userName || 'N/A',
+      'Téléphone': merchant.phone || 'N/A',
+      'Marché': merchant.marketName || 'Inconnu',
+      'Statut CNPS': merchant.cnpsStatus === 'active' ? 'Actif' : merchant.cnpsStatus === 'inactive' ? 'Inactif' : merchant.cnpsStatus === 'pending' ? 'En attente' : 'Non enregistré',
+      'Statut CMU': merchant.cmuStatus === 'active' ? 'Actif' : merchant.cmuStatus === 'inactive' ? 'Inactif' : merchant.cmuStatus === 'pending' ? 'En attente' : 'Non enregistré',
+      'Date d\'Enrôlement': merchant.enrolledAt
+        ? new Date(merchant.enrolledAt).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        : 'N/A',
+    }));
+
+    // Créer le workbook et la feuille
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Enrôlements');
+
+    // Définir la largeur des colonnes
+    const columnWidths = [
+      { wch: 15 }, // Code MRC
+      { wch: 25 }, // Nom du Commerce
+      { wch: 25 }, // Propriétaire
+      { wch: 15 }, // Téléphone
+      { wch: 25 }, // Marché
+      { wch: 18 }, // Statut CNPS
+      { wch: 18 }, // Statut CMU
+      { wch: 20 }, // Date d'Enrôlement
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Générer le nom de fichier avec la date
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    const filename = `enrolements-${dateStr}.xlsx`;
+
+    // Télécharger le fichier
+    XLSX.writeFile(workbook, filename);
+  };
 
   // Calculer les pourcentages de couverture sociale
   const totalMerchants = stats?.totalEnrollments || 0;
@@ -445,6 +495,22 @@ export default function AgentDashboard() {
                     <option value="no-coverage">Sans couverture</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Bouton d'export Excel */}
+              <div className="mt-6 flex justify-end">
+                <Button
+                  onClick={handleExportExcel}
+                  variant="outline"
+                  className="bg-white hover:bg-green-50 border-2 border-green-500 text-green-700 font-semibold transition-all hover:shadow-md"
+                  disabled={Object.values(filteredMerchants).flat().length === 0}
+                >
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Exporter en Excel
+                  <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
+                    {Object.values(filteredMerchants).flat().length}
+                  </Badge>
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="pt-6">

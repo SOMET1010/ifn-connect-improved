@@ -2917,3 +2917,10 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Clustering intelligent des marqueurs
 - [x] Filtres par marché et statut CNPS/CMU
 - [x] Liste des enrôlements récents
+
+## Export Excel Dashboard Agent
+- [x] Installer la bibliothèque xlsx
+- [x] Créer la fonction d'export avec respect des filtres
+- [x] Ajouter le bouton d'export dans le dashboard
+- [x] Formater les colonnes (Code MRC, Nom, Téléphone, Marché, CNPS, CMU, Date)
+- [x] Générer le nom de fichier avec la date du jour
