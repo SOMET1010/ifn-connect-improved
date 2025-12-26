@@ -3,7 +3,6 @@ import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
 import { merchants } from '../../drizzle/schema';
 import { sql, gte } from 'drizzle-orm';
-import { getWeatherForAbidjan, getWeatherIcon } from '../weather';
 
 /**
  * Router pour le copilote SUTA
@@ -12,14 +11,80 @@ import { getWeatherForAbidjan, getWeatherIcon } from '../weather';
 export const copilotRouter = router({
   /**
    * Récupérer la météo actuelle pour Abidjan
-   * Utilise le module weather.ts avec cache intégré
+   * Utilise OpenWeatherMap API (gratuit jusqu'à 1000 appels/jour)
    */
   weather: protectedProcedure
     .query(async () => {
-      const weather = await getWeatherForAbidjan();
-      
-      if (!weather) {
-        // Mode simulation si pas de clé API ou erreur
+      try {
+        // Coordonnées d'Abidjan
+        const lat = 5.3600;
+        const lon = -4.0083;
+        
+        // Clé API OpenWeatherMap (à configurer via webdev_request_secrets)
+        const apiKey = process.env.OPENWEATHER_API_KEY;
+        
+        if (!apiKey) {
+          // Mode simulation si pas de clé API
+          return {
+            temp: 28,
+            description: "Ensoleillé",
+            icon: "☀️",
+            willRain: false,
+            humidity: 75,
+            windSpeed: 12,
+          };
+        }
+
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=fr`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch weather");
+        }
+
+        const data = await response.json();
+
+        // Déterminer s'il va pleuvoir (si pluie dans les conditions ou humidité > 85%)
+        const willRain = 
+          data.weather[0].main.toLowerCase().includes("rain") ||
+          data.weather[0].main.toLowerCase().includes("drizzle") ||
+          data.weather[0].main.toLowerCase().includes("thunderstorm") ||
+          data.main.humidity > 85;
+
+        // Mapper les icônes météo
+        const iconMap: Record<string, string> = {
+          "01d": "☀️", // clear sky day
+          "01n": "🌙", // clear sky night
+          "02d": "⛅", // few clouds day
+          "02n": "☁️", // few clouds night
+          "03d": "☁️", // scattered clouds
+          "03n": "☁️",
+          "04d": "☁️", // broken clouds
+          "04n": "☁️",
+          "09d": "🌧️", // shower rain
+          "09n": "🌧️",
+          "10d": "🌦️", // rain day
+          "10n": "🌧️", // rain night
+          "11d": "⛈️", // thunderstorm
+          "11n": "⛈️",
+          "13d": "❄️", // snow
+          "13n": "❄️",
+          "50d": "🌫️", // mist
+          "50n": "🌫️",
+        };
+
+        return {
+          temp: Math.round(data.main.temp),
+          description: data.weather[0].description,
+          icon: iconMap[data.weather[0].icon] || "☀️",
+          willRain,
+          humidity: data.main.humidity,
+          windSpeed: Math.round(data.wind.speed * 3.6), // m/s to km/h
+        };
+      } catch (error) {
+        console.error("Weather API error:", error);
+        // Retourner des données par défaut en cas d'erreur
         return {
           temp: 28,
           description: "Ensoleillé",
@@ -29,15 +94,6 @@ export const copilotRouter = router({
           windSpeed: 12,
         };
       }
-
-      return {
-        temp: weather.temperature,
-        description: weather.description,
-        icon: getWeatherIcon(weather),
-        willRain: weather.rain,
-        humidity: weather.humidity,
-        windSpeed: Math.round(weather.windSpeed * 3.6), // m/s to km/h
-      };
     }),
 
   /**

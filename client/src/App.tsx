@@ -19,7 +19,6 @@ import OrderHistory from './pages/merchant/OrderHistory';
 import Savings from "./pages/merchant/Savings";
 import Events from "./pages/merchant/Events";
 import Stock from "./pages/merchant/Stock";
-import { MerchantWeather } from "./pages/merchant/Weather";
 import MarketsPage from "./pages/admin/Markets";
 import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
@@ -37,10 +36,9 @@ function Router() {
       <Route path="/merchant/badges" component={Badges} />
       <Route path="/merchant/market" component={VirtualMarket} />
       <Route path="/merchant/orders" component={OrderHistory} />
-      <Route path="/merchant/stock" component={Stock} />
-      <Route path="/merchant/savings" component={Savings} />
-      <Route path="/merchant/events" component={Events} />
-      <Route path="/merchant/weather" component={MerchantWeather} />
+      <Route path={"/merchant/stock"} component={Stock} />
+            <Route path="/merchant/savings" component={Savings} />
+            <Route path="/merchant/events" component={Events} />
       
       {/* Agent Routes */}
       <Route path={"/agent"} component={AgentDashboard} />
