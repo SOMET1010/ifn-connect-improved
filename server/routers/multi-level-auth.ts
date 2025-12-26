@@ -6,7 +6,7 @@
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import { generateOTP, sendOTPSMS } from "../_core/brevo-sms";
+import { generateOTP, sendOTPSMS, formatPhoneNumber } from "../_core/brevo-sms";
 import { randomUUID } from "crypto";
 import * as dbAuth from "../db-auth";
 
@@ -71,32 +71,35 @@ async function createSession(userId: number, deviceInfo?: string, ipAddress?: st
 
 export const multiLevelAuthRouter = router({
   /**
-   * Étape 1 : Login avec numéro marchand
-   * Détermine si l'utilisateur doit recevoir un OTP ou saisir un PIN
+   * Login simplifié : Téléphone + PIN directement
+   * Pas d'OTP, pas d'email, adapté aux marchands sans culture numérique
    */
-  loginWithMerchantNumber: publicProcedure
+  loginWithPhone: publicProcedure
     .input(z.object({
-      merchantNumber: z.string().min(5).max(50),
+      phone: z.string().min(9).max(15),
+      pinCode: z.string().length(4),
       deviceInfo: z.string().optional(),
       ipAddress: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
-      const { merchantNumber, deviceInfo, ipAddress } = input;
+      const { phone, pinCode, deviceInfo, ipAddress } = input;
 
-      // Rechercher le marchand
-      const merchant = await dbAuth.findMerchantByNumber(merchantNumber);
+      // Formater le numéro de téléphone
+      const formattedPhone = formatPhoneNumber(phone);
+
+      // Rechercher le marchand par téléphone
+      const merchant = await dbAuth.findMerchantByPhone(formattedPhone);
 
       if (!merchant) {
         await createAuditLog({
-          action: 'login_attempt',
-          merchantNumber,
+          action: 'login_failed',
           ipAddress,
           userAgent: deviceInfo,
-          details: 'Numéro marchand introuvable',
+          details: `Téléphone introuvable: ${formattedPhone}`,
           success: false,
         });
 
-        throw new Error('Numéro marchand introuvable');
+        throw new Error('Numéro de téléphone introuvable. Contactez un agent pour vous enrôler.');
       }
 
       const user = merchant.user;
@@ -104,29 +107,112 @@ export const multiLevelAuthRouter = router({
       // Vérifier si l'utilisateur a un PIN
       const pinRecord = await dbAuth.findPinByUserId(user.id);
 
-      // Vérifier si l'utilisateur a une session active récente (< 30 jours)
-      const recentSession = await dbAuth.findRecentSessionByUserId(user.id, 30);
+      if (!pinRecord) {
+        await createAuditLog({
+          userId: user.id,
+          action: 'login_failed',
+          ipAddress,
+          userAgent: deviceInfo,
+          details: 'Aucun PIN défini',
+          success: false,
+        });
 
-      // Déterminer le flux : OTP ou PIN
-      const requiresOTP = !pinRecord || !recentSession;
+        throw new Error('Aucun code PIN défini. Contactez un agent.');
+      }
+
+      // Vérifier le verrouillage
+      if (pinRecord.lockedUntil && new Date() < new Date(pinRecord.lockedUntil)) {
+        const remainingMinutes = Math.ceil(
+          (new Date(pinRecord.lockedUntil).getTime() - Date.now()) / (60 * 1000)
+        );
+
+        await createAuditLog({
+          userId: user.id,
+          action: 'login_failed',
+          ipAddress,
+          details: 'Compte verrouillé',
+          success: false,
+        });
+
+        throw new Error(`Compte verrouillé. Réessayez dans ${remainingMinutes} minutes.`);
+      }
+
+      // Vérifier le PIN
+      const isValid = await bcrypt.compare(pinCode, pinRecord.pinHash);
+
+      if (!isValid) {
+        const newFailedAttempts = pinRecord.failedAttempts + 1;
+
+        // Verrouiller après 5 tentatives
+        if (newFailedAttempts >= MAX_PIN_ATTEMPTS) {
+          const lockedUntil = new Date();
+          lockedUntil.setMinutes(lockedUntil.getMinutes() + PIN_LOCK_DURATION_MINUTES);
+
+          await dbAuth.updatePin(user.id, { 
+            failedAttempts: newFailedAttempts,
+            lockedUntil,
+          });
+
+          await createAuditLog({
+            userId: user.id,
+            action: 'login_failed',
+            ipAddress,
+            details: `Compte verrouillé pour ${PIN_LOCK_DURATION_MINUTES} minutes`,
+            success: false,
+          });
+
+          throw new Error(`Trop de tentatives échouées. Compte verrouillé pour ${PIN_LOCK_DURATION_MINUTES} minutes.`);
+        }
+
+        await dbAuth.updatePin(user.id, { failedAttempts: newFailedAttempts });
+
+        await createAuditLog({
+          userId: user.id,
+          action: 'login_failed',
+          ipAddress,
+          details: `Tentative ${newFailedAttempts}/${MAX_PIN_ATTEMPTS}`,
+          success: false,
+        });
+
+        throw new Error(`Code PIN incorrect. ${MAX_PIN_ATTEMPTS - newFailedAttempts} tentatives restantes.`);
+      }
+
+      // PIN valide : réinitialiser les tentatives
+      await dbAuth.updatePin(user.id, { 
+        failedAttempts: 0,
+        lockedUntil: null,
+      });
 
       await createAuditLog({
         userId: user.id,
-        action: 'login_attempt',
-        merchantNumber,
+        action: 'login_success',
         ipAddress,
         userAgent: deviceInfo,
-        details: `Flux déterminé: ${requiresOTP ? 'OTP' : 'PIN'}`,
+        details: 'Connexion réussie via téléphone + PIN',
         success: true,
       });
 
+      // Si PIN temporaire, demander de le changer
+      if (pinRecord.mustChange) {
+        return {
+          success: true,
+          userId: user.id,
+          userName: user.name,
+          requiresPINChange: true,
+          message: 'Veuillez changer votre code PIN temporaire.',
+        };
+      }
+
+      // Créer une session
+      const sessionId = await createSession(user.id, deviceInfo, ipAddress);
+
       return {
+        success: true,
+        sessionId,
         userId: user.id,
         userName: user.name,
-        phone: user.phone,
-        requiresOTP,
-        requiresPIN: !requiresOTP,
-        mustChangePIN: pinRecord?.mustChange ?? false,
+        merchantId: merchant.id,
+        message: 'Connexion réussie',
       };
     }),
 

@@ -233,3 +233,25 @@ export async function findMerchantByNumber(merchantNumber: string) {
     user: result[0].user,
   };
 }
+
+export async function findMerchantByPhone(phone: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select({
+      merchant: merchants,
+      user: users,
+    })
+    .from(merchants)
+    .innerJoin(users, eq(merchants.userId, users.id))
+    .where(eq(users.phone, phone))
+    .limit(1);
+  
+  if (result.length === 0) return undefined;
+  
+  return {
+    ...result[0].merchant,
+    user: result[0].user,
+  };
+}

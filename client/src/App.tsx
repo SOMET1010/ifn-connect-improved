@@ -50,11 +50,15 @@ import AgentSupport from "./pages/agent/Support";
 import CnpsPayment from "./pages/CnpsPayment";
 import CmuRenewal from "./pages/CmuRenewal";
 import ProtectionSociale from "./pages/ProtectionSociale";
+import { MerchantLogin } from "./pages/MerchantLogin";
+import { MerchantChangePIN } from "./pages/MerchantChangePIN";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/merchant/login" component={MerchantLogin} />
+      <Route path="/merchant/change-pin" component={MerchantChangePIN} />
       <Route path={"/merchant"} component={MerchantDashboard} />
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />

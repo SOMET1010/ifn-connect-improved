@@ -3203,3 +3203,102 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Expiration session après 7 jours d'inactivité
 - [x] Logs d'audit pour toutes les tentatives d'authentification
 - [x] Protection CSRF avec tokens
+
+
+## 🎨 AUTHENTIFICATION SIMPLIFIÉE (EN COURS)
+
+### Adaptation backend (téléphone + PIN uniquement)
+- [x] Modifier loginWithMerchantNumber pour accepter téléphone au lieu de MRC
+- [x] Supprimer la dépendance à OAuth Manus pour marchands
+- [x] Créer procedure auth.loginWithPhone (téléphone + PIN)
+- [ ] Créer procedure auth.enrollMerchant (par agent uniquement)
+- [x] Gérer PIN temporaire lors de l'enrôlement
+- [x] Stocker sessions en local (localStorage + IndexedDB)
+
+### Pages d'authentification ultra-simplifiées
+- [x] Page /merchant/login - Saisie téléphone + PIN (GROS boutons)
+- [x] Page /merchant/change-pin - Changement PIN obligatoire (première connexion)
+- [ ] Page /agent/enroll - Enrôlement marchand (nom, téléphone, photo, PIN temp)
+- [x] Composant PhoneInput avec indicatif +225 pré-rempli
+- [x] Composant PinPad (clavier numérique visuel 0-9)
+- [x] Pas de formulaire complexe, juste 2 champs maximum
+- [x] Validation instantanée (pas de bouton "Valider")
+
+### Accessibilité
+- [x] Pictogrammes pour chaque étape (icônes claires)
+- [x] Support vocal avec annonces ARIA
+- [x] Feedback tactile (vibrations sur mobile)
+- [x] Clavier numérique optimisé pour mobile
+- [x] Contraste élevé pour malvoyants
+- [x] Navigation au clavier (Tab, Enter, Escape)
+- [x] Messages d'erreur explicites et contextuels
+
+### Expérience utilisateur
+- [x] Animations de transition fluides
+- [x] Indicateur de progression (barre + compteur)
+- [x] Affichage du numéro de téléphone formaté
+- [x] Mode offline avec queue de synchronisation (déjà implémenté)
+- [x] Stockage session en localStorage
+
+## 🔒 ROW LEVEL SECURITY (RLS) (TERMINÉ)
+
+### Configuration MySQL/TiDB
+- [x] Créer les policies RLS pour la table `merchants`
+- [x] Créer les policies RLS pour la table `sales`
+- [x] Créer les policies RLS pour la table `products`
+- [x] Créer les policies RLS pour la table `enrollmentDocuments`
+- [x] Créer les policies RLS pour la table `cnps_contributions`
+- [x] Créer les policies RLS pour la table `cmu_reimbursements`
+- [x] Créer les vues sécurisées (merchant_sales_view, etc.)
+- [x] Créer les triggers de protection (INSERT/UPDATE/DELETE)
+- [x] Créer les fonctions utilitaires (CURRENT_USER_ID, IS_ADMIN)
+- [x] Créer le module Node.js rls-context.ts
+- [x] Documenter les policies dans README.md
+
+### Vérification de sécurité
+- [x] Script SQL complet (server/security/rls-policies.sql)
+- [x] Module TypeScript (server/security/rls-context.ts)
+- [x] Documentation détaillée (server/security/README.md)
+- [ ] Exécuter le script SQL sur la base de données (manuel)
+- [ ] Test : Un marchand ne peut pas voir les données d'un autre marchand
+- [ ] Test : Un agent ne peut pas modifier les données d'un autre agent
+- [ ] Test : Les admins ont accès à toutes les données
+- [ ] Test : Les requêtes SQL directes respectent les policies
+
+## 🗺️ CALCUL D'ITINÉRAIRES OPTIMISÉS (À FAIRE)
+
+### Intégration OpenStreetMap
+- [ ] Configurer Leaflet.js pour affichage de carte
+- [ ] Intégrer OSRM (Open Source Routing Machine) pour calcul d'itinéraires
+- [ ] Créer le module server/routing/osrm.ts
+- [ ] Fonction calculateRoute(origin, destination) avec distance et durée
+- [ ] Fonction optimizeRoute(waypoints[]) avec algorithme TSP
+
+### Algorithme TSP (Travelling Salesman Problem)
+- [ ] Implémenter l'algorithme Nearest Neighbor (simple, O(n²))
+- [ ] Implémenter l'algorithme 2-opt pour optimisation locale
+- [ ] Calculer la distance totale et le temps estimé
+- [ ] Gérer les contraintes (horaires, priorités, zones)
+
+### Interface agent pour tournées
+- [ ] Page /agent/routes - Liste des tournées planifiées
+- [ ] Page /agent/routes/new - Créer une nouvelle tournée
+- [ ] Page /agent/routes/:id - Détails d'une tournée
+- [ ] Carte interactive avec marqueurs des marchands à visiter
+- [ ] Drag & drop pour réordonner les étapes
+- [ ] Bouton "Optimiser automatiquement" avec TSP
+- [ ] Export PDF de la feuille de route (adresses, horaires, carte)
+
+### Backend tRPC procedures
+- [ ] routes.create - Créer une tournée
+- [ ] routes.list - Lister les tournées d'un agent
+- [ ] routes.getById - Récupérer une tournée
+- [ ] routes.optimize - Optimiser l'ordre des étapes avec TSP
+- [ ] routes.exportPDF - Générer le PDF de la feuille de route
+- [ ] routes.updateStatus - Marquer une étape comme visitée
+
+### Schéma de base de données
+- [ ] Table `agent_routes` (id, agentId, name, date, status, createdAt)
+- [ ] Table `route_waypoints` (id, routeId, merchantId, order, status, visitedAt)
+- [ ] Index optimisés pour les requêtes fréquentes
+- [ ] Migration Drizzle
