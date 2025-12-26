@@ -27,6 +27,7 @@ import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentTasks from "./pages/agent/AgentTasks";
+import MerchantList from "./pages/agent/MerchantList";
 import MerchantsAdmin from "./pages/MerchantsAdmin";
 import MerchantJourney from "./pages/merchant/MerchantJourney";
 import CooperativeJourney from "./pages/cooperative/CooperativeJourney";
@@ -65,9 +66,9 @@ function Router() {
          {/* Merchant Routes */}
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />
-      <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
-      <Route path={"/agent/tasks"} component={AgentTasks} />
-      
+       <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
+       <Route path={"/agent/tasks"} component={AgentTasks} />
+       <Route path={"/agent/merchants"} component={MerchantList} />     
       {/* Admin Routes */}
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />

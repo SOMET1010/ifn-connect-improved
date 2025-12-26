@@ -33,9 +33,9 @@
 - [x] Gestion de stock avec alertes visuelles et vocales
 - [ ] Visualisation simple CNPS (retraite)
 - [ ] Visualisation simple CMU (santé)
-- [ ] Marché virtuel d'approvisionnement
-- [ ] Liste des produits disponibles
-- [ ] Panier d'achat et commande
+- [x] Marché virtuel d'approvisionnement
+- [x] Liste des produits disponibles
+- [x] Panier d'achat et commande
 - [x] Intégration paiements Mobile Money (InTouch)
 - [x] Intégration Orange Money
 - [x] Intégration MTN Mobile Money
@@ -54,8 +54,8 @@
 - [x] Compression automatique des photos
 - [x] Géolocalisation GPS automatique
 - [x] Validation des données en temps réel
-- [ ] Liste des marchands enrôlés avec filtres
-- [ ] Carte des marchands avec clustering
+- [x] Liste des marchands enrôlés avec filtres
+- [x] Carte des marchands avec clustering
 - [x] Mode offline complet pour enrôlement
 - [x] Queue d'enrôlements en attente de sync
 - [ ] Support N1 avec FAQ
@@ -2924,3 +2924,25 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Ajouter le bouton d'export dans le dashboard
 - [x] Formater les colonnes (Code MRC, Nom, Téléphone, Marché, CNPS, CMU, Date)
 - [x] Générer le nom de fichier avec la date du jour
+
+## Marché Virtuel d'Approvisionnement (Module Marchand)
+- [x] Créer le schéma de base de données pour les commandes (orders, order_items)
+- [x] Ajouter les procédures tRPC pour le catalogue de produits
+- [x] Ajouter les procédures tRPC pour le panier et les commandes
+- [x] Créer la page catalogue avec filtres par catégorie
+- [x] Créer la page détail produit avec ajout au panier
+- [x] Créer la page panier avec récapitulatif et validation
+- [x] Créer la page historique des commandes avec statuts
+- [ ] Implémenter le mode offline pour le panier
+- [ ] Ajouter les notifications pour les commandes
+
+## Liste des Marchands Enrôlés (Module Agent)
+- [x] Vérifier les procédures tRPC pour lister les marchands
+- [x] Créer la page liste des marchands avec tableau
+- [x] Ajouter la barre de recherche (nom, téléphone, code MRC)
+- [x] Ajouter les filtres par marché
+- [x] Ajouter les filtres par statut CNPS/CMU
+- [ ] Ajouter le filtre par date d'enrôlement
+- [x] Implémenter l'export Excel de la liste filtrée
+- [x] Ajouter la pagination pour grandes listes
+- [ ] Ajouter le lien vers la carte interactive
