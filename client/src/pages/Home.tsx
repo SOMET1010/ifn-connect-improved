@@ -4,7 +4,8 @@ import { Wallet, UserCheck, Volume2 } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 
 /**
- * Page d'accueil IFN Connect - VERSION SIMPLIFIÉE
+ * Page d'accueil PNAVIM-CI - VERSION SIMPLIFIÉE
+ * Plateforme Nationale des Acteurs du Vivrier Marchand
  * Interface ultra-simple pour utilisateurs non habitués à l'informatique
  */
 export default function Home() {

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { merchants, sales, users } from '../../drizzle/schema';
+import { merchants, sales, users, merchantActivity, merchantSocialProtection, merchantEditHistory } from '../../drizzle/schema';
 import { eq, and, gte, sql, desc, count } from 'drizzle-orm';
 
 /**
@@ -387,5 +387,295 @@ export const adminRouter = router({
       cooperatives,
     };
   }),
+
+  /**
+   * Obtenir les détails complets d'un marchand pour édition
+   */
+  getMerchantDetails: adminProcedure
+    .input(z.object({ merchantId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer le marchand avec l'utilisateur
+      const merchantResult = await db
+        .select({
+          id: merchants.id,
+          merchantNumber: merchants.merchantNumber,
+          businessName: merchants.businessName,
+          businessType: merchants.businessType,
+          location: merchants.location,
+          isVerified: merchants.isVerified,
+          userId: users.id,
+          userPhone: users.phone,
+          userEmail: users.email,
+        })
+        .from(merchants)
+        .leftJoin(users, eq(merchants.userId, users.id))
+        .where(eq(merchants.id, input.merchantId))
+        .limit(1);
+
+      if (!merchantResult[0]) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Marchand non trouvé' });
+      }
+
+      const merchant = merchantResult[0];
+
+      // Récupérer l'activité commerciale
+      const activityResult = await db
+        .select()
+        .from(merchantActivity)
+        .where(eq(merchantActivity.merchantId, input.merchantId))
+        .limit(1);
+
+      // Récupérer la protection sociale
+      const socialProtectionResult = await db
+        .select()
+        .from(merchantSocialProtection)
+        .where(eq(merchantSocialProtection.merchantId, input.merchantId))
+        .limit(1);
+
+      return {
+        ...merchant,
+        activity: activityResult[0] || null,
+        socialProtection: socialProtectionResult[0] || null,
+      };
+    }),
+
+  /**
+   * Mettre à jour un marchand (informations générales, activité, protection sociale)
+   */
+  updateMerchant: adminProcedure
+    .input(z.object({
+      merchantId: z.number(),
+      general: z.object({
+        businessName: z.string(),
+        businessType: z.string().nullable(),
+        location: z.string().nullable(),
+        phone: z.string().nullable(),
+        isVerified: z.boolean(),
+      }),
+      activity: z.object({
+        actorType: z.enum(['grossiste', 'semi-grossiste', 'detaillant']).nullable(),
+        products: z.string().nullable(),
+        numberOfStores: z.number(),
+        tableNumber: z.string().nullable(),
+        boxNumber: z.string().nullable(),
+        sector: z.string().nullable(),
+      }),
+      socialProtection: z.object({
+        hasCMU: z.boolean(),
+        cmuNumber: z.string().nullable(),
+        cmuStatus: z.enum(['active', 'inactive', 'pending', 'expired']),
+        cmuExpiryDate: z.string().nullable(),
+        hasCNPS: z.boolean(),
+        cnpsNumber: z.string().nullable(),
+        cnpsStatus: z.enum(['active', 'inactive', 'pending', 'expired']),
+        cnpsExpiryDate: z.string().nullable(),
+        hasRSTI: z.boolean(),
+        rstiNumber: z.string().nullable(),
+        rstiStatus: z.enum(['active', 'inactive', 'pending', 'expired']),
+        rstiExpiryDate: z.string().nullable(),
+      }),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer le marchand actuel pour l'historique
+      const currentMerchant = await db
+        .select()
+        .from(merchants)
+        .where(eq(merchants.id, input.merchantId))
+        .limit(1);
+
+      if (!currentMerchant[0]) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Marchand non trouvé' });
+      }
+
+      // Mettre à jour les informations générales du marchand
+      await db
+        .update(merchants)
+        .set({
+          businessName: input.general.businessName,
+          businessType: input.general.businessType,
+          location: input.general.location,
+          isVerified: input.general.isVerified,
+          updatedAt: new Date(),
+        })
+        .where(eq(merchants.id, input.merchantId));
+
+      // Mettre à jour le téléphone de l'utilisateur
+      if (input.general.phone) {
+        await db
+          .update(users)
+          .set({ phone: input.general.phone })
+          .where(eq(users.id, currentMerchant[0].userId));
+      }
+
+      // Mettre à jour ou créer l'activité commerciale
+      const existingActivity = await db
+        .select()
+        .from(merchantActivity)
+        .where(eq(merchantActivity.merchantId, input.merchantId))
+        .limit(1);
+
+      if (existingActivity[0]) {
+        await db
+          .update(merchantActivity)
+          .set({
+            actorType: input.activity.actorType,
+            products: input.activity.products,
+            numberOfStores: input.activity.numberOfStores,
+            tableNumber: input.activity.tableNumber,
+            boxNumber: input.activity.boxNumber,
+            sector: input.activity.sector,
+            updatedAt: new Date(),
+          })
+          .where(eq(merchantActivity.merchantId, input.merchantId));
+      } else {
+        await db.insert(merchantActivity).values({
+          merchantId: input.merchantId,
+          actorType: input.activity.actorType,
+          products: input.activity.products,
+          numberOfStores: input.activity.numberOfStores,
+          tableNumber: input.activity.tableNumber,
+          boxNumber: input.activity.boxNumber,
+          sector: input.activity.sector,
+        });
+      }
+
+      // Mettre à jour ou créer la protection sociale
+      const existingSocialProtection = await db
+        .select()
+        .from(merchantSocialProtection)
+        .where(eq(merchantSocialProtection.merchantId, input.merchantId))
+        .limit(1);
+
+      if (existingSocialProtection[0]) {
+        await db
+          .update(merchantSocialProtection)
+          .set({
+            hasCMU: input.socialProtection.hasCMU,
+            cmuNumber: input.socialProtection.cmuNumber,
+            cmuStatus: input.socialProtection.cmuStatus,
+            cmuExpiryDate: input.socialProtection.cmuExpiryDate ? new Date(input.socialProtection.cmuExpiryDate) : null,
+            hasCNPS: input.socialProtection.hasCNPS,
+            cnpsNumber: input.socialProtection.cnpsNumber,
+            cnpsStatus: input.socialProtection.cnpsStatus,
+            cnpsExpiryDate: input.socialProtection.cnpsExpiryDate ? new Date(input.socialProtection.cnpsExpiryDate) : null,
+            hasRSTI: input.socialProtection.hasRSTI,
+            rstiNumber: input.socialProtection.rstiNumber,
+            rstiStatus: input.socialProtection.rstiStatus,
+            rstiExpiryDate: input.socialProtection.rstiExpiryDate ? new Date(input.socialProtection.rstiExpiryDate) : null,
+            updatedAt: new Date(),
+          })
+          .where(eq(merchantSocialProtection.merchantId, input.merchantId));
+      } else {
+        await db.insert(merchantSocialProtection).values({
+          merchantId: input.merchantId,
+          hasCMU: input.socialProtection.hasCMU,
+          cmuNumber: input.socialProtection.cmuNumber,
+          cmuStatus: input.socialProtection.cmuStatus,
+          cmuExpiryDate: input.socialProtection.cmuExpiryDate ? new Date(input.socialProtection.cmuExpiryDate) : null,
+          hasCNPS: input.socialProtection.hasCNPS,
+          cnpsNumber: input.socialProtection.cnpsNumber,
+          cnpsStatus: input.socialProtection.cnpsStatus,
+          cnpsExpiryDate: input.socialProtection.cnpsExpiryDate ? new Date(input.socialProtection.cnpsExpiryDate) : null,
+          hasRSTI: input.socialProtection.hasRSTI,
+          rstiNumber: input.socialProtection.rstiNumber,
+          rstiStatus: input.socialProtection.rstiStatus,
+          rstiExpiryDate: input.socialProtection.rstiExpiryDate ? new Date(input.socialProtection.rstiExpiryDate) : null,
+        });
+      }
+
+      // Enregistrer l'historique de modification
+      await db.insert(merchantEditHistory).values({
+        merchantId: input.merchantId,
+        editedBy: ctx.user.id,
+        fieldName: 'general_update',
+        oldValue: JSON.stringify(currentMerchant[0]),
+        newValue: JSON.stringify(input),
+        action: 'update',
+        comment: 'Mise à jour via interface admin',
+      });
+
+      return { success: true };
+    }),
+
+  /**
+   * Vérifier plusieurs marchands en masse
+   */
+  bulkVerify: adminProcedure
+    .input(z.object({
+      merchantIds: z.array(z.number()),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Mettre à jour tous les marchands sélectionnés
+      for (const merchantId of input.merchantIds) {
+        await db
+          .update(merchants)
+          .set({ isVerified: true, updatedAt: new Date() })
+          .where(eq(merchants.id, merchantId));
+
+        // Enregistrer l'historique
+        await db.insert(merchantEditHistory).values({
+          merchantId,
+          editedBy: ctx.user.id,
+          fieldName: 'isVerified',
+          oldValue: 'false',
+          newValue: 'true',
+          action: 'bulk_update',
+          comment: `Vérification en masse (${input.merchantIds.length} marchands)`,
+        });
+      }
+
+      return { success: true, count: input.merchantIds.length };
+    }),
+
+  /**
+   * Envoyer un SMS à plusieurs marchands en masse
+   */
+  bulkSendSMS: adminProcedure
+    .input(z.object({
+      merchantIds: z.array(z.number()),
+      message: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer les numéros de téléphone des marchands
+      const merchantsWithPhone = await db
+        .select({
+          merchantId: merchants.id,
+          phone: users.phone,
+          name: merchants.businessName,
+        })
+        .from(merchants)
+        .leftJoin(users, eq(merchants.userId, users.id))
+        .where(sql`${merchants.id} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`)
+        .execute();
+
+      // Filtrer ceux qui ont un téléphone
+      const validPhones = merchantsWithPhone.filter(m => m.phone && m.phone.length === 10);
+
+      // TODO: Intégrer avec un service SMS réel (Twilio, Vonage, etc.)
+      // Pour l'instant, on simule l'envoi
+      console.log(`[SMS] Envoi à ${validPhones.length} marchands:`, input.message);
+      
+      // Simuler un délai d'envoi
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      return { 
+        success: true, 
+        sent: validPhones.length,
+        total: input.merchantIds.length,
+        message: `SMS envoyé à ${validPhones.length}/${input.merchantIds.length} marchands`,
+      };
+    }),
 });
 

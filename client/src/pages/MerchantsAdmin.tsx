@@ -3,6 +3,9 @@ import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import MerchantEditModal from '@/components/MerchantEditModal';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -29,7 +32,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
-  X
+  X,
+  Edit,
+  Mail,
+  MapPin
 } from 'lucide-react';
 
 export default function MerchantsAdmin() {
@@ -39,6 +45,14 @@ export default function MerchantsAdmin() {
   const [cooperative, setCooperative] = useState<string>('');
   const [hasPhone, setHasPhone] = useState<boolean | undefined>(undefined);
   const [isVerified, setIsVerified] = useState<boolean | undefined>(undefined);
+
+  // États pour la sélection multiple
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  // États pour le modal d'édition
+  const [editingMerchantId, setEditingMerchantId] = useState<number | null>(null);
+
+  const utils = trpc.useUtils();
 
   // Requêtes tRPC
   const { data: stats, isLoading: statsLoading } = trpc.admin.getMerchantsStats.useQuery();
@@ -116,6 +130,116 @@ export default function MerchantsAdmin() {
     if (isVerified !== undefined) count++;
     return count;
   }, [search, cooperative, hasPhone, isVerified]);
+
+  // Gestion de la sélection
+  const toggleSelect = (id: number) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (!merchantsData?.merchants) return;
+    
+    if (selectedIds.size === merchantsData.merchants.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(merchantsData.merchants.map(m => m.id)));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  // Mutations pour les actions en masse
+  const bulkVerify = trpc.admin.bulkVerify.useMutation({
+    onSuccess: () => {
+      toast.success(`${selectedIds.size} marchand(s) vérifié(s)`);
+      utils.admin.listMerchants.invalidate();
+      clearSelection();
+    },
+    onError: (error: any) => toast.error(`Erreur: ${error.message}`),
+  });
+
+  const bulkSendSMS = trpc.admin.bulkSendSMS.useMutation({
+    onSuccess: () => {
+      toast.success(`SMS envoyé à ${selectedIds.size} marchand(s)`);
+      clearSelection();
+    },
+    onError: (error: any) => toast.error(`Erreur: ${error.message}`),
+  });
+
+  // Actions en masse
+  const handleBulkVerify = () => {
+    if (selectedIds.size === 0) {
+      toast.error('Aucun marchand sélectionné');
+      return;
+    }
+    bulkVerify.mutate({ merchantIds: Array.from(selectedIds) });
+  };
+
+  const handleBulkSendSMS = () => {
+    if (selectedIds.size === 0) {
+      toast.error('Aucun marchand sélectionné');
+      return;
+    }
+    bulkSendSMS.mutate({ merchantIds: Array.from(selectedIds), message: 'Bienvenue sur IFN Connect!' });
+  };
+
+  const handleExportSelected = () => {
+    if (selectedIds.size === 0 || !merchantsData?.merchants) {
+      toast.error('Aucun marchand sélectionné');
+      return;
+    }
+
+    const selectedMerchants = merchantsData.merchants.filter(m => selectedIds.has(m.id));
+
+    const headers = [
+      'ID',
+      'Numéro Marchand',
+      'Nom',
+      'Type',
+      'Coopérative',
+      'Téléphone',
+      'Email',
+      'Vérifié',
+      'CNPS',
+      'CMU',
+      'Date création'
+    ];
+
+    const rows = selectedMerchants.map(m => [
+      m.id,
+      m.merchantNumber,
+      m.businessName,
+      m.businessType || '',
+      m.location || '',
+      m.userPhone || '',
+      m.userEmail || '',
+      m.isVerified ? 'Oui' : 'Non',
+      m.cnpsStatus || '',
+      m.cmuStatus || '',
+      new Date(m.createdAt).toLocaleDateString('fr-FR')
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `marchands_selection_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    toast.success(`${selectedIds.size} marchand(s) exporté(s)`);
+  };
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -280,6 +404,12 @@ export default function MerchantsAdmin() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedIds.size > 0 && selectedIds.size === merchantsData?.merchants.length}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </TableHead>
                 <TableHead>ID</TableHead>
                 <TableHead>Numéro Marchand</TableHead>
                 <TableHead>Nom</TableHead>
@@ -289,13 +419,14 @@ export default function MerchantsAdmin() {
                 <TableHead>CNPS</TableHead>
                 <TableHead>CMU</TableHead>
                 <TableHead>Date création</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {merchantsLoading ? (
                 [...Array(10)].map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(9)].map((_, j) => (
+                    {[...Array(11)].map((_, j) => (
                       <TableCell key={j}>
                         <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                       </TableCell>
@@ -304,13 +435,19 @@ export default function MerchantsAdmin() {
                 ))
               ) : merchantsData?.merchants.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={11} className="text-center py-8 text-gray-500">
                     Aucun marchand trouvé
                   </TableCell>
                 </TableRow>
               ) : (
                 merchantsData?.merchants.map((merchant) => (
                   <TableRow key={merchant.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.has(merchant.id)}
+                        onCheckedChange={() => toggleSelect(merchant.id)}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-sm">{merchant.id}</TableCell>
                     <TableCell className="font-mono text-sm">{merchant.merchantNumber}</TableCell>
                     <TableCell className="font-medium">{merchant.businessName}</TableCell>
@@ -345,6 +482,15 @@ export default function MerchantsAdmin() {
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
                       {new Date(merchant.createdAt).toLocaleDateString('fr-FR')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingMerchantId(merchant.id)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -384,6 +530,72 @@ export default function MerchantsAdmin() {
           </div>
         )}
       </Card>
+
+      {/* Barre d'actions flottante */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white border-2 border-gray-200 rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-orange-600" />
+            <span className="font-semibold text-gray-900">
+              {selectedIds.size} marchand{selectedIds.size > 1 ? 's' : ''} sélectionné{selectedIds.size > 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div className="h-8 w-px bg-gray-300" />
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkVerify}
+              disabled={bulkVerify.isPending}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Vérifier
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkSendSMS}
+              disabled={bulkSendSMS.isPending}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Envoyer SMS
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportSelected}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Exporter
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearSelection}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal d'édition */}
+      {editingMerchantId && (
+        <MerchantEditModal
+          merchantId={editingMerchantId}
+          open={editingMerchantId !== null}
+          onClose={() => setEditingMerchantId(null)}
+          onSuccess={() => {
+            utils.admin.listMerchants.invalidate();
+            utils.admin.getMerchantsStats.invalidate();
+          }}
+        />
+      )}
     </div>
   );
 }

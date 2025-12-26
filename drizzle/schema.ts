@@ -586,5 +586,90 @@ export const eventAlerts = mysqlTable("event_alerts", {
 export type EventAlert = typeof eventAlerts.$inferSelect;
 export type InsertEventAlert = typeof eventAlerts.$inferInsert;
 
+// ============================================================================
+// MERCHANT ACTIVITY (Activité commerciale)
+// ============================================================================
+
+export const merchantActivity = mysqlTable("merchant_activity", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  actorType: mysqlEnum("actorType", ["grossiste", "semi-grossiste", "detaillant"]),
+  products: text("products"), // JSON array of products: ["riz", "igname", "mais"]
+  numberOfStores: int("numberOfStores").default(0),
+  tableNumber: varchar("tableNumber", { length: 20 }),
+  boxNumber: varchar("boxNumber", { length: 20 }),
+  sector: varchar("sector", { length: 100 }), // Secteur commercial
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("merchant_activity_merchant_idx").on(table.merchantId),
+}));
+
+export type MerchantActivity = typeof merchantActivity.$inferSelect;
+export type InsertMerchantActivity = typeof merchantActivity.$inferInsert;
+
+// ============================================================================
+// MERCHANT SOCIAL PROTECTION (Protection sociale détaillée)
+// ============================================================================
+
+export const merchantSocialProtection = mysqlTable("merchant_social_protection", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  
+  // CMU (Couverture Maladie Universelle)
+  hasCMU: boolean("hasCMU").default(false).notNull(),
+  cmuNumber: varchar("cmuNumber", { length: 50 }),
+  cmuStatus: mysqlEnum("cmuStatus", ["active", "inactive", "pending", "expired"]).default("pending"),
+  cmuStartDate: timestamp("cmuStartDate"),
+  cmuExpiryDate: timestamp("cmuExpiryDate"),
+  
+  // CNPS (Caisse Nationale de Prévoyance Sociale)
+  hasCNPS: boolean("hasCNPS").default(false).notNull(),
+  cnpsNumber: varchar("cnpsNumber", { length: 50 }),
+  cnpsStatus: mysqlEnum("cnpsStatus", ["active", "inactive", "pending", "expired"]).default("pending"),
+  cnpsStartDate: timestamp("cnpsStartDate"),
+  cnpsExpiryDate: timestamp("cnpsExpiryDate"),
+  
+  // RSTI (Régime Social des Travailleurs Indépendants)
+  hasRSTI: boolean("hasRSTI").default(false).notNull(),
+  rstiNumber: varchar("rstiNumber", { length: 50 }),
+  rstiStatus: mysqlEnum("rstiStatus", ["active", "inactive", "pending", "expired"]).default("pending"),
+  rstiStartDate: timestamp("rstiStartDate"),
+  rstiExpiryDate: timestamp("rstiExpiryDate"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("merchant_social_protection_merchant_idx").on(table.merchantId),
+  cmuStatusIdx: index("merchant_social_protection_cmu_status_idx").on(table.cmuStatus),
+  cnpsStatusIdx: index("merchant_social_protection_cnps_status_idx").on(table.cnpsStatus),
+}));
+
+export type MerchantSocialProtection = typeof merchantSocialProtection.$inferSelect;
+export type InsertMerchantSocialProtection = typeof merchantSocialProtection.$inferInsert;
+
+// ============================================================================
+// MERCHANT EDIT HISTORY (Historique des modifications)
+// ============================================================================
+
+export const merchantEditHistory = mysqlTable("merchant_edit_history", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  editedBy: int("editedBy").notNull().references(() => users.id),
+  fieldName: varchar("fieldName", { length: 100 }).notNull(), // Nom du champ modifié
+  oldValue: text("oldValue"), // Ancienne valeur (JSON si complexe)
+  newValue: text("newValue"), // Nouvelle valeur (JSON si complexe)
+  action: mysqlEnum("action", ["create", "update", "delete", "verify", "bulk_update"]).notNull(),
+  comment: text("comment"), // Commentaire optionnel
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("merchant_edit_history_merchant_idx").on(table.merchantId),
+  editedByIdx: index("merchant_edit_history_edited_by_idx").on(table.editedBy),
+  createdAtIdx: index("merchant_edit_history_created_at_idx").on(table.createdAt),
+}));
+
+export type MerchantEditHistory = typeof merchantEditHistory.$inferSelect;
+export type InsertMerchantEditHistory = typeof merchantEditHistory.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

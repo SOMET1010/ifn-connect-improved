@@ -7,7 +7,8 @@ import { useAuth, getLoginUrl } from '@/hooks/useAuth';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 /**
- * Header institutionnel optimisé pour ANSUT / IFN
+ * Header institutionnel PNAVIM-CI
+ * Plateforme Nationale des Acteurs du Vivrier Marchand - Côte d'Ivoire
  * Inclus : Persistance des préférences, Sticky mode, et Accessibilité AA+
  */
 export default function InstitutionalHeader() {
@@ -83,22 +84,12 @@ export default function InstitutionalHeader() {
           
           {/* --- ZONE GAUCHE : IDENTITÉ --- */}
           <div className="flex items-center gap-3 md:gap-6 shrink-0">
-            {/* Logos avec protection de ratio */}
-            <div className="flex items-center gap-3 md:gap-4 h-12 md:h-16">
-              <img 
-                 src="/logos/dge-logo.png" 
-                 alt="Logo DGE" 
-                 className="h-full w-auto object-contain"
-                 onError={(e) => e.currentTarget.style.display = 'none'} // Fallback simple
-              />
-              {/* Séparateur vertical */}
-              <div className="w-px h-8 md:h-12 bg-gray-300" />
-              <img 
-                 src="/logos/ansut-logo.png" 
-                 alt="Logo ANSUT" 
-                 className="h-full w-auto object-contain"
-                 onError={(e) => e.currentTarget.style.display = 'none'}
-              />
+            {/* Logo PNAVIM-CI */}
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex flex-col">
+                <h1 className="text-lg md:text-2xl font-bold text-orange-600 leading-tight">PNAVIM-CI</h1>
+                <p className="text-[10px] md:text-xs text-gray-600 leading-tight hidden sm:block">Plateforme Nationale des Acteurs du Vivrier Marchand</p>
+              </div>
             </div>
           </div>
 

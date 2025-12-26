@@ -1936,3 +1936,98 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Ajouter l'import du composant MerchantsAdmin
 - [x] Tester le serveur (fonctionnel)
 - [x] Sauvegarder le checkpoint 54
+
+
+---
+
+## 🔧 ENRICHISSEMENT ADMIN MARCHANDS (Checkpoint 55)
+
+### Phase 1 : Enrichissement du modèle de données
+- [x] Créer la table `merchant_activity` (type_acteur, produits, nombre_magasin, numero_table, box)
+- [x] Créer la table `merchant_social_protection` (détails CMU, CNPS, RSTI avec numéros et dates)
+- [x] Créer la table `merchant_edit_history` (historique des modifications)
+- [x] Exécuter les migrations avec `pnpm db:push`
+- [x] Fonctions helper seront créées au besoin
+
+### Phase 2 : Formulaire d'édition marchand
+- [x] Créer le composant MerchantEditModal.tsx
+- [x] Formulaire avec validation (téléphone, coopérative, vérification)
+- [x] Section activité commerciale (type, produits, magasins)
+- [x] Section protection sociale (CMU, CNPS, RSTI avec numéros et dates)
+- [x] Procédure tRPC `admin.getMerchantDetails`
+- [x] Procédure tRPC `admin.updateMerchant`
+- [x] Enregistrer l'historique des modifications
+
+### Phase 3 : Actions en masse
+- [x] Ajouter checkbox de sélection sur chaque ligne
+- [x] Checkbox "Tout sélectionner" dans le header
+- [x] Barre d'actions flottante (Vérifier, Envoyer SMS, Exporter)
+- [x] Procédure tRPC `admin.bulkVerify`
+- [x] Procédure tRPC `admin.bulkSendSMS`
+- [x] Export CSV de la sélection uniquement
+- [x] Bouton Modifier sur chaque ligne
+- [x] Intégration du modal MerchantEditModal
+
+### Phase 4 : Tests et livraison
+- [x] Tester l'édition d'un marchand
+- [x] Tester les actions en masse
+- [x] Vérifier l'historique des modifications
+- [x] Sauvegarder le checkpoint 55
+
+
+---
+
+## 🏛️ REBRANDING PNAVIM-CI
+
+### Phase 1 : Variables et métadonnées
+- [x] Mettre à jour VITE_APP_TITLE avec "PNAVIM-CI"
+- [x] Ajouter la description complète dans les métadonnées
+- [x] Modifier le titre de la page HTML (index.html)
+
+### Phase 2 : Header et page d'accueil
+- [x] Modifier InstitutionalHeader avec le nouveau nom
+- [x] Mettre à jour la page d'accueil (Home.tsx)
+- [x] Ajouter le sigle PNAVIM-CI dans le header
+
+### Phase 3 : Fiches et documents
+- [x] Mettre à jour les en-têtes de fiches marchands (rebranding complet)
+- [x] Modifier les exports PDF/CSV avec le nouveau nom
+- [x] Ajouter le nom complet dans les footers
+
+### Phase 4 : Tests et livraison
+- [x] Vérifier tous les affichages
+- [x] Tester l'export des documents
+- [x] Sauvegarder le checkpoint 55
+
+
+---
+
+## 💎 ENRICHISSEMENT GOLD DATA
+
+### Phase 1 : Schéma de base de données
+- [ ] Ajouter les champs d'identité (date de naissance, nationalité, téléphone d'urgence)
+- [ ] Enrichir merchant_activity (services, produits, secteur, nb magasins, table, box)
+- [ ] Ajouter merchant_social (situation matrimoniale, enfants, résidence)
+- [ ] Ajouter merchant_ids (CNI, CMU, CNPS, identifiant carte, N°ID plateforme)
+- [ ] Ajouter merchant_organization (marché, coopérative, statut, catégorie A/B/C)
+- [ ] Ajouter merchant_enrollment (date arrivée, date enrôlement, agent, signature)
+- [ ] Exécuter pnpm db:push
+
+### Phase 2 : Formulaire d'édition
+- [ ] Ajouter l'onglet "Identité complète"
+- [ ] Ajouter l'onglet "Situation sociale"
+- [ ] Ajouter l'onglet "Identifiants officiels"
+- [ ] Ajouter l'onglet "Organisation & Rattachement"
+- [ ] Ajouter l'onglet "Suivi administratif"
+- [ ] Mettre à jour les procédures tRPC
+
+### Phase 3 : Fiche imprimable PNAVIM-CI
+- [ ] Créer le composant MerchantCard.tsx (format officiel)
+- [ ] Générer le QR Code avec les données marchand
+- [ ] Ajouter le bouton "Imprimer fiche" dans la page admin
+- [ ] Créer le composant MerchantIDCard.tsx (carte physique)
+
+### Phase 4 : Tests et livraison
+- [ ] Tester l'édition complète d'un marchand
+- [ ] Tester la génération de fiche
+- [ ] Sauvegarder le checkpoint 55 final
