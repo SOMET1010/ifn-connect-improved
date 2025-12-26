@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { merchants } from '../../drizzle/schema';
-import { sql, gte } from 'drizzle-orm';
+import * as schema from '../../drizzle/schema';
+const { merchants } = schema;
+import { sql, gte, eq } from 'drizzle-orm';
 import { getWeatherForAbidjan, getWeatherIcon } from '../weather';
 import { generateContextualMessages } from '../contextual-messages';
 import type { WeatherCondition, MerchantContext } from '../contextual-messages';
@@ -18,13 +19,14 @@ export const copilotRouter = router({
    */
   contextualMessages: protectedProcedure
     .query(async ({ ctx }) => {
-      const db = getDb();
+      const db = await getDb();
+      if (!db) {
+        return [];
+      }
       const userId = ctx.user.id;
 
       // Récupérer le marchand
-      const merchant = await db.query.merchants.findFirst({
-        where: (merchants, { eq }) => eq(merchants.userId, userId),
-      });
+      const merchant = await db.select().from(merchants).where(eq(merchants.userId, userId)).limit(1).then(rows => rows[0]);
 
       if (!merchant) {
         return [];
@@ -35,7 +37,7 @@ export const copilotRouter = router({
       const weather: WeatherCondition | null = weatherData ? {
         temp: weatherData.temperature,
         description: weatherData.description,
-        main: weatherData.main,
+        main: weatherData.condition,
         willRain: weatherData.rain,
         icon: getWeatherIcon(weatherData)
       } : null;
@@ -44,7 +46,7 @@ export const copilotRouter = router({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const todayStats = await db.execute(sql`
+      const todayStatsResult: any = await db.execute(sql`
         SELECT 
           COUNT(*) as salesCount,
           COALESCE(SUM(total_amount), 0) as totalSales
@@ -54,7 +56,7 @@ export const copilotRouter = router({
       `);
 
       // Récupérer le stock bas
-      const lowStock = await db.execute(sql`
+      const lowStockResult: any = await db.execute(sql`
         SELECT COUNT(*) as lowStockCount
         FROM inventory
         WHERE merchant_id = ${merchant.id}
@@ -64,9 +66,9 @@ export const copilotRouter = router({
       // Construire le contexte marchand
       const merchantContext: MerchantContext = {
         firstName: ctx.user.name?.split(' ')[0] || 'Ami(e)',
-        salesCount: Number((todayStats.rows[0] as any)?.salesCount || 0),
-        totalSales: Number((todayStats.rows[0] as any)?.totalSales || 0),
-        lowStockCount: Number((lowStock.rows[0] as any)?.lowStockCount || 0),
+        salesCount: Number(todayStatsResult?.rows?.[0]?.salesCount || 0),
+        totalSales: Number(todayStatsResult?.rows?.[0]?.totalSales || 0),
+        lowStockCount: Number(lowStockResult?.rows?.[0]?.lowStockCount || 0),
       };
 
       // Générer les messages contextuels

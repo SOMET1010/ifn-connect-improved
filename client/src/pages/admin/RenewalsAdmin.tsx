@@ -236,7 +236,7 @@ export default function RenewalsAdmin() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(renewal.proofDocumentUrl, '_blank')}
+                        onClick={() => renewal.proofDocumentUrl && window.open(renewal.proofDocumentUrl, '_blank')}
                       >
                         <FileText className="w-4 h-4 mr-2" />
                         Voir justificatif

@@ -54,10 +54,10 @@ export default function MobileMoneyPayment({
       
       // Vérifier le statut après 2 secondes (mode simulation)
       setTimeout(() => {
-        checkStatus.mutate({ transactionId: data.transactionId });
+        checkPaymentStatus(data.transactionId);
       }, 2500);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setErrorMessage(error.message);
       setStep('error');
       onError?.(error.message);
@@ -65,9 +65,13 @@ export default function MobileMoneyPayment({
     },
   });
 
-  // Query pour vérifier le statut
-  const checkStatus = trpc.payments.checkPaymentStatus.useMutation({
-    onSuccess: (data) => {
+  const trpcContext = trpc.useContext();
+
+  // Fonction pour vérifier le statut manuellement
+  const checkPaymentStatus = async (transactionId: number) => {
+    try {
+      const data = await trpcContext.payments.checkPaymentStatus.fetch({ transactionId });
+      
       if (data.status === 'success') {
         setStep('success');
         onSuccess?.(data.transactionId.toString());
@@ -80,16 +84,15 @@ export default function MobileMoneyPayment({
       } else {
         // Toujours en attente, revérifier dans 2 secondes
         setTimeout(() => {
-          checkStatus.mutate({ transactionId: data.transactionId });
+          checkPaymentStatus(data.transactionId);
         }, 2000);
       }
-    },
-    onError: (error) => {
+    } catch (error: any) {
       setErrorMessage(error.message);
       setStep('error');
       onError?.(error.message);
-    },
-  });
+    }
+  };
 
   // Réinitialiser l'état quand le dialogue s'ouvre
   useEffect(() => {
@@ -124,7 +127,7 @@ export default function MobileMoneyPayment({
 
     // Initier le paiement
     initiatePayment.mutate({
-      orderId,
+      orderId: orderId || 0,
       provider: selectedProvider,
       phoneNumber: phoneNumber.startsWith('225') ? phoneNumber : `225${phoneNumber}`,
     });

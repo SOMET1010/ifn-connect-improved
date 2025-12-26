@@ -30,7 +30,7 @@ export default function SocialProtection() {
   const [proofFileName, setProofFileName] = useState<string | null>(null);
 
   // Récupérer les informations du marchand
-  const { data: merchant, isLoading: merchantLoading } = trpc.auth.getMerchant.useQuery();
+  const { data: merchant, isLoading: merchantLoading } = trpc.auth.myMerchant.useQuery();
 
   // Récupérer l'historique des demandes
   const { data: renewals, isLoading: renewalsLoading, refetch: refetchRenewals } = trpc.socialProtection.listByMerchant.useQuery({
@@ -166,7 +166,7 @@ export default function SocialProtection() {
 
   const cnpsExpiry = merchant.cnpsExpiryDate;
   const cmuExpiry = merchant.cmuExpiryDate;
-  const rstiExpiry = merchant.rstiExpiryDate;
+  const rstiExpiry = merchant.socialProtection?.rstiExpiryDate;
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -280,7 +280,7 @@ export default function SocialProtection() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>RSTI</span>
-              {getExpiryBadge(rstiExpiry)}
+              {rstiExpiry ? getExpiryBadge(rstiExpiry) : null}
             </CardTitle>
             <CardDescription>Régime Social des Travailleurs Indépendants</CardDescription>
           </CardHeader>
