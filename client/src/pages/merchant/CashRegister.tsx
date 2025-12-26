@@ -12,6 +12,7 @@ import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { parseVoiceCommand } from '@/utils/voiceCommandParser';
 import MobileNavigation from '@/components/accessibility/MobileNavigation';
 import MobileMoneyPayment from '@/components/payments/MobileMoneyPayment';
+import { SavingsProposalModal } from '@/components/SavingsProposalModal';
 
 /**
  * Interface de caisse tactile pour les marchands
@@ -26,9 +27,14 @@ export default function CashRegister() {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showMobileMoneyDialog, setShowMobileMoneyDialog] = useState(false);
   const [pendingSaleData, setPendingSaleData] = useState<any>(null);
+  const [showSavingsProposal, setShowSavingsProposal] = useState(false);
+  const [savingsProposalData, setSavingsProposalData] = useState<{ saleAmount: number; suggestedAmount: number } | null>(null);
 
   // Mock merchantId - À remplacer par l'ID réel de l'utilisateur connecté
   const merchantId = 1;
+
+  // Charger les paramètres du marchand
+  const { data: settings } = trpc.merchantSettings.get.useQuery({ merchantId });
 
   // Charger les produits du marchand
   const { data: products = [], isLoading: loadingProducts } = trpc.products.listByMerchant.useQuery({
@@ -42,9 +48,27 @@ export default function CashRegister() {
 
   // Mutation pour créer une vente
   const createSale = trpc.sales.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success('Vente enregistrée !');
       audioManager.speak('Vente enregistrée avec succès');
+      
+      // Vérifier si la proposition d'épargne est activée et si le montant dépasse le seuil
+      if (settings?.savingsProposalEnabled && 
+          variables.totalAmount >= parseFloat(settings.savingsProposalThreshold || '20000')) {
+        const percentage = parseFloat(settings.savingsProposalPercentage || '2') / 100;
+        const suggestedAmount = Math.floor(variables.totalAmount * percentage);
+        setSavingsProposalData({
+          saleAmount: variables.totalAmount,
+          suggestedAmount,
+        });
+        
+        // Attendre 2 secondes avant d'afficher la proposition
+        setTimeout(() => {
+          setShowSavingsProposal(true);
+          audioManager.speak(`Grosse vente ! Veux-tu mettre ${suggestedAmount} francs dans ta cagnotte ?`);
+        }, 2000);
+      }
+      
       setQuantity('');
       setSelectedProduct(null);
     },
@@ -428,6 +452,23 @@ export default function CashRegister() {
         onSuccess={handleMobileMoneySuccess}
         onError={handleMobileMoneyError}
       />
+
+      {/* Modal de proposition d'épargne */}
+      {savingsProposalData && (
+        <SavingsProposalModal
+          isOpen={showSavingsProposal}
+          onClose={() => {
+            setShowSavingsProposal(false);
+            setSavingsProposalData(null);
+          }}
+          saleAmount={savingsProposalData.saleAmount}
+          suggestedAmount={savingsProposalData.suggestedAmount}
+          merchantId={merchantId}
+          onConfirm={() => {
+            audioManager.speak('C\'est fait ! Ta cagnotte avance bien !');
+          }}
+        />
+      )}
 
       {/* Navigation mobile */}
       <MobileNavigation 

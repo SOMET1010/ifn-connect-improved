@@ -946,5 +946,34 @@ export const groupedOrderParticipants = mysqlTable("grouped_order_participants",
 export type GroupedOrderParticipant = typeof groupedOrderParticipants.$inferSelect;
 export type InsertGroupedOrderParticipant = typeof groupedOrderParticipants.$inferInsert;
 
+// ============================================================================
+// MERCHANT SETTINGS (Paramètres personnalisables)
+// ============================================================================
+
+export const merchantSettings = mysqlTable("merchant_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }).unique(),
+  
+  // Paramètres de proposition d'épargne automatique
+  savingsProposalEnabled: boolean("savingsProposalEnabled").default(true).notNull(),
+  savingsProposalThreshold: decimal("savingsProposalThreshold", { precision: 10, scale: 2 }).default("20000").notNull(), // Montant minimum de vente
+  savingsProposalPercentage: decimal("savingsProposalPercentage", { precision: 5, scale: 2 }).default("2").notNull(), // Pourcentage suggéré
+  
+  // Paramètres de notifications
+  groupedOrderNotificationsEnabled: boolean("groupedOrderNotificationsEnabled").default(true).notNull(),
+  
+  // Paramètres de briefing matinal
+  morningBriefingEnabled: boolean("morningBriefingEnabled").default(true).notNull(),
+  morningBriefingTime: varchar("morningBriefingTime", { length: 5 }).default("08:00"), // Format HH:MM
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("merchant_settings_merchant_idx").on(table.merchantId),
+}));
+
+export type MerchantSettings = typeof merchantSettings.$inferSelect;
+export type InsertMerchantSettings = typeof merchantSettings.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

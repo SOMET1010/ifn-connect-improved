@@ -41,6 +41,7 @@ import Notifications from "./pages/Notifications";
 import OrderTracking from "./pages/OrderTracking";
 import CooperativeDashboard from "./pages/cooperative/Dashboard";
 import GroupedOrders from "./pages/cooperative/GroupedOrders";
+import MerchantSettings from "./pages/merchant/Settings";
 
 function Router() {
   return (
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/merchant/savings" component={Savings} />
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
+      <Route path="/merchant/settings" component={MerchantSettings} />
          {/* Merchant Routes */}
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />

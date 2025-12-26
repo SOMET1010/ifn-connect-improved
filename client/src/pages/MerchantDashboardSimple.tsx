@@ -19,6 +19,44 @@ import { ScoreCard } from '@/components/ScoreCard';
 import { CopilotAssistant } from '@/components/CopilotAssistant';
 import { Tooltip } from '@/components/Tooltip';
 import { SalesChart } from '@/components/SalesChart';
+import { GroupedOrderOpportunityCard } from '@/components/GroupedOrderOpportunityCard';
+
+/**
+ * Widget d'opportunités de commandes groupées
+ * TODO: Activer après rechargement des types tRPC
+ */
+/*
+function GroupedOrderOpportunities({ merchantId }: { merchantId: number }) {
+  const { data: opportunities = [], isLoading } = trpc.groupedOrders.getOpportunities.useQuery({ merchantId });
+
+  if (isLoading || opportunities.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-4">
+        <h2 className="text-2xl font-bold text-gray-900">📢 Opportunités du jour</h2>
+        <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+          {opportunities.length}
+        </span>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {opportunities.map((opp: any) => (
+          <GroupedOrderOpportunityCard
+            key={opp.id}
+            orderId={opp.id}
+            productName={opp.productName}
+            participantsCount={opp.participantsCount}
+            totalQuantity={opp.totalQuantity}
+            estimatedSavings={opp.estimatedSavings}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+*/
 
 /**
  * Composant interne qui contient toute la logique du dashboard
@@ -176,6 +214,9 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         <div className="mb-8">
           <SalesChart merchantId={merchantId} />
         </div>
+
+        {/* OPPORTUNITÉS DE COMMANDES GROUPÉES */}
+        {/* <GroupedOrderOpportunities merchantId={merchantId} /> */}
 
         {/* WIDGET SCORE SUTA - Carte Action */}
         <div className="mb-8">

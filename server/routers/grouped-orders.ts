@@ -242,6 +242,82 @@ export const groupedOrdersRouter = router({
     }),
 
   /**
+   * Récupérer les opportunités de commandes groupées pour un marchand
+   * (commandes en cours auxquelles il peut participer)
+   */
+  getOpportunities: protectedProcedure
+    .input(z.object({ merchantId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Trouver la coopérative du marchand
+      const [membership] = await db
+        .select({ cooperativeId: cooperativeMembers.cooperativeId })
+        .from(cooperativeMembers)
+        .innerJoin(merchants, eq(cooperativeMembers.merchantId, merchants.id))
+        .where(
+          and(
+            eq(merchants.id, input.merchantId),
+            eq(cooperativeMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!membership) {
+        return []; // Pas membre d'une coopérative
+      }
+
+      // Récupérer les commandes en cours (draft ou pending)
+      const opportunities = await db
+        .select({
+          id: groupedOrders.id,
+          productName: groupedOrders.productName,
+          totalQuantity: groupedOrders.totalQuantity,
+          unitPrice: groupedOrders.unitPrice,
+          status: groupedOrders.status,
+          createdAt: groupedOrders.createdAt,
+        })
+        .from(groupedOrders)
+        .where(
+          and(
+            eq(groupedOrders.cooperativeId, membership.cooperativeId),
+            eq(groupedOrders.status, 'draft')
+          )
+        )
+        .orderBy(desc(groupedOrders.createdAt))
+        .limit(5);
+
+      // Pour chaque opportunité, compter les participants
+      const opportunitiesWithDetails = await Promise.all(
+        opportunities.map(async (opp) => {
+          const participants = await db
+            .select({ merchantId: groupedOrderParticipants.merchantId })
+            .from(groupedOrderParticipants)
+            .where(eq(groupedOrderParticipants.groupedOrderId, opp.id));
+
+          // Vérifier si le marchand participe déjà
+          const alreadyParticipating = participants.some(
+            (p) => p.merchantId === input.merchantId
+          );
+
+          // Calculer les économies estimées (exemple : 500 FCFA par participant)
+          const estimatedSavings = participants.length * 500;
+
+          return {
+            ...opp,
+            participantsCount: participants.length,
+            estimatedSavings,
+            alreadyParticipating,
+          };
+        })
+      );
+
+      // Filtrer celles où le marchand ne participe pas encore
+      return opportunitiesWithDetails.filter((opp) => !opp.alreadyParticipating);
+    }),
+
+  /**
    * Récupérer les participants d'une commande groupée
    */
   getParticipants: protectedProcedure
