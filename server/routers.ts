@@ -32,6 +32,7 @@ import { merchantSocialRouter } from './routers/merchant-social';
 import { agentSupportRouter } from './routers/agent-support';
 import { cnpsRouter } from './routers/cnps';
 import { cmuRouter } from './routers/cmu';
+import { protectionSocialeRouter } from './routers/protection-sociale';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -66,6 +67,7 @@ export const appRouter = router({
   agentSupport: agentSupportRouter,
   cnps: cnpsRouter,
   cmu: cmuRouter,
+  protectionSociale: protectionSocialeRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

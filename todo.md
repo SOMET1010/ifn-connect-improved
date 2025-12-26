@@ -3128,3 +3128,23 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Mise à jour automatique du statut des transactions
 - [x] Logs et monitoring des callbacks InTouch
 - [x] Tests unitaires du webhook (5/5 passent)
+
+## Dashboard Protection Sociale Unifié (Complète)
+- [x] Procédure tRPC pour récupérer le statut global CNPS/CMU
+- [x] Procédure tRPC pour l'historique consolidé des paiements
+- [x] Procédure tRPC pour les statistiques et graphiques
+- [x] Page /merchant/protection-sociale avec vue d'ensemble
+- [x] Cartes de statut CNPS et CMU avec alertes d'expiration
+- [x] Graphiques de tendances des paiements (Recharts)
+- [x] Historique consolidé des transactions avec filtres
+- [x] Indicateurs de santé financière (taux de renouvellement)
+- [x] Liens rapides vers les pages de renouvellement
+- [x] Tests unitaires du routeur (5/5 passent)
+
+## Fil d'Ariane Dynamique / Guidage Utilisateur (Complète)
+- [x] Composant ProgressBreadcrumb pour guider le marchand
+- [x] Détection automatique de l'étape actuelle (inscription, renouvellement, etc.)
+- [x] Indicateurs visuels de progression (étapes complétées/en cours/à venir)
+- [x] Actions recommandées contextuelles selon le statut
+- [x] Intégration dans le dashboard Protection Sociale
+- [x] Badges d'urgence pour actions critiques

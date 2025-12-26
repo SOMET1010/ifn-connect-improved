@@ -49,6 +49,7 @@ import MerchantCmu from "./pages/merchant/Cmu";
 import AgentSupport from "./pages/agent/Support";
 import CnpsPayment from "./pages/CnpsPayment";
 import CmuRenewal from "./pages/CmuRenewal";
+import ProtectionSociale from "./pages/ProtectionSociale";
 
 function Router() {
   return (
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/merchant/weather" component={MerchantWeather} />
       <Route path="/merchant/cnps" component={MerchantCnps} />
       <Route path="/merchant/cmu" component={MerchantCmu} />
+      <Route path="/merchant/protection-sociale" component={ProtectionSociale} />
       <Route path="/cnps/payment" component={CnpsPayment} />
       <Route path="/cmu/renewal" component={CmuRenewal} />
          {/* Merchant Routes */}
