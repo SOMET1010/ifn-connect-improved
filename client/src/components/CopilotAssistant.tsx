@@ -268,26 +268,26 @@ function CopilotAssistantContent() {
       {/* Widget SUTA ouvert */}
       {isOpen && (
         <Card className="fixed bottom-6 right-6 w-96 z-50 shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-green-500 p-4 rounded-t-lg flex items-center justify-between">
+          {/* Header sobre */}
+          <div className="bg-white border-b border-gray-200 p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white p-1">
+              <div className="w-10 h-10 rounded-full bg-orange-100 p-1">
                 <img
                   src="/suta-avatar-3d.png"
                   alt="SUTA"
                   className="w-full h-full object-contain rounded-full"
                 />
               </div>
-              <div className="text-white">
-                <div className="font-bold text-lg">SUTA</div>
-                <div className="text-xs opacity-90">Assistant ANSUT</div>
+              <div>
+                <div className="font-semibold text-gray-900">SUTA</div>
+                <div className="text-xs text-gray-500">Assistant ANSUT</div>
               </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20"
+              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
             >
               <X className="w-5 h-5" />
             </Button>

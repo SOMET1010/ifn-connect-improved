@@ -1782,4 +1782,41 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Tester questions métier ("Comment améliorer mon score SUTA ?") - Réponse experte
 - [x] Tester questions sur le score SUTA - Conseils concrets donnés
 - [x] Vérifier que les réponses sont personnalisées et contextuelles - Utilise le prénom
+- [x] Sauvegarder le checkpoint
+
+
+## 🎨 AMÉLIORATION DESIGN DASHBOARD PRO
+
+### 1. En-tête (Titre + Code Boutique)
+- [x] Réduire la taille du titre (40-44px au lieu de très grand)
+- [x] Réduire la taille de l'emoji main
+- [x] Créer un badge copiable pour le code boutique avec bouton copier
+- [x] Ajouter une ligne "Dernière synchro : HH:MM"
+
+### 2. Cartes KPI (Aujourd'hui / Mon Bédou / Alertes)
+- [x] Uniformiser la structure des 3 cartes (libellé + gros chiffre + unité + icône)
+- [x] Appliquer rounded-2xl + shadow-sm + bordure légère
+- [x] Mettre les icônes en fond léger (pas au même niveau que le texte)
+- [x] Alertes en accent (orange/rouge) seulement si >0, sinon neutre
+- [x] Hiérarchiser : petit libellé, gros chiffre, unité en petit
+
+### 3. Bloc Score SUTA
+- [x] Transformer en vraie "carte action" avec titre + explication + bouton visible
+- [x] Ajouter icône/illustration légère
+- [x] Remonter juste sous les KPI pour plus de visibilité
+
+### 4. Widget SUTA (Chat)
+- [x] Rendre minimisé par défaut (petite bulle en bas à droite)
+- [x] Limiter la hauteur du message avec max-h-96 overflow
+- [x] Harmoniser le header (moins de dégradé, plus sobre)
+
+### 5. Fond + Cohérence Visuelle
+- [x] Mettre un fond neutre (gris très clair)
+- [x] Supprimer ou alléger l'image de fond
+- [x] Utiliser 1 couleur primaire + 1 couleur alerte (pas 3 cartes saturées)
+
+### Tests
+- [x] Tester sur mobile (mode tactile)
+- [x] Tester sur desktop
+- [x] Vérifier la lisibilité et la hiérarchie visuelle
 - [ ] Sauvegarder le checkpoint

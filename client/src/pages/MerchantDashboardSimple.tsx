@@ -58,7 +58,7 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header institutionnel */}
       <InstitutionalHeader />
       
@@ -66,54 +66,98 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
       <StockAlertsBadge merchantId={merchantId} />
 
       {/* Contenu principal */}
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-8">
         
-        {/* Message de bienvenue GÉANT */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-            Bonjour {businessName || 'Marchand'} ! 👋
+        {/* Message de bienvenue PRO */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+            Bonjour {businessName || 'Marchand'} ! <span className="text-3xl">👋</span>
           </h1>
-          <p className="text-3xl text-gray-700">
-            Code : <span className="font-bold text-orange-600">{merchantNumber}</span>
-          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Badge code copiable */}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(merchantNumber);
+                // Toast notification
+                const toast = document.createElement('div');
+                toast.textContent = '✅ Code copié !';
+                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
+            >
+              <span className="text-sm font-medium text-gray-600">Code :</span>
+              <span className="font-bold text-orange-600">{merchantNumber}</span>
+              <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+            {/* Statut synchro */}
+            <div className="text-sm text-gray-500">
+              Dernière synchro : {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
         </div>
 
-        {/* 3 KPIs ESSENTIELS - Cartes GÉANTES */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        {/* 3 KPIs ESSENTIELS - Cartes PRO */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           
           {/* Ventes du jour */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-10 shadow-2xl text-white">
-            <div className="flex items-center gap-4 mb-4">
-              <TrendingUp className="w-16 h-16" strokeWidth={2.5} />
-              <h2 className="text-3xl font-bold">Aujourd'hui</h2>
+          <div className="rounded-2xl border border-black/5 bg-white shadow-sm p-5 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-neutral-600">Aujourd'hui</p>
+              <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+              </div>
             </div>
-            <p className="text-6xl font-bold mb-2">{todayAmount.toLocaleString()}</p>
-            <p className="text-2xl text-blue-100">FCFA</p>
+            <div>
+              <p className="text-4xl font-semibold leading-none text-gray-900">{todayAmount.toLocaleString()}</p>
+              <p className="mt-1 text-sm text-neutral-500">FCFA</p>
+            </div>
           </div>
 
           {/* Solde total */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-3xl p-10 shadow-2xl text-white">
-            <div className="flex items-center gap-4 mb-4">
-              <Wallet className="w-16 h-16" strokeWidth={2.5} />
-              <h2 className="text-3xl font-bold">Mon Bédou</h2>
+          <div className="rounded-2xl border border-black/5 bg-white shadow-sm p-5 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-neutral-600">Mon Bédou</p>
+              <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-green-600" strokeWidth={2.5} />
+              </div>
             </div>
-            <p className="text-6xl font-bold mb-2">{balance.toLocaleString()}</p>
-            <p className="text-2xl text-green-100">FCFA</p>
+            <div>
+              <p className="text-4xl font-semibold leading-none text-gray-900">{balance.toLocaleString()}</p>
+              <p className="mt-1 text-sm text-neutral-500">FCFA</p>
+            </div>
           </div>
 
           {/* Alertes stock */}
-          <div className={`bg-gradient-to-br ${lowStock > 0 ? 'from-red-500 to-red-600' : 'from-gray-400 to-gray-500'} rounded-3xl p-10 shadow-2xl text-white`}>
-            <div className="flex items-center gap-4 mb-4">
-              <AlertTriangle className="w-16 h-16" strokeWidth={2.5} />
-              <h2 className="text-3xl font-bold">Alertes</h2>
+          <div className={`rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow ${
+            lowStock > 0 
+              ? 'border-orange-200 bg-orange-50' 
+              : 'border-black/5 bg-white'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-neutral-600">Alertes</p>
+              <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
+                lowStock > 0 ? 'bg-orange-100' : 'bg-gray-50'
+              }`}>
+                <AlertTriangle className={`w-5 h-5 ${
+                  lowStock > 0 ? 'text-orange-600' : 'text-gray-400'
+                }`} strokeWidth={2.5} />
+              </div>
             </div>
-            <p className="text-6xl font-bold mb-2">{lowStock}</p>
-            <p className="text-2xl text-white/90">Produits bas</p>
+            <div>
+              <p className={`text-4xl font-semibold leading-none ${
+                lowStock > 0 ? 'text-orange-600' : 'text-gray-900'
+              }`}>{lowStock}</p>
+              <p className="mt-1 text-sm text-neutral-500">Produits bas</p>
+            </div>
           </div>
         </div>
 
-        {/* WIDGET SCORE SUTA */}
-        <div className="mb-16 max-w-2xl mx-auto">
+        {/* WIDGET SCORE SUTA - Carte Action */}
+        <div className="mb-8">
           <ScoreCard merchantId={merchantId} />
         </div>
 
