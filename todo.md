@@ -2490,3 +2490,14 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Exécuter le script via webdev_execute_sql
 - [x] Vérifier l'affichage sur /learning
 - [ ] Tester la lecture vidéo et la génération de certificats
+
+
+## 🎓 5 NOUVEAUX COURS (Protection Sociale + Paiements Mobiles)
+
+### Création de 5 Cours Supplémentaires
+- [x] Rechercher vidéos YouTube sur protection sociale (CNPS/CMU)
+- [x] Rechercher vidéos YouTube sur paiements mobiles (Orange Money, MTN, Moov)
+- [x] Créer script SQL d'insertion des 5 nouveaux cours
+- [x] Exécuter le script via webdev_execute_sql
+- [x] Vérifier l'affichage des 10 cours sur /learning
+- [x] Tester les nouvelles catégories (protection_sociale, paiements_mobiles)
