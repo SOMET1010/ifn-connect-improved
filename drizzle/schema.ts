@@ -65,6 +65,30 @@ export type Merchant = typeof merchants.$inferSelect;
 export type InsertMerchant = typeof merchants.$inferInsert;
 
 // ============================================================================
+// MERCHANT DAILY SESSIONS (Ouverture/Fermeture de journée)
+// ============================================================================
+
+export const merchantDailySessions = mysqlTable("merchant_daily_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  sessionDate: date("sessionDate").notNull(), // Date de la session (YYYY-MM-DD)
+  openedAt: timestamp("openedAt"), // Timestamp d'ouverture (NULL si pas encore ouverte)
+  closedAt: timestamp("closedAt"), // Timestamp de fermeture (NULL si pas encore fermée)
+  openingNotes: text("openingNotes"), // Notes/objectifs saisis à l'ouverture
+  closingNotes: text("closingNotes"), // Réflexions/notes saisies à la fermeture
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  uniqueMerchantDate: uniqueIndex("unique_merchant_date").on(table.merchantId, table.sessionDate),
+  merchantDateIdx: index("merchant_date_idx").on(table.merchantId, table.sessionDate),
+  openedAtIdx: index("opened_at_idx").on(table.openedAt),
+  closedAtIdx: index("closed_at_idx").on(table.closedAt),
+}));
+
+export type MerchantDailySession = typeof merchantDailySessions.$inferSelect;
+export type InsertMerchantDailySession = typeof merchantDailySessions.$inferInsert;
+
+// ============================================================================
 // AGENTS
 // ============================================================================
 

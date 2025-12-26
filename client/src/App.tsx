@@ -43,14 +43,16 @@ import CooperativeDashboard from "./pages/cooperative/Dashboard";
 import GroupedOrders from "./pages/cooperative/GroupedOrders";
 import MerchantSettings from "./pages/merchant/Settings";
 import MorningBriefing from "./pages/merchant/MorningBriefing";
+import OpenDayBriefing from "./pages/merchant/OpenDayBriefing";
+import CloseDaySummary from "./pages/merchant/CloseDaySummary";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/merchant"} component={MerchantDashboard} />
-      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />
-      <Route path={"/merchant/morning-briefing"} component={MorningBriefing} />
+      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
+      <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />
       <Route path="/merchant/profile" component={MerchantProfile} />
       <Route path="/merchant/social-coverage" component={SocialCoverage} />

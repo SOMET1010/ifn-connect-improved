@@ -2767,3 +2767,20 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [ ] achievementsRouter - Accomplissements
 
 **Note :** La migration des routers existants peut être faite progressivement sans casser le système actuel.
+
+
+## Workflow SUTA - Système Ouverture/Fermeture de Journée
+- [x] Concevoir le flux Ouverture de journée (remplace briefing automatique 7h30)
+- [x] Concevoir le flux Fermeture de journée (remplace bilan automatique 19h00)
+- [x] Table merchant_daily_sessions (id, merchantId, openedAt, closedAt, openingNotes, closingNotes)
+- [x] Procédure tRPC openDay() - Marquer ouverture + afficher briefing
+- [x] Procédure tRPC closeDay() - Marquer fermeture + afficher bilan
+- [x] Procédure tRPC getCurrentSession() - Vérifier si journée ouverte/fermée
+- [x] Bouton "Ouvrir ma journée" sur le dashboard (composant OpenDayButton)
+- [x] Bouton "Fermer ma journée" sur le dashboard (via SessionStatusBadge)
+- [x] Modal de briefing matinal au clic sur "Ouvrir ma journée" (page OpenDayBriefing)
+- [x] Modal de bilan de journée au clic sur "Fermer ma journée" (page CloseDaySummary)
+- [x] Badge visuel "Journée ouverte" / "Journée fermée" dans le header (SessionStatusBadge)
+- [ ] Bloquer certaines actions si journée fermée (optionnel)
+- [x] Statistiques durée moyenne d'ouverture par marchand (fonction getSessionHistory)
+- [x] Historique des sessions (calendrier avec jours travaillés) (fonction getSessionHistory)
