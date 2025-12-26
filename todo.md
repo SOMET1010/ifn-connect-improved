@@ -2666,3 +2666,42 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Créer une entrée dans group_order_items pour tracer la participation
 - [x] Afficher la liste des participants avec leurs quantités
 - [x] Calculer le prix négocié basé sur la quantité totale
+
+
+## 💰 SYSTÈME DE PALIERS DE PRIX DÉGRESSIFS
+
+### Conception et schéma
+- [ ] Créer la table price_tiers (groupedOrderId, minQuantity, discountPercent, pricePerUnit)
+- [ ] Ajouter la relation entre grouped_orders et price_tiers
+- [ ] Définir la logique de calcul automatique du prix selon la quantité totale
+
+### Backend
+- [ ] Créer les procédures tRPC pour gérer les paliers (create, update, delete)
+- [ ] Ajouter la procédure getPriceTiers pour récupérer les paliers d'une commande
+- [ ] Modifier la procédure join pour recalculer le prix selon le palier actif
+- [ ] Ajouter la logique de calcul du prix unitaire selon la quantité totale
+- [ ] Créer une fonction helper calculateCurrentPrice(totalQuantity, tiers)
+
+### Interface utilisateur
+- [ ] Créer un composant PriceTiersDisplay pour visualiser les paliers
+- [ ] Ajouter un formulaire de création/édition de paliers dans le dialog de création de commande
+- [ ] Afficher le palier actif et le prochain palier à atteindre
+- [ ] Ajouter une barre de progression visuelle vers le prochain palier
+- [ ] Afficher les économies réalisées grâce au palier actif
+- [ ] Mettre à jour l'affichage du prix unitaire en temps réel
+
+### Notifications et feedback
+- [ ] Notifier les membres quand un nouveau palier est atteint
+- [ ] Afficher un message de félicitations lors du changement de palier
+- [ ] Calculer et afficher les économies totales par rapport au prix de base
+
+## ✅ PALIERS DE PRIX - TÂCHES TERMINÉES
+
+- [x] Créer la table price_tiers (groupedOrderId, minQuantity, discountPercent, pricePerUnit)
+- [x] Ajouter la relation entre grouped_orders et price_tiers
+- [x] Créer les procédures tRPC (createPriceTiers, getPriceTiers, getCurrentPrice)
+- [x] Créer le composant PriceTiersDisplay avec visualisation complète
+- [x] Ajouter le formulaire de création de paliers dans le dialog de création de commande
+- [x] Afficher les paliers actifs et suivants avec barre de progression
+- [x] Calculer et afficher les économies réalisées
+- [x] Calcul automatique du prix réduit basé sur le pourcentage

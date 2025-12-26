@@ -946,5 +946,24 @@ export const groupedOrderParticipants = mysqlTable("grouped_order_participants",
 export type GroupedOrderParticipant = typeof groupedOrderParticipants.$inferSelect;
 export type InsertGroupedOrderParticipant = typeof groupedOrderParticipants.$inferInsert;
 
+// ============================================================================
+// PRICE TIERS (Paliers de prix dégressifs pour commandes groupées)
+// ============================================================================
+
+export const priceTiers = mysqlTable("price_tiers", {
+  id: int("id").autoincrement().primaryKey(),
+  groupedOrderId: int("groupedOrderId").notNull().references(() => groupedOrders.id, { onDelete: "cascade" }),
+  minQuantity: int("minQuantity").notNull(), // Quantité minimale pour ce palier
+  discountPercent: decimal("discountPercent", { precision: 5, scale: 2 }).notNull(), // Pourcentage de réduction (ex: 5.00 pour 5%)
+  pricePerUnit: decimal("pricePerUnit", { precision: 10, scale: 2 }).notNull(), // Prix unitaire à ce palier
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  groupedOrderIdx: index("grouped_order_idx").on(table.groupedOrderId),
+  minQuantityIdx: index("min_quantity_idx").on(table.groupedOrderId, table.minQuantity),
+}));
+
+export type PriceTier = typeof priceTiers.$inferSelect;
+export type InsertPriceTier = typeof priceTiers.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants } from '../../drizzle/schema';
+import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants, priceTiers } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { createNotification } from './in-app-notifications';
 
@@ -302,5 +302,138 @@ export const groupedOrdersRouter = router({
       }
 
       return order;
+    }),
+
+  /**
+   * Créer des paliers de prix pour une commande groupée
+   */
+  createPriceTiers: protectedProcedure
+    .input(
+      z.object({
+        groupedOrderId: z.number(),
+        tiers: z.array(
+          z.object({
+            minQuantity: z.number().positive(),
+            discountPercent: z.number().min(0).max(100),
+            pricePerUnit: z.number().positive(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Vérifier que la commande existe
+      const [order] = await db
+        .select()
+        .from(groupedOrders)
+        .where(eq(groupedOrders.id, input.groupedOrderId))
+        .limit(1);
+
+      if (!order) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Commande introuvable' });
+      }
+
+      // Vérifier que l'utilisateur est le créateur
+      if (order.createdBy !== ctx.user.id && ctx.user.role !== 'admin') {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Seul le créateur peut définir les paliers de prix',
+        });
+      }
+
+      // Supprimer les anciens paliers
+      await db.delete(priceTiers).where(eq(priceTiers.groupedOrderId, input.groupedOrderId));
+
+      // Insérer les nouveaux paliers
+      if (input.tiers.length > 0) {
+        await db.insert(priceTiers).values(
+          input.tiers.map((tier) => ({
+            groupedOrderId: input.groupedOrderId,
+            minQuantity: tier.minQuantity,
+            discountPercent: tier.discountPercent.toString(),
+            pricePerUnit: tier.pricePerUnit.toString(),
+          }))
+        );
+      }
+
+      return { success: true };
+    }),
+
+  /**
+   * Récupérer les paliers de prix d'une commande
+   */
+  getPriceTiers: protectedProcedure
+    .input(z.object({ groupedOrderId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      const tiers = await db
+        .select()
+        .from(priceTiers)
+        .where(eq(priceTiers.groupedOrderId, input.groupedOrderId))
+        .orderBy(priceTiers.minQuantity);
+
+      return tiers;
+    }),
+
+  /**
+   * Calculer le prix actuel basé sur la quantité totale
+   */
+  getCurrentPrice: protectedProcedure
+    .input(z.object({ groupedOrderId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer la commande
+      const [order] = await db
+        .select()
+        .from(groupedOrders)
+        .where(eq(groupedOrders.id, input.groupedOrderId))
+        .limit(1);
+
+      if (!order) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Commande introuvable' });
+      }
+
+      // Récupérer les paliers
+      const tiers = await db
+        .select()
+        .from(priceTiers)
+        .where(eq(priceTiers.groupedOrderId, input.groupedOrderId))
+        .orderBy(desc(priceTiers.minQuantity));
+
+      // Trouver le palier actif (le plus haut palier atteint)
+      let activeTier = null;
+      let nextTier = null;
+      const basePrice = order.unitPrice ? parseFloat(order.unitPrice) : 0;
+
+      for (let i = 0; i < tiers.length; i++) {
+        if (order.totalQuantity >= tiers[i].minQuantity) {
+          activeTier = tiers[i];
+          break;
+        }
+        nextTier = tiers[i];
+      }
+
+      return {
+        basePrice,
+        currentPrice: activeTier ? parseFloat(activeTier.pricePerUnit) : basePrice,
+        activeTier: activeTier ? {
+          minQuantity: activeTier.minQuantity,
+          discountPercent: parseFloat(activeTier.discountPercent),
+          pricePerUnit: parseFloat(activeTier.pricePerUnit),
+        } : null,
+        nextTier: nextTier ? {
+          minQuantity: nextTier.minQuantity,
+          discountPercent: parseFloat(nextTier.discountPercent),
+          pricePerUnit: parseFloat(nextTier.pricePerUnit),
+          quantityNeeded: nextTier.minQuantity - order.totalQuantity,
+        } : null,
+        totalQuantity: order.totalQuantity,
+      };
     }),
 });

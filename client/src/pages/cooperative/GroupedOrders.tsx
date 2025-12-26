@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PriceTiersDisplay } from '@/components/PriceTiersDisplay';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,8 @@ import {
   CheckCircle2,
   Clock,
   Truck,
+  Trash2,
+  TrendingDown,
 } from 'lucide-react';
 import {
   Dialog,
@@ -39,6 +42,7 @@ export default function GroupedOrders() {
   const [joinQuantity, setJoinQuantity] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [orderToJoin, setOrderToJoin] = useState<number | null>(null);
+  const [priceTiers, setPriceTiers] = useState<Array<{ minQuantity: string; discountPercent: string; pricePerUnit: string }>>([]);
 
   // Récupérer les commandes groupées (hardcoded cooperativeId pour l'exemple)
   const cooperativeId = 1;
@@ -47,17 +51,39 @@ export default function GroupedOrders() {
     { groupedOrderId: selectedOrderId! },
     { enabled: !!selectedOrderId }
   );
+  const { data: priceTiersData } = trpc.groupedOrders.getPriceTiers.useQuery(
+    { groupedOrderId: selectedOrderId! },
+    { enabled: !!selectedOrderId }
+  );
+  const { data: currentPriceData } = trpc.groupedOrders.getCurrentPrice.useQuery(
+    { groupedOrderId: selectedOrderId! },
+    { enabled: !!selectedOrderId }
+  );
 
   // Mutations
   const createMutation = trpc.groupedOrders.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      // Si des paliers ont été définis, les créer
+      if (priceTiers.length > 0 && data.orderId) {
+        await createTiersMutation.mutateAsync({
+          groupedOrderId: data.orderId,
+          tiers: priceTiers.map(tier => ({
+            minQuantity: parseFloat(tier.minQuantity),
+            discountPercent: parseFloat(tier.discountPercent),
+            pricePerUnit: parseFloat(tier.pricePerUnit),
+          })),
+        });
+      }
       setIsCreateDialogOpen(false);
       setProductName('');
       setUnitPrice('');
+      setPriceTiers([]);
       refetch();
       alert('Commande groupée créée avec succès !');
     },
   });
+
+  const createTiersMutation = trpc.groupedOrders.createPriceTiers.useMutation();
 
   const confirmMutation = trpc.groupedOrders.confirm.useMutation({
     onSuccess: () => {
@@ -145,12 +171,97 @@ export default function GroupedOrders() {
                     onChange={(e) => setUnitPrice(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Optionnel : laissez vide si le prix n'est pas encore négocié
+                    Prix de base avant réductions
                   </p>
                 </div>
+
+                {/* Section paliers de prix */}
+                <div className="space-y-3 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2">
+                      <TrendingDown className="h-4 w-4 text-indigo-600" />
+                      Paliers de prix dégressifs (optionnel)
+                    </Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setPriceTiers([...priceTiers, { minQuantity: '', discountPercent: '', pricePerUnit: '' }]);
+                      }}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Ajouter un palier
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Définissez des prix dégressifs pour encourager les commandes groupées
+                  </p>
+
+                  {priceTiers.map((tier, index) => (
+                    <div key={index} className="flex items-end gap-2 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1 space-y-1">
+                        <Label className="text-xs">Quantité min</Label>
+                        <Input
+                          type="number"
+                          placeholder="50"
+                          value={tier.minQuantity}
+                          onChange={(e) => {
+                            const newTiers = [...priceTiers];
+                            newTiers[index].minQuantity = e.target.value;
+                            setPriceTiers(newTiers);
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <Label className="text-xs">Réduction %</Label>
+                        <Input
+                          type="number"
+                          placeholder="5"
+                          value={tier.discountPercent}
+                          onChange={(e) => {
+                            const newTiers = [...priceTiers];
+                            newTiers[index].discountPercent = e.target.value;
+                            // Calculer automatiquement le prix réduit
+                            if (unitPrice && e.target.value) {
+                              const basePrice = parseFloat(unitPrice);
+                              const discount = parseFloat(e.target.value);
+                              newTiers[index].pricePerUnit = (basePrice * (1 - discount / 100)).toFixed(2);
+                            }
+                            setPriceTiers(newTiers);
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <Label className="text-xs">Prix unitaire</Label>
+                        <Input
+                          type="number"
+                          placeholder="950"
+                          value={tier.pricePerUnit}
+                          onChange={(e) => {
+                            const newTiers = [...priceTiers];
+                            newTiers[index].pricePerUnit = e.target.value;
+                            setPriceTiers(newTiers);
+                          }}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setPriceTiers(priceTiers.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
                 <Button
                   className="w-full"
-                  disabled={!productName}
+                  disabled={!productName || !unitPrice}
                   onClick={() => {
                     createMutation.mutate({
                       cooperativeId,
@@ -262,6 +373,19 @@ export default function GroupedOrders() {
                     </>
                   )}
                 </div>
+
+                {/* Paliers de prix */}
+                {selectedOrderId === order.id && priceTiersData && priceTiersData.length > 0 && (
+                  <div className="mt-6 pt-6 border-t">
+                    <PriceTiersDisplay
+                      tiers={priceTiersData}
+                      currentQuantity={order.totalQuantity}
+                      basePrice={order.unitPrice ? parseFloat(order.unitPrice) : 0}
+                      activeTier={currentPriceData?.activeTier}
+                      nextTier={currentPriceData?.nextTier}
+                    />
+                  </div>
+                )}
 
                 {/* Liste des participants */}
                 {selectedOrderId === order.id && participants && participants.length > 0 && (
