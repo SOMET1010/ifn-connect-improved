@@ -161,4 +161,95 @@ export const salesRouter = router({
       const count = await getLowStockCount(input.merchantId, input.threshold);
       return count;
     }),
+
+  /**
+   * Comparaison des ventes d'hier vs avant-hier (pour briefing matinal)
+   */
+  yesterdayComparison: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await import('../db').then(m => m.getDb());
+      if (!db) return null;
+
+      const { sales } = await import('../../drizzle/schema');
+      const { eq, and, gte, lt, sum } = await import('drizzle-orm');
+
+      // Calculer les dates
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      const dayBeforeYesterday = new Date(today);
+      dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
+
+      // Ventes d'hier
+      const yesterdaySales = await db
+        .select({
+          total: sum(sales.totalAmount),
+          count: sum(sales.quantity),
+        })
+        .from(sales)
+        .where(
+          and(
+            eq(sales.merchantId, input.merchantId),
+            gte(sales.saleDate, yesterday),
+            lt(sales.saleDate, today)
+          )
+        );
+
+      // Ventes d'avant-hier
+      const dayBeforeSales = await db
+        .select({
+          total: sum(sales.totalAmount),
+          count: sum(sales.quantity),
+        })
+        .from(sales)
+        .where(
+          and(
+            eq(sales.merchantId, input.merchantId),
+            gte(sales.saleDate, dayBeforeYesterday),
+            lt(sales.saleDate, yesterday)
+          )
+        );
+
+      const yesterdayTotal = Number(yesterdaySales[0]?.total || 0);
+      const yesterdayCount = Number(yesterdaySales[0]?.count || 0);
+      const dayBeforeTotal = Number(dayBeforeSales[0]?.total || 0);
+      const dayBeforeCount = Number(dayBeforeSales[0]?.count || 0);
+
+      // Calculer les variations
+      const totalDifference = yesterdayTotal - dayBeforeTotal;
+      const totalPercentChange = dayBeforeTotal > 0 
+        ? ((totalDifference / dayBeforeTotal) * 100)
+        : (yesterdayTotal > 0 ? 100 : 0);
+
+      const countDifference = yesterdayCount - dayBeforeCount;
+      const countPercentChange = dayBeforeCount > 0
+        ? ((countDifference / dayBeforeCount) * 100)
+        : (yesterdayCount > 0 ? 100 : 0);
+
+      return {
+        yesterday: {
+          total: yesterdayTotal,
+          count: yesterdayCount,
+          date: yesterday.toISOString().split('T')[0],
+        },
+        dayBefore: {
+          total: dayBeforeTotal,
+          count: dayBeforeCount,
+          date: dayBeforeYesterday.toISOString().split('T')[0],
+        },
+        comparison: {
+          totalDifference,
+          totalPercentChange: Math.round(totalPercentChange * 10) / 10,
+          countDifference,
+          countPercentChange: Math.round(countPercentChange * 10) / 10,
+          trend: totalDifference > 0 ? 'up' : totalDifference < 0 ? 'down' : 'stable',
+        },
+      };
+    }),
 });

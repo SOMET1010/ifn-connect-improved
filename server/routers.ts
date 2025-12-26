@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { getMerchantByUserId } from "./db-merchant";
+import { recordDailyLogin, markBriefingShown, markBriefingSkipped, hasBriefingBeenShown } from "./db-daily-logins";
 import { publicProcedure, router } from "./_core/trpc";
 import { salesRouter } from "./routers/sales";
 import { productsRouter, stockRouter } from "./routers/products";
@@ -72,6 +73,41 @@ export const appRouter = router({
       if (!ctx.user) return null;
       const merchant = await getMerchantByUserId(ctx.user.id);
       return merchant;
+    }),
+    // Détecter si c'est le premier login du jour
+    checkFirstLoginToday: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) return { isFirstLogin: false, shouldShowBriefing: false };
+      
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) return { isFirstLogin: false, shouldShowBriefing: false };
+      
+      const isFirstLogin = await recordDailyLogin(merchant.id);
+      const alreadyShown = await hasBriefingBeenShown(merchant.id);
+      
+      return {
+        isFirstLogin,
+        shouldShowBriefing: isFirstLogin && !alreadyShown,
+      };
+    }),
+    // Marquer le briefing comme affiché
+    markBriefingShown: publicProcedure.mutation(async ({ ctx }) => {
+      if (!ctx.user) return { success: false };
+      
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) return { success: false };
+      
+      await markBriefingShown(merchant.id);
+      return { success: true };
+    }),
+    // Marquer le briefing comme ignoré
+    markBriefingSkipped: publicProcedure.mutation(async ({ ctx }) => {
+      if (!ctx.user) return { success: false };
+      
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) return { success: false };
+      
+      await markBriefingSkipped(merchant.id);
+      return { success: true };
     }),
   }),
 

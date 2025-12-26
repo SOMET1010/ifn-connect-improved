@@ -42,6 +42,7 @@ import OrderTracking from "./pages/OrderTracking";
 import CooperativeDashboard from "./pages/cooperative/Dashboard";
 import GroupedOrders from "./pages/cooperative/GroupedOrders";
 import MerchantSettings from "./pages/merchant/Settings";
+import MorningBriefing from "./pages/merchant/MorningBriefing";
 
 function Router() {
   return (
@@ -49,6 +50,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/merchant"} component={MerchantDashboard} />
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />
+      <Route path={"/merchant/morning-briefing"} component={MorningBriefing} />
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />
       <Route path="/merchant/profile" component={MerchantProfile} />
       <Route path="/merchant/social-coverage" component={SocialCoverage} />

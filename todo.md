@@ -2666,3 +2666,25 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Créer une entrée dans group_order_items pour tracer la participation
 - [ ] Afficher la liste des participants avec leurs quantités
 - [ ] Calculer le prix négocié basé sur la quantité totale
+
+
+## 🌅 WORKFLOW SUTA - PHASE 2 : BRIEFING MATINAL AUTOMATIQUE
+
+### Backend
+- [x] Créer table `merchant_daily_logins` pour tracker les logins quotidiens
+- [x] Procédure tRPC `auth.checkFirstLoginToday()` pour détecter premier login
+- [x] Procédure tRPC `sales.yesterdayComparison()` pour comparaison J-1 vs J-2
+- [ ] Helper pour calculer les objectifs du jour basés sur l'historique (optionnel)
+
+### Frontend
+- [x] Hook `useFirstLoginDetection()` pour détecter le premier login
+- [x] Logique de redirection automatique vers `/merchant/morning-briefing`
+- [x] Améliorer MorningBriefing avec comparaisons J-1 vs J-2
+- [x] Ajouter synthèse vocale automatique du briefing
+- [x] Bouton "Passer" pour les marchands pressés
+- [x] Sauvegarder la préférence "Ne plus afficher aujourd'hui"
+
+### Tests
+- [ ] Test de détection du premier login
+- [ ] Test de redirection automatique
+- [ ] Test de la synthèse vocale

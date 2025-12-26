@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, uniqueIndex, date, json } from "drizzle-orm/mysql-core";
 
 /**
  * Schéma de base de données pour IFN Connect
@@ -977,3 +977,6 @@ export type InsertMerchantSettings = typeof merchantSettings.$inferInsert;
 
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";
+
+// Export daily logins table
+export { merchantDailyLogins } from "./schema-daily-logins";
