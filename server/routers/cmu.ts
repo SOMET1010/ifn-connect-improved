@@ -8,6 +8,8 @@ import { cmuReimbursements, merchants } from '../../drizzle/schema.ts';
 import { getDb } from '../db.ts';
 import { eq, desc } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
+import { initierPaiementInTouch, genererIdTransactionInTouch } from '../_core/intouch.ts';
+import { ENV } from '../_core/env.ts';
 
 // Fonction pour générer une référence de remboursement unique
 function generateClaimRef() {
@@ -26,6 +28,7 @@ export const cmuRouter = router({
       z.object({
         paymentMethod: z.enum(['mobile_money', 'bank_transfer', 'cash', 'card']),
         phoneNumber: z.string().optional(), // Numéro de téléphone pour Mobile Money
+        otp: z.string().optional(), // Code OTP pour Mobile Money (requis si InTouch activé)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -56,19 +59,64 @@ export const cmuRouter = router({
       // Montant fixe pour le renouvellement CMU : 10 000 FCFA
       const amount = 10000;
 
-      // Simuler le paiement Mobile Money (en production, intégrer avec InTouch API)
+      // Déterminer si InTouch est activé
+      const intouchEnabled = !!ENV.INTOUCH_PARTNER_ID && !!ENV.INTOUCH_PASSWORD_API;
+
       let success = true;
+      const reference = genererIdTransactionInTouch('CMU');
       
       if (input.paymentMethod === 'mobile_money') {
-        // Simulation : 90% de succès
-        success = Math.random() > 0.1;
-      }
+        if (intouchEnabled) {
+          // Paiement réel via InTouch API
+          if (!input.phoneNumber) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Numéro de téléphone requis pour Mobile Money',
+            });
+          }
+          if (!input.otp) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Code OTP requis pour Mobile Money. Générez un OTP depuis votre application Mobile Money.',
+            });
+          }
 
-      if (!success) {
-        return {
-          success: false,
-          message: 'Le paiement a échoué. Veuillez réessayer.',
-        };
+          try {
+            const result = await initierPaiementInTouch({
+              phoneNumber: input.phoneNumber,
+              amount,
+              otp: input.otp,
+              transactionId: reference,
+              customerEmail: ctx.user.email || 'merchant@pnavim.ci',
+              customerFirstName: ctx.user.name?.split(' ')[0] || 'Marchand',
+              customerLastName: ctx.user.name?.split(' ').slice(1).join(' ') || 'PNAVIM',
+            });
+
+            success = result.status === 'SUCCESSFUL';
+
+            if (!success) {
+              return {
+                success: false,
+                message: result.message || 'Le paiement a échoué. Veuillez réessayer.',
+              };
+            }
+          } catch (error) {
+            console.error('[CMU] Erreur paiement InTouch:', error);
+            return {
+              success: false,
+              message: error instanceof Error ? error.message : 'Erreur lors du paiement Mobile Money',
+            };
+          }
+        } else {
+          // Mode simulation (si InTouch n'est pas configuré)
+          success = Math.random() > 0.1;
+          if (!success) {
+            return {
+              success: false,
+              message: 'Le paiement a échoué. Veuillez réessayer.',
+            };
+          }
+        }
       }
 
       // Mettre à jour la date d'expiration CMU du marchand

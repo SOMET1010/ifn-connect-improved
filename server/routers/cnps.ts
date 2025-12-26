@@ -8,6 +8,8 @@ import { cnpsPayments, merchants } from '../../drizzle/schema.ts';
 import { getDb } from '../db.ts';
 import { eq, desc } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
+import { initierPaiementInTouch, genererIdTransactionInTouch } from '../_core/intouch.ts';
+import { ENV } from '../_core/env.ts';
 
 // Fonction pour générer une référence de transaction unique
 function generateTransactionRef() {
@@ -27,6 +29,7 @@ export const cnpsRouter = router({
         amount: z.number().min(5000).max(15000), // Montant entre 5 000 et 15 000 FCFA
         paymentMethod: z.enum(['mobile_money', 'bank_transfer', 'cash', 'card']),
         phoneNumber: z.string().optional(), // Numéro de téléphone pour Mobile Money
+        otp: z.string().optional(), // Code OTP pour Mobile Money (requis si InTouch activé)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -55,15 +58,63 @@ export const cnpsRouter = router({
       const merchantId = merchant[0].id;
 
       // Générer une référence de transaction unique
-      const reference = generateTransactionRef();
+      const reference = genererIdTransactionInTouch('CNPS');
 
-      // Simuler le paiement Mobile Money (en production, intégrer avec InTouch API)
+      // Déterminer si InTouch est activé
+      const intouchEnabled = !!ENV.INTOUCH_PARTNER_ID && !!ENV.INTOUCH_PASSWORD_API;
+
       let status: 'pending' | 'completed' | 'failed' = 'pending';
+      let intouchTransactionId: string | null = null;
       
       if (input.paymentMethod === 'mobile_money') {
-        // Simulation : 90% de succès
-        const success = Math.random() > 0.1;
-        status = success ? 'completed' : 'failed';
+        if (intouchEnabled) {
+          // Paiement réel via InTouch API
+          if (!input.phoneNumber) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Numéro de téléphone requis pour Mobile Money',
+            });
+          }
+          if (!input.otp) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Code OTP requis pour Mobile Money. Générez un OTP depuis votre application Mobile Money.',
+            });
+          }
+
+          try {
+            const result = await initierPaiementInTouch({
+              phoneNumber: input.phoneNumber,
+              amount: input.amount,
+              otp: input.otp,
+              transactionId: reference,
+              customerEmail: ctx.user.email || 'merchant@pnavim.ci',
+              customerFirstName: ctx.user.name?.split(' ')[0] || 'Marchand',
+              customerLastName: ctx.user.name?.split(' ').slice(1).join(' ') || 'PNAVIM',
+            });
+
+            intouchTransactionId = result.idFromGU;
+            status = result.status === 'SUCCESSFUL' ? 'completed' : 
+                     result.status === 'PENDING' ? 'pending' : 'failed';
+
+            if (status === 'failed') {
+              throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: result.message || 'Paiement échoué',
+              });
+            }
+          } catch (error) {
+            console.error('[CNPS] Erreur paiement InTouch:', error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: error instanceof Error ? error.message : 'Erreur lors du paiement Mobile Money',
+            });
+          }
+        } else {
+          // Mode simulation (si InTouch n'est pas configuré)
+          const success = Math.random() > 0.1;
+          status = success ? 'completed' : 'failed';
+        }
       } else {
         // Autres méthodes : succès immédiat (pour la démo)
         status = 'completed';

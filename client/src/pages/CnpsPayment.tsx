@@ -16,6 +16,7 @@ export default function CnpsPayment() {
   const [amount, setAmount] = useState('10000');
   const [paymentMethod, setPaymentMethod] = useState<'mobile_money' | 'bank_transfer' | 'cash' | 'card'>('mobile_money');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
   const [paymentResult, setPaymentResult] = useState<{ success: boolean; message: string; reference?: string } | null>(null);
 
   const { data: cnpsStatus, isLoading: statusLoading } = trpc.cnps.getStatus.useQuery();
@@ -41,10 +42,16 @@ export default function CnpsPayment() {
       return;
     }
 
+    if (paymentMethod === 'mobile_money' && !otp) {
+      toast.error('Veuillez entrer le code OTP généré depuis votre app Mobile Money');
+      return;
+    }
+
     payMutation.mutate({
       amount: parseInt(amount),
       paymentMethod,
       phoneNumber: paymentMethod === 'mobile_money' ? phoneNumber : undefined,
+      otp: paymentMethod === 'mobile_money' ? otp : undefined,
     });
   };
 
@@ -191,17 +198,35 @@ export default function CnpsPayment() {
               </div>
 
               {paymentMethod === 'mobile_money' && (
-                <div className="space-y-2">
-                  <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    placeholder="+225 XX XX XX XX XX"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    required
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      placeholder="+225 XX XX XX XX XX"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="otp">Code OTP</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      placeholder="Entrez le code OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      required
+                      maxLength={6}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Générez un code OTP depuis votre application Mobile Money (Orange Money, MTN, Moov, Wave) avant de continuer.
+                    </p>
+                  </div>
+                </>
               )}
 
               <Button

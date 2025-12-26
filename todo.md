@@ -3087,3 +3087,34 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
   - [x] Champ numéro de téléphone pour Mobile Money
   - [x] Confirmation visuelle après paiement réussi
   - [x] Affichage de la référence de transaction
+
+
+## 🚀 INTÉGRATION API INTOUCH (En cours)
+
+### Objectif : Remplacer la simulation Mobile Money par l'API InTouch réelle
+
+- [x] Recherche et documentation
+  - [x] Rechercher la documentation officielle InTouch API
+  - [x] Identifier les endpoints pour paiements Mobile Money (Transfer et Direct Payment)
+  - [x] Comprendre le flow d'authentification et de paiement
+  - [x] Documenter les paramètres requis (API key, merchant ID, etc.)
+  - [x] Analyser les différences entre Transfer (cash-in) et Direct Payment (collecte avec OTP)
+ - [x] Configuration
+  - [x] Créer un helper InTouch dans server/_core/intouch.ts
+  - [x] Ajouter les variables d'environnement (INTOUCH_PARTNER_ID, INTOUCH_LOGIN_API, etc.)
+  - [x] Configurer les credentials fournis par l'utilisateur
+  - [x] Documenter le flow d'authentification Basic Auth
+- [x] Implémentation
+  - [x] Fonction initierPaiementInTouch() pour démarrer une transaction
+  - [x] Fonction genererIdTransactionInTouch() pour générer des IDs uniques
+  - [x] Fonction validerCallbackInTouch() pour traiter les webhooks InTouch
+  - [x] Intégrer dans cnps.payContribution avec fallback simulation
+  - [x] Intégrer dans cmu.renewCoverage avec fallback simulation
+  - [x] Ajouter champ OTP dans CnpsPayment.tsx
+  - [x] Ajouter champ OTP dans CmuRenewal.tsx
+  - [ ] Implémenter endpoint callback pour webhooks InTouch
+  
+- [ ] Tests et validation
+  - [ ] Tester avec des paiements réels en environnement sandbox
+  - [ ] Valider les callbacks et webhooks
+  - [ ] Gérer les cas d'erreur (timeout, échec, annulation)

@@ -9,4 +9,12 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   resendFromEmail: process.env.RESEND_FROM_EMAIL ?? "",
+  // InTouch API credentials
+  INTOUCH_BASE_URL: process.env.INTOUCH_BASE_URL ?? "https://apidist.gutouch.net",
+  INTOUCH_PARTNER_ID: process.env.INTOUCH_PARTNER_ID ?? "",
+  INTOUCH_LOGIN_API: process.env.INTOUCH_LOGIN_API ?? "",
+  INTOUCH_PASSWORD_API: process.env.INTOUCH_PASSWORD_API ?? "",
+  INTOUCH_USERNAME: process.env.INTOUCH_USERNAME ?? "",
+  INTOUCH_PASSWORD: process.env.INTOUCH_PASSWORD ?? "",
+  INTOUCH_SERVICE_CODE: process.env.INTOUCH_SERVICE_CODE ?? "PAIEMENTMARCHANDOMPAYCIDIRECT",
 };
