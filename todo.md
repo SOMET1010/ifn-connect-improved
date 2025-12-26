@@ -3118,3 +3118,13 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
   - [ ] Tester avec des paiements réels en environnement sandbox
   - [ ] Valider les callbacks et webhooks
   - [ ] Gérer les cas d'erreur (timeout, échec, annulation)
+
+## Intégration API InTouch (Complète)
+- [x] Configuration des credentials InTouch
+- [x] Helper InTouch avec authentification Basic Auth
+- [x] Intégration dans les paiements CNPS/CMU
+- [x] Champ OTP dans les formulaires de paiement
+- [x] Endpoint webhook /api/intouch/callback pour notifications asynchrones
+- [x] Mise à jour automatique du statut des transactions
+- [x] Logs et monitoring des callbacks InTouch
+- [x] Tests unitaires du webhook (5/5 passent)

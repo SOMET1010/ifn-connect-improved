@@ -1007,6 +1007,7 @@ export const cnpsPayments = mysqlTable("cnps_payments", {
   paymentDate: timestamp("paymentDate").notNull(),
   paymentMethod: mysqlEnum("paymentMethod", ["mobile_money", "bank_transfer", "cash", "card"]).notNull(),
   reference: varchar("reference", { length: 100 }).notNull().unique(),
+  transactionId: varchar("transactionId", { length: 100 }).unique(), // ID InTouch (idFromClient ou idFromGU)
   status: mysqlEnum("status", ["pending", "completed", "failed", "cancelled"]).default("pending").notNull(),
   description: text("description"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1045,6 +1046,7 @@ export const cmuReimbursements = mysqlTable("cmu_reimbursements", {
   status: mysqlEnum("status", ["pending", "approved", "rejected", "paid"]).default("pending").notNull(),
   healthFacility: text("healthFacility"), // Établissement de santé
   reference: varchar("reference", { length: 100 }).notNull().unique(),
+  transactionId: varchar("transactionId", { length: 100 }).unique(), // ID InTouch (idFromClient ou idFromGU)
   description: text("description"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
