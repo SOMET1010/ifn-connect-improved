@@ -1851,3 +1851,29 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Vérifier la performance (pas de lag)
 - [x] Valider l'accessibilité (focus, contraste)
 - [x] Sauvegarder le checkpoint 51
+
+
+---
+
+## 📊 GRAPHIQUE VENTES 7 JOURS (Checkpoint 52)
+
+### Phase 1 : Backend - Procédure tRPC
+- [x] Créer la fonction `getSalesLast7Days` dans server/db.ts (déjà existante dans db-sales.ts)
+- [x] Ajouter la procédure tRPC `sales.last7Days` dans server/routers.ts (déjà existante)
+- [x] Retourner un tableau avec {date, totalAmount, salesCount} pour chaque jour
+
+### Phase 2 : Frontend - Composant Chart
+- [x] Installer chart.js et react-chartjs-2
+- [x] Créer le composant SalesChart.tsx
+- [x] Configurer le graphique linéaire (couleurs, responsive, tooltips)
+- [x] Gérer les états de chargement et erreur
+
+### Phase 3 : Intégration Dashboard
+- [x] Ajouter le graphique entre les KPIs et le Score SUTA
+- [x] Style harmonisé avec les autres cartes (bg-white, rounded-2xl, shadow-sm)
+- [x] Responsive mobile (hauteur adaptée)
+
+### Phase 4 : Tests et Livraison
+- [x] Tester avec des données réelles
+- [x] Vérifier la performance du graphique
+- [x] Sauvegarder le checkpoint 52

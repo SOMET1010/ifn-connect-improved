@@ -391,6 +391,49 @@ export async function getMerchantSalesStats(merchantId: number, date: Date) {
   return result[0] || { totalSales: 0, totalAmount: "0" };
 }
 
+export async function getSalesLast7Days(merchantId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Calculer la date d'il y a 7 jours
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  // Récupérer les ventes groupées par jour
+  const result = await db
+    .select({
+      date: sql<string>`DATE(${sales.saleDate})`,
+      totalAmount: sql<string>`COALESCE(SUM(${sales.totalAmount}), 0)`
+    })
+    .from(sales)
+    .where(and(
+      eq(sales.merchantId, merchantId),
+      gte(sales.saleDate, sevenDaysAgo),
+      lte(sales.saleDate, today)
+    ))
+    .groupBy(sql`DATE(${sales.saleDate})`);
+
+  // Créer un tableau avec tous les 7 jours (même si pas de ventes)
+  const salesByDate = new Map(result.map(r => [r.date, parseFloat(r.totalAmount)]));
+  const last7Days = [];
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    last7Days.push({
+      date: dateStr,
+      totalAmount: salesByDate.get(dateStr) || 0
+    });
+  }
+
+  return last7Days;
+}
+
 export async function getUnsyncedSales(merchantId: number) {
   const db = await getDb();
   if (!db) return [];

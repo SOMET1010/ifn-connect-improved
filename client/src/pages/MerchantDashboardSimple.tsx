@@ -18,6 +18,7 @@ import { StockAlertsBadge } from '@/components/StockAlertsBadge';
 import { ScoreCard } from '@/components/ScoreCard';
 import { CopilotAssistant } from '@/components/CopilotAssistant';
 import { Tooltip } from '@/components/Tooltip';
+import { SalesChart } from '@/components/SalesChart';
 
 /**
  * Composant interne qui contient toute la logique du dashboard
@@ -169,6 +170,11 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
             </div>
             </div>
           </Tooltip>
+        </div>
+
+        {/* GRAPHIQUE VENTES 7 JOURS */}
+        <div className="mb-8">
+          <SalesChart merchantId={merchantId} />
         </div>
 
         {/* WIDGET SCORE SUTA - Carte Action */}
