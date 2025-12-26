@@ -59,7 +59,7 @@ export const ordersRouter = router({
   updateStatus: protectedProcedure
     .input(z.object({
       orderId: z.number(),
-      status: z.enum(['pending', 'confirmed', 'delivered', 'cancelled']),
+      status: z.enum(['pending', 'confirmed', 'preparing', 'in_transit', 'delivered', 'cancelled']),
     }))
     .mutation(async ({ input }) => {
       const result = await updateOrderStatus(input.orderId, input.status);
@@ -76,5 +76,47 @@ export const ordersRouter = router({
     .query(async ({ input }) => {
       const stats = await getOrderStats(input.merchantId);
       return stats;
+    }),
+
+  /**
+   * Récupérer les détails d'une commande avec timeline
+   */
+  getDetails: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await (await import('../db')).getDb();
+      if (!db) throw new Error('Database connection failed');
+
+      const { virtualMarketOrders, products, merchants, cooperatives } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const [order] = await db
+        .select({
+          id: virtualMarketOrders.id,
+          quantity: virtualMarketOrders.quantity,
+          unitPrice: virtualMarketOrders.unitPrice,
+          totalAmount: virtualMarketOrders.totalAmount,
+          status: virtualMarketOrders.status,
+          orderDate: virtualMarketOrders.orderDate,
+          deliveryDate: virtualMarketOrders.deliveryDate,
+          createdAt: virtualMarketOrders.createdAt,
+          updatedAt: virtualMarketOrders.updatedAt,
+          productName: products.name,
+          productUnit: products.unit,
+          merchantName: merchants.businessName,
+          cooperativeName: cooperatives.cooperativeName,
+        })
+        .from(virtualMarketOrders)
+        .leftJoin(products, eq(virtualMarketOrders.productId, products.id))
+        .leftJoin(merchants, eq(virtualMarketOrders.merchantId, merchants.id))
+        .leftJoin(cooperatives, eq(virtualMarketOrders.cooperativeId, cooperatives.id))
+        .where(eq(virtualMarketOrders.id, input.orderId))
+        .limit(1);
+
+      if (!order) {
+        throw new Error('Commande introuvable');
+      }
+
+      return order;
     }),
 });

@@ -99,6 +99,27 @@
       "when": 1766758318203,
       "tag": "0013_young_frank_castle",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1766759520084,
+      "tag": "0014_giant_thundra",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1766759698644,
+      "tag": "0015_brief_callisto",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1766759897338,
+      "tag": "0016_conscious_arachne",
+      "breakpoints": true
     }
   ]
 }

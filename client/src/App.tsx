@@ -35,6 +35,10 @@ import CourseDetail from "./pages/CourseDetail";
 import AuditLogs from "./pages/admin/AuditLogs";
 import MyBadges from "./pages/MyBadges";
 import Leaderboard from "./pages/Leaderboard";
+import AdminUsers from "./pages/admin/Users";
+import Notifications from "./pages/Notifications";
+import OrderTracking from "./pages/OrderTracking";
+import CooperativeDashboard from "./pages/cooperative/Dashboard";
 
 function Router() {
   return (
@@ -67,9 +71,11 @@ function Router() {
       <Route path="/admin/merchants" component={MerchantsAdmin} />
       <Route path="/admin/renewals" component={RenewalsAdmin} />
       <Route path="/admin/audit-logs" component={AuditLogs} />
+      <Route path="/admin/users" component={AdminUsers} />
       
       {/* Cooperative Routes */}
-      <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
+      <Route path={"/cooperative"} component={CooperativeDashboard} />
+      <Route path={"/cooperative/dashboard"} component={CooperativeDashboard} />
       <Route path="/cooperative/journey" component={CooperativeJourney} />
       
       {/* Learning Routes */}
@@ -77,6 +83,8 @@ function Router() {
       <Route path="/learning/:id" component={CourseDetail} />
       <Route path="/my-badges" component={MyBadges} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/notifications" component={Notifications} />
+      <Route path="/orders/:id" component={OrderTracking} />
       
       {/* 404 */}
       <Route path={"/404"} component={NotFound} />

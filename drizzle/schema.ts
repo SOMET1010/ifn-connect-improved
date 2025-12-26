@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date, json } from "drizzle-orm/mysql-core";
 
 /**
  * Schéma de base de données pour IFN Connect
@@ -206,7 +206,7 @@ export const virtualMarketOrders = mysqlTable("orders", {
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
   unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
   totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
-  status: mysqlEnum("status", ["pending", "confirmed", "delivered", "cancelled"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "preparing", "in_transit", "delivered", "cancelled"]).default("pending").notNull(),
   orderDate: timestamp("orderDate").defaultNow().notNull(),
   deliveryDate: timestamp("deliveryDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -860,6 +860,54 @@ export const weeklyLeaderboard = mysqlTable("weekly_leaderboard", {
 
 export type WeeklyLeaderboard = typeof weeklyLeaderboard.$inferSelect;
 export type InsertWeeklyLeaderboard = typeof weeklyLeaderboard.$inferInsert;
+
+// ============================================================================
+// IN-APP NOTIFICATIONS
+// ============================================================================
+
+export const inAppNotifications = mysqlTable("in_app_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", [
+    "quiz_passed",
+    "badge_earned",
+    "challenge_received",
+    "challenge_won",
+    "renewal_reminder",
+    "stock_alert",
+    "order_status",
+    "system",
+  ]).notNull(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  actionUrl: text("actionUrl"), // URL to navigate when clicked
+  metadata: json("metadata"), // Additional data (e.g., badgeId, challengeId)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userReadIdx: index("user_read_idx").on(table.userId, table.isRead),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+}));
+
+export type InAppNotification = typeof inAppNotifications.$inferSelect;
+export type InsertInAppNotification = typeof inAppNotifications.$inferInsert;
+
+// ============================================================================
+// COOPERATIVE MEMBERS
+// ============================================================================
+
+export const cooperativeMembers = mysqlTable("cooperative_members", {
+  id: int("id").autoincrement().primaryKey(),
+  cooperativeId: int("cooperativeId").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+}, (table) => ({
+  cooperativeMerchantIdx: index("cooperative_merchant_idx").on(table.cooperativeId, table.merchantId),
+}));
+
+export type CooperativeMember = typeof cooperativeMembers.$inferSelect;
+export type InsertCooperativeMember = typeof cooperativeMembers.$inferInsert;
 
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

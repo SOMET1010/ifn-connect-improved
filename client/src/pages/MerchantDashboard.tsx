@@ -15,6 +15,7 @@ import {
   HelpCircle 
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { WeatherWidget } from '@/components/WeatherWidget';
 
 export default function MerchantDashboard() {
   const { user, merchant, isLoading: authLoading } = useAuth();
@@ -101,6 +102,11 @@ export default function MerchantDashboard() {
       </div>
 
       <div className="container mx-auto py-8 space-y-8">
+        {/* Widget Météo */}
+        <div className="mb-6">
+          <WeatherWidget enabled={true} />
+        </div>
+
         {/* KPIs Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Ventes du jour */}

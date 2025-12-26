@@ -69,7 +69,7 @@ export async function getOrdersByMerchant(
  */
 export async function updateOrderStatus(
   orderId: number,
-  status: 'pending' | 'confirmed' | 'delivered' | 'cancelled'
+  status: 'pending' | 'confirmed' | 'preparing' | 'in_transit' | 'delivered' | 'cancelled'
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

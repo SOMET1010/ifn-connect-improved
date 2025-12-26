@@ -2582,3 +2582,43 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Créer "Le Quiz du Vendredi" avec tirage au sort
 - [ ] Intégrer les gains Orange Money (2000 FCFA ou crédit communication)
 - [ ] Système de points cumulables pour augmenter les chances de gagner
+
+
+## 🎯 SPRINT 2 - ITEMS P1 RESTANTS (5/10)
+
+### P1-6 : Gestion des rôles admin (page CRUD /admin/users)
+- [x] Créer la page /admin/users avec tableau des utilisateurs
+- [x] Ajouter filtres par rôle (admin, agent, marchand, coopérative)
+- [x] Implémenter la modification du rôle d'un utilisateur
+- [x] Ajouter la recherche par nom/email/téléphone
+- [x] Créer la procédure tRPC admin.updateUserRole
+- [x] Ajouter la pagination (50 utilisateurs par page)
+- [x] Afficher les statistiques par rôle (nombre d'admins, agents, marchands)
+
+### P1-4 : Notifications in-app complètes
+- [x] Créer la table in_app_notifications (userId, type, title, message, isRead, createdAt)
+- [x] Créer le badge compteur dans le header (nombre non lues)
+- [x] Créer le dropdown des notifications récentes
+- [x] Créer la page /notifications avec liste complète
+- [x] Implémenter le marquage comme lu
+- [x] Ajouter les types de notifications (quiz, badge, défi, renouvellement, etc.)
+
+### P1-8 : Amélioration marché virtuel avec suivi logistique
+- [x] Ajouter le statut de commande (pending, confirmed, preparing, in_transit, delivered, cancelled)
+- [x] Créer la page de suivi de commande avec timeline (/orders/:id)
+- [x] Ajouter les notifications de changement de statut
+- [ ] Implémenter le système de messagerie marchand-client
+- [ ] Ajouter la géolocalisation du livreur (optionnel)
+
+### P1-9 : Dashboard coopérative avec consolidation
+- [x] Créer la page /cooperative/dashboard
+- [x] Afficher la liste des membres de la coopérative
+- [x] Consolider les besoins en stock des membres
+- [x] Afficher les statistiques agrégées (CA total, stock total)
+- [ ] Créer le système de commande groupée
+
+### P1-10 : Intégration API météo dans dashboard
+- [x] Vérifier que l'API OpenWeather est déjà configurée
+- [x] Ajouter le widget météo dans le dashboard marchand
+- [x] Afficher la température, humidité, prévisions
+- [x] Ajouter des alertes météo (pluie, canicule) pour protéger les marchandises
