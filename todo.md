@@ -2409,3 +2409,50 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Intégration : notifications lors déblocage badges
 - [ ] Intégration : notifications lors renouvellements
 - [ ] Tests unitaires
+
+
+## 🎯 INTÉGRATION PARCOURS MARCHANDS & COOPÉRATIVES
+
+### Parcours Marchand - Page Dédiée
+- [x] Créer la page /merchant/journey avec les 5 étapes clés
+- [x] Étape 1 : Approvisionnement & Paiement (Marché virtuel, Mobile Money, Traçabilité)
+- [x] Étape 2 : Vente au client final (QR code, Mobile Money, Reçus électroniques)
+- [x] Étape 3 : Stockage & Gestion (Tableau de bord stock, Alertes réapprovisionnement)
+- [x] Étape 4 : Protection sociale (Paiement cotisations CNPS/CMU en ligne)
+- [x] Étape 5 : Renforcement capacités (E-learning, Tutoriels vidéo)
+- [x] Design visuel avec icônes et progression
+
+### Parcours Coopérative - Page Dédiée
+- [x] Créer la page /cooperative/journey avec les 5 axes stratégiques
+- [x] Axe 1 : Approvisionnement & Paiements (App marchands, Marché virtuel, Paiements mobiles)
+- [x] Axe 2 : Stockage intelligent (Suivi digitalisé, Notifications automatiques)
+- [x] Axe 3 : Vente & Reporting (App coopérative, Bilan automatisé)
+- [x] Axe 4 : Protection sociale intégrée (Plateforme CNPS/CNAM)
+- [x] Axe 5 : Renforcement capacités (E-learning, Notifications formations)
+- [x] Dashboard coopérative avec KPIs (efficacité, traçabilité, satisfaction)
+
+### Module E-Learning
+- [x] Schéma : table courses (title, description, category, duration, videoUrl, thumbnailUrl)
+- [x] Schéma : table course_progress (userId, courseId, completed, progress, completedAt)
+- [x] Migration : pnpm db:push
+- [x] Backend : procédure courses.getAll
+- [x] Backend : procédure courses.getById
+- [x] Backend : procédure courses.markComplete
+- [x] Backend : procédure courses.getProgress
+- [x] Frontend : page /learning avec liste des cours
+- [ ] Frontend : page /learning/[courseId] pour visionner un cours
+- [x] UI : barre de progression, certificat de complétion
+- [x] Catégories : Gestion stock, Paiements mobiles, Protection sociale, Marketing
+
+### Améliorations Fonctionnalités Existantes
+- [ ] Marché virtuel : Ajouter suivi logistique des commandes
+- [ ] Marché virtuel : Intégrer paiement mobile money pour les commandes
+- [ ] Gestion stock : Améliorer les alertes de réapprovisionnement
+- [ ] Protection sociale : Simplifier le paiement des cotisations
+- [ ] Dashboard marchand : Ajouter section "Mon Parcours" avec progression
+- [ ] Dashboard coopérative : Créer avec consolidation des besoins membres
+
+### Documentation & Communication
+- [ ] Créer une page /about/vision avec la stratégie de digitalisation
+- [ ] Ajouter les impacts attendus (Efficacité, Traçabilité, Inclusion)
+- [ ] Créer des tutoriels vidéo pour chaque étape du parcours

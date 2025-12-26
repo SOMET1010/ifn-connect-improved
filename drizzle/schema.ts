@@ -703,5 +703,49 @@ export const socialProtectionRenewals = mysqlTable("social_protection_renewals",
 export type SocialProtectionRenewal = typeof socialProtectionRenewals.$inferSelect;
 export type InsertSocialProtectionRenewal = typeof socialProtectionRenewals.$inferInsert;
 
+// ============================================================================
+// E-LEARNING
+// ============================================================================
+
+export const courses = mysqlTable("courses", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // gestion_stock, paiements_mobiles, protection_sociale, marketing
+  duration: int("duration").notNull(), // Durée en minutes
+  videoUrl: text("videoUrl"), // URL de la vidéo (YouTube, Vimeo, ou S3)
+  thumbnailUrl: text("thumbnailUrl"), // URL de l'image de couverture
+  level: varchar("level", { length: 50 }).notNull().default("beginner"), // beginner, intermediate, advanced
+  isPublished: boolean("isPublished").notNull().default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("courses_category_idx").on(table.category),
+  levelIdx: index("courses_level_idx").on(table.level),
+  publishedIdx: index("courses_published_idx").on(table.isPublished),
+}));
+
+export type Course = typeof courses.$inferSelect;
+export type InsertCourse = typeof courses.$inferInsert;
+
+export const courseProgress = mysqlTable("course_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  progress: int("progress").notNull().default(0), // Pourcentage de progression (0-100)
+  completed: boolean("completed").notNull().default(false),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("course_progress_user_idx").on(table.userId),
+  courseIdx: index("course_progress_course_idx").on(table.courseId),
+  completedIdx: index("course_progress_completed_idx").on(table.completed),
+  uniqueUserCourse: index("course_progress_unique_user_course").on(table.userId, table.courseId),
+}));
+
+export type CourseProgress = typeof courseProgress.$inferSelect;
+export type InsertCourseProgress = typeof courseProgress.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

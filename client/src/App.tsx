@@ -27,7 +27,10 @@ import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentTasks from "./pages/agent/AgentTasks";
 import MerchantsAdmin from "./pages/MerchantsAdmin";
+import MerchantJourney from "./pages/merchant/MerchantJourney";
+import CooperativeJourney from "./pages/cooperative/CooperativeJourney";
 import RenewalsAdmin from "./pages/admin/RenewalsAdmin";
+import Learning from "./pages/Learning";
 import AuditLogs from "./pages/admin/AuditLogs";
 
 function Router() {
@@ -47,10 +50,9 @@ function Router() {
       <Route path="/merchant/savings" component={Savings} />
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
-      
-      {/* Agent Routes */}
-      <Route path={"/agent"} component={AgentDashboard} />
-      <Route path={"/agent/dashboard"} component={AgentDashboard} />
+         {/* Merchant Routes */}
+      <Route path="/merchant" component={MerchantDashboard} />
+      <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />
       <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
       <Route path={"/agent/tasks"} component={AgentTasks} />
       
@@ -65,6 +67,10 @@ function Router() {
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
+      <Route path="/cooperative/journey" component={CooperativeJourney} />
+      
+      {/* Learning Routes */}
+      <Route path="/learning" component={Learning} />
       
       {/* 404 */}
       <Route path={"/404"} component={NotFound} />
