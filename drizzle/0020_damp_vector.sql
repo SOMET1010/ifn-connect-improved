@@ -1,0 +1,1 @@
+ALTER TABLE `in_app_notifications` MODIFY COLUMN `type` enum('quiz_passed','badge_earned','challenge_received','challenge_won','renewal_reminder','stock_alert','order_status','group_order_created','tier_reached','system') NOT NULL;

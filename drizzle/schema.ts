@@ -877,6 +877,7 @@ export const inAppNotifications = mysqlTable("in_app_notifications", {
     "stock_alert",
     "order_status",
     "group_order_created",
+    "tier_reached",
     "system",
   ]).notNull(),
   title: text("title").notNull(),

@@ -2705,3 +2705,38 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Afficher les paliers actifs et suivants avec barre de progression
 - [x] Calculer et afficher les économies réalisées
 - [x] Calcul automatique du prix réduit basé sur le pourcentage
+
+
+## 🎉 NOTIFICATIONS DE PALIER ATTEINT
+
+### Schéma et types
+- [ ] Ajouter le type de notification 'tier_reached' au schéma inAppNotifications
+- [ ] Appliquer la migration de schéma
+
+### Backend - Détection de palier
+- [ ] Créer une fonction helper detectTierChange(oldQuantity, newQuantity, tiers)
+- [ ] Modifier la procédure join pour détecter les changements de palier
+- [ ] Récupérer tous les participants de la commande groupée
+- [ ] Créer une notification pour chaque participant (sauf celui qui vient de rejoindre)
+
+### Contenu de la notification
+- [ ] Titre : "🎉 Nouveau palier atteint !"
+- [ ] Message : Inclure le nom du produit, le nouveau palier, et les économies
+- [ ] ActionUrl : Lien vers la page de la commande groupée
+- [ ] Metadata : groupedOrderId, tierLevel, newPrice, savings
+
+### Tests
+- [ ] Tester la détection de palier lors d'un join
+- [ ] Vérifier que tous les participants reçoivent la notification
+- [ ] Vérifier que le créateur du join ne reçoit pas sa propre notification
+
+## ✅ NOTIFICATIONS DE PALIER - TÂCHES TERMINÉES
+
+- [x] Ajouter le type de notification 'tier_reached' au schéma inAppNotifications
+- [x] Appliquer la migration de schéma (0020_damp_vector.sql)
+- [x] Ajouter le type dans la fonction createNotification
+- [x] Implémenter la détection de changement de palier dans la procédure join
+- [x] Récupérer tous les participants pour notification
+- [x] Calculer les économies (pourcentage et montant)
+- [x] Créer des notifications personnalisées avec métadonnées complètes
+- [x] Exclure l'utilisateur qui vient de rejoindre de la notification

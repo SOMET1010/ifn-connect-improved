@@ -220,7 +220,7 @@ export const inAppNotificationsRouter = router({
  */
 export async function createNotification(params: {
   userId: number;
-  type: 'quiz_passed' | 'badge_earned' | 'challenge_received' | 'challenge_won' | 'renewal_reminder' | 'stock_alert' | 'order_status' | 'group_order_created' | 'system';
+  type: 'quiz_passed' | 'badge_earned' | 'challenge_received' | 'challenge_won' | 'renewal_reminder' | 'stock_alert' | 'order_status' | 'group_order_created' | 'tier_reached' | 'system';
   title: string;
   message: string;
   actionUrl?: string;

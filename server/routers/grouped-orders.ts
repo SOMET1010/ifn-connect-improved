@@ -149,6 +149,22 @@ export const groupedOrdersRouter = router({
         quantity: input.quantity,
       });
 
+      // Récupérer les paliers de prix pour détecter un changement
+      const tiers = await db
+        .select()
+        .from(priceTiers)
+        .where(eq(priceTiers.groupedOrderId, input.groupedOrderId))
+        .orderBy(desc(priceTiers.minQuantity));
+
+      // Déterminer le palier actif AVANT la nouvelle quantité
+      let oldActiveTier = null;
+      for (const tier of tiers) {
+        if (order.totalQuantity >= tier.minQuantity) {
+          oldActiveTier = tier;
+          break;
+        }
+      }
+
       // Mettre à jour la quantité totale
       const newTotalQuantity = order.totalQuantity + input.quantity;
       const newTotalAmount = order.unitPrice
@@ -163,7 +179,56 @@ export const groupedOrdersRouter = router({
         })
         .where(eq(groupedOrders.id, input.groupedOrderId));
 
-      return { success: true, totalQuantity: newTotalQuantity };
+      // Déterminer le palier actif APRÈS la nouvelle quantité
+      let newActiveTier = null;
+      for (const tier of tiers) {
+        if (newTotalQuantity >= tier.minQuantity) {
+          newActiveTier = tier;
+          break;
+        }
+      }
+
+      // Si un nouveau palier est atteint, notifier tous les participants
+      if (newActiveTier && (!oldActiveTier || newActiveTier.id !== oldActiveTier.id)) {
+        // Récupérer tous les participants (sauf celui qui vient de rejoindre)
+        const participants = await db
+          .select({
+            userId: merchants.userId,
+          })
+          .from(groupedOrderParticipants)
+          .leftJoin(merchants, eq(groupedOrderParticipants.merchantId, merchants.id))
+          .where(eq(groupedOrderParticipants.groupedOrderId, input.groupedOrderId));
+
+        // Calculer les économies
+        const basePrice = order.unitPrice ? parseFloat(order.unitPrice) : 0;
+        const newPrice = parseFloat(newActiveTier.pricePerUnit);
+        const savingsPercent = basePrice > 0 ? ((basePrice - newPrice) / basePrice * 100).toFixed(1) : '0';
+        const savingsAmount = (basePrice - newPrice).toFixed(0);
+
+        // Créer une notification pour chaque participant
+        for (const participant of participants) {
+          if (participant.userId && participant.userId !== ctx.user.id) {
+            await createNotification({
+              userId: participant.userId,
+              type: 'tier_reached',
+              title: '🎉 Nouveau palier atteint !',
+              message: `La commande groupée "${order.productName}" a atteint un nouveau palier ! Le prix unitaire passe à ${newPrice.toLocaleString('fr-FR')} FCFA (-${savingsPercent}%). Vous économisez ${savingsAmount} FCFA par unité !`,
+              actionUrl: `/cooperative/grouped-orders`,
+              metadata: {
+                groupedOrderId: input.groupedOrderId,
+                productName: order.productName,
+                oldPrice: basePrice,
+                newPrice,
+                savingsPercent,
+                savingsAmount,
+                minQuantity: newActiveTier.minQuantity,
+              },
+            });
+          }
+        }
+      }
+
+      return { success: true, totalQuantity: newTotalQuantity, tierReached: !!newActiveTier && (!oldActiveTier || newActiveTier.id !== oldActiveTier.id) };
     }),
 
   /**
