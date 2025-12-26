@@ -2870,3 +2870,34 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Vérifier le statut de paiement avant confirmation de commande
 - [x] Bloquer la confirmation si tous les paiements ne sont pas reçus
 - [x] Désactiver le bouton confirmer tant que 100% n'est pas atteint
+
+
+## 📧 SYSTÈME DE REÇUS AUTOMATIQUES - SPRINT 6
+
+### Phase 1 : Générateur de reçus PDF
+- [x] Créer le module de génération de PDF avec PDFKit
+- [x] Designer le template de reçu professionnel
+- [x] Inclure : logo, numéro de reçu, date, informations participant
+- [x] Inclure : détails de la commande (produit, quantité, prix unitaire, total)
+- [x] Inclure : méthode de paiement et numéro de transaction
+- [ ] Ajouter un QR code de vérification
+
+### Phase 2 : Envoi d'email automatique
+- [x] Configurer l'intégration avec Resend API
+- [x] Créer le template d'email de confirmation
+- [x] Attacher le PDF généré à l'email
+- [x] Personnaliser le message avec les détails du paiement
+- [ ] Gérer les erreurs d'envoi avec retry
+
+### Phase 3 : Intégration dans recordPayment
+- [x] Modifier la procédure recordPayment pour générer le PDF
+- [x] Déclencher l'envoi d'email après enregistrement du paiement
+- [x] Récupérer l'email du marchand depuis la base de données
+- [x] Logger les envois de reçus pour traçabilité
+- [x] Gérer les cas d'échec sans bloquer le paiement
+
+### Phase 4 : Tests et livraison
+- [ ] Tester la génération de PDF
+- [ ] Tester l'envoi d'email avec pièce jointe
+- [ ] Vérifier le format et le contenu du reçu
+- [ ] Créer le checkpoint final

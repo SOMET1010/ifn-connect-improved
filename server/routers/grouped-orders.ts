@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { generateReceiptPDF } from '../receipt-generator';
+import { sendReceiptEmail } from '../email-sender';
 import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
 import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants, priceTiers, groupOrderPayments } from '../../drizzle/schema';
@@ -692,6 +694,69 @@ export const groupedOrdersRouter = router({
         transactionId: input.transactionId,
         paidAt: new Date(),
       }).$returningId();
+
+      // Récupérer les informations pour le reçu
+      const [orderDetails] = await db
+        .select({
+          productName: groupedOrders.productName,
+          cooperativeId: groupedOrders.cooperativeId,
+        })
+        .from(groupedOrders)
+        .where(eq(groupedOrders.id, input.groupedOrderId))
+        .limit(1);
+
+      const [merchantDetails] = await db
+        .select({
+          merchantName: users.name,
+          merchantEmail: users.email,
+          businessName: merchants.businessName,
+        })
+        .from(merchants)
+        .leftJoin(users, eq(merchants.userId, users.id))
+        .where(eq(merchants.id, participant.merchantId))
+        .limit(1);
+
+      // Générer et envoyer le reçu PDF (ne pas bloquer la réponse en cas d'erreur)
+      if (orderDetails && merchantDetails && merchantDetails.merchantEmail) {
+        const receiptNumber = `REC-${input.groupedOrderId}-${payment.id}-${Date.now()}`;
+        const receiptData = {
+          receiptNumber,
+          date: new Date(),
+          merchantName: merchantDetails.merchantName || 'Marchand',
+          merchantEmail: merchantDetails.merchantEmail,
+          businessName: merchantDetails.businessName || 'Commerce',
+          productName: orderDetails.productName,
+          quantity: participant.quantity,
+          unitPrice: input.amount / participant.quantity,
+          totalAmount: input.amount,
+          paymentMethod: input.paymentMethod || 'cash',
+          transactionId: input.transactionId,
+          cooperativeName: 'IFN Connect',
+        };
+
+        // Générer et envoyer en arrière-plan (ne pas attendre)
+        generateReceiptPDF(receiptData)
+          .then((pdfBuffer) => {
+            return sendReceiptEmail({
+              to: merchantDetails.merchantEmail!,
+              merchantName: merchantDetails.merchantName || 'Marchand',
+              productName: orderDetails.productName,
+              amount: input.amount,
+              receiptNumber,
+              pdfBuffer,
+            });
+          })
+          .then((success) => {
+            if (success) {
+              console.log(`Reçu envoyé avec succès à ${merchantDetails.merchantEmail}`);
+            } else {
+              console.error(`Échec de l'envoi du reçu à ${merchantDetails.merchantEmail}`);
+            }
+          })
+          .catch((error) => {
+            console.error('Erreur lors de la génération/envoi du reçu:', error);
+          });
+      }
 
       return { success: true, paymentId: payment.id };
     }),
