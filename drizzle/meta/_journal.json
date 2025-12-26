@@ -120,6 +120,13 @@
       "when": 1766759897338,
       "tag": "0016_conscious_arachne",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1766760550545,
+      "tag": "0017_regular_mentallo",
+      "breakpoints": true
     }
   ]
 }

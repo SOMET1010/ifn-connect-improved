@@ -21,7 +21,9 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, Bell } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { Badge } from "@/components/ui/badge";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -109,6 +111,15 @@ function DashboardLayoutContent({
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
+  
+  // Récupérer le nombre de notifications non lues
+  const { data: unreadCount } = trpc.inAppNotifications.getUnreadCount.useQuery(undefined, {
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+  });
+  
+  // Récupérer les notifications récentes pour le dropdown
+  const { data: recentNotifications } = trpc.inAppNotifications.getRecent.useQuery({ limit: 5 });
+  const markAsReadMutation = trpc.inAppNotifications.markAsRead.useMutation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
@@ -170,10 +181,71 @@ function DashboardLayoutContent({
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center justify-between gap-2 min-w-0 flex-1">
                   <span className="font-semibold tracking-tight truncate">
                     Navigation
                   </span>
+                  
+                  {/* Badge notifications desktop */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="relative h-8 w-8 flex items-center justify-center rounded-lg hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0">
+                        <Bell className="h-4 w-4 text-muted-foreground" />
+                        {unreadCount && unreadCount > 0 && (
+                          <Badge className="absolute -top-1 -right-1 h-4 min-w-4 flex items-center justify-center p-0 text-xs bg-red-500 hover:bg-red-600 border-2 border-background">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </Badge>
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-80">
+                      <div className="px-3 py-2 border-b">
+                        <p className="font-semibold text-sm">Notifications</p>
+                        <p className="text-xs text-muted-foreground">{unreadCount || 0} non lue{(unreadCount || 0) > 1 ? 's' : ''}</p>
+                      </div>
+                      {recentNotifications && recentNotifications.length > 0 ? (
+                        <>
+                          {recentNotifications.map((notif) => (
+                            <DropdownMenuItem
+                              key={notif.id}
+                              className="cursor-pointer flex-col items-start py-3 px-3"
+                              onClick={() => {
+                                if (!notif.isRead) {
+                                  markAsReadMutation.mutate({ notificationId: notif.id });
+                                }
+                                if (notif.actionUrl) {
+                                  setLocation(notif.actionUrl);
+                                }
+                              }}
+                            >
+                              <div className="flex items-start gap-2 w-full">
+                                {!notif.isRead && (
+                                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm">{notif.title}</p>
+                                  <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {new Date(notif.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuItem
+                            className="cursor-pointer justify-center text-primary font-medium"
+                            onClick={() => setLocation('/notifications')}
+                          >
+                            Voir toutes les notifications
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
+                        <div className="py-8 text-center text-sm text-muted-foreground">
+                          Aucune notification
+                        </div>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ) : null}
             </div>
@@ -256,6 +328,67 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
+            
+            {/* Badge notifications */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="relative h-9 w-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  {unreadCount && unreadCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-xs bg-red-500 hover:bg-red-600 border-2 border-background">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <div className="px-3 py-2 border-b">
+                  <p className="font-semibold text-sm">Notifications</p>
+                  <p className="text-xs text-muted-foreground">{unreadCount || 0} non lue{(unreadCount || 0) > 1 ? 's' : ''}</p>
+                </div>
+                {recentNotifications && recentNotifications.length > 0 ? (
+                  <>
+                    {recentNotifications.map((notif) => (
+                      <DropdownMenuItem
+                        key={notif.id}
+                        className="cursor-pointer flex-col items-start py-3 px-3"
+                        onClick={() => {
+                          if (!notif.isRead) {
+                            markAsReadMutation.mutate({ notificationId: notif.id });
+                          }
+                          if (notif.actionUrl) {
+                            setLocation(notif.actionUrl);
+                          }
+                        }}
+                      >
+                        <div className="flex items-start gap-2 w-full">
+                          {!notif.isRead && (
+                            <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm">{notif.title}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{notif.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(notif.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuItem
+                      className="cursor-pointer justify-center text-primary font-medium"
+                      onClick={() => setLocation('/notifications')}
+                    >
+                      Voir toutes les notifications
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    Aucune notification
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>

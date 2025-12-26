@@ -2622,3 +2622,25 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Ajouter le widget météo dans le dashboard marchand
 - [x] Afficher la température, humidité, prévisions
 - [x] Ajouter des alertes météo (pluie, canicule) pour protéger les marchandises
+
+## 🚀 AMÉLIORATIONS POST-SPRINT 2
+
+### Amélioration 1 : Badge compteur de notifications
+- [x] Trouver le composant header principal de l'application
+- [x] Intégrer le badge compteur avec trpc.inAppNotifications.getUnreadCount
+- [x] Ajouter un dropdown des notifications récentes au clic
+- [x] Rafraîchir automatiquement le compteur toutes les 30 secondes
+
+### Amélioration 2 : Page de gestion des défis
+- [x] Créer la page /challenges avec onglets (Reçus, Envoyés, Historique)
+- [x] Afficher les défis reçus avec boutons Accepter/Refuser
+- [x] Créer le formulaire de lancement de défi (sélection ami + quiz)
+- [x] Afficher l'historique des défis avec résultats
+- [x] Ajouter les notifications de défi dans le système
+
+### Amélioration 3 : Commande groupée coopérative
+- [x] Créer la table grouped_orders (cooperativeId, productId, totalQuantity, status)
+- [x] Créer la page /cooperative/grouped-orders
+- [x] Permettre la création d'une commande groupée depuis le dashboard
+- [x] Afficher la liste des commandes groupées en cours
+- [ ] Notifier les membres quand une commande groupée est créée

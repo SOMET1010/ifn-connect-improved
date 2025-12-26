@@ -909,5 +909,41 @@ export const cooperativeMembers = mysqlTable("cooperative_members", {
 export type CooperativeMember = typeof cooperativeMembers.$inferSelect;
 export type InsertCooperativeMember = typeof cooperativeMembers.$inferInsert;
 
+// ============================================================================
+// GROUPED ORDERS (Commandes groupées des coopératives)
+// ============================================================================
+
+export const groupedOrders = mysqlTable("grouped_orders", {
+  id: int("id").autoincrement().primaryKey(),
+  cooperativeId: int("cooperativeId").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
+  productName: varchar("productName", { length: 255 }).notNull(),
+  totalQuantity: int("totalQuantity").notNull(),
+  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }),
+  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }),
+  status: mysqlEnum("status", ["draft", "pending", "confirmed", "delivered", "cancelled"]).notNull().default("draft"),
+  createdBy: int("createdBy").notNull().references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  confirmedAt: timestamp("confirmedAt"),
+  deliveredAt: timestamp("deliveredAt"),
+}, (table) => ({
+  cooperativeStatusIdx: index("cooperative_status_idx").on(table.cooperativeId, table.status),
+}));
+
+export type GroupedOrder = typeof groupedOrders.$inferSelect;
+export type InsertGroupedOrder = typeof groupedOrders.$inferInsert;
+
+export const groupedOrderParticipants = mysqlTable("grouped_order_participants", {
+  id: int("id").autoincrement().primaryKey(),
+  groupedOrderId: int("groupedOrderId").notNull().references(() => groupedOrders.id, { onDelete: "cascade" }),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  quantity: int("quantity").notNull(),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+}, (table) => ({
+  groupedOrderMerchantIdx: index("grouped_order_merchant_idx").on(table.groupedOrderId, table.merchantId),
+}));
+
+export type GroupedOrderParticipant = typeof groupedOrderParticipants.$inferSelect;
+export type InsertGroupedOrderParticipant = typeof groupedOrderParticipants.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

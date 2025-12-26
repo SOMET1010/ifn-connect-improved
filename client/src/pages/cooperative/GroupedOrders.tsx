@@ -1,0 +1,275 @@
+import { useState } from 'react';
+import { trpc } from '@/lib/trpc';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  ShoppingCart,
+  Plus,
+  Users,
+  Package,
+  CheckCircle2,
+  Clock,
+  Truck,
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+export default function GroupedOrders() {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [productName, setProductName] = useState('');
+  const [unitPrice, setUnitPrice] = useState('');
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+  // Récupérer les commandes groupées (hardcoded cooperativeId pour l'exemple)
+  const cooperativeId = 1;
+  const { data: orders, refetch } = trpc.groupedOrders.getByCooperative.useQuery({ cooperativeId });
+  const { data: participants } = trpc.groupedOrders.getParticipants.useQuery(
+    { groupedOrderId: selectedOrderId! },
+    { enabled: !!selectedOrderId }
+  );
+
+  // Mutations
+  const createMutation = trpc.groupedOrders.create.useMutation({
+    onSuccess: () => {
+      setIsCreateDialogOpen(false);
+      setProductName('');
+      setUnitPrice('');
+      refetch();
+      alert('Commande groupée créée avec succès !');
+    },
+  });
+
+  const confirmMutation = trpc.groupedOrders.confirm.useMutation({
+    onSuccess: () => {
+      refetch();
+      alert('Commande confirmée !');
+    },
+  });
+
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { label: string; color: string; icon: any }> = {
+      draft: { label: 'Brouillon', color: 'bg-gray-100 text-gray-700 border-gray-300', icon: Clock },
+      pending: { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-300', icon: Clock },
+      confirmed: { label: 'Confirmée', color: 'bg-blue-100 text-blue-700 border-blue-300', icon: CheckCircle2 },
+      delivered: { label: 'Livrée', color: 'bg-green-100 text-green-700 border-green-300', icon: Truck },
+      cancelled: { label: 'Annulée', color: 'bg-red-100 text-red-700 border-red-300', icon: Clock },
+    };
+    const info = statusMap[status] || statusMap.draft;
+    const Icon = info.icon;
+    return (
+      <Badge className={`${info.color} border-2 gap-1`} variant="outline">
+        <Icon className="h-3 w-3" />
+        {info.label}
+      </Badge>
+    );
+  };
+
+  return (
+    <div className="container py-8">
+      {/* En-tête */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <ShoppingCart className="h-8 w-8 text-green-600" />
+            <h1 className="text-3xl font-bold text-gray-900">Commandes Groupées</h1>
+          </div>
+          
+          {/* Bouton créer une commande */}
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nouvelle commande groupée
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Créer une commande groupée</DialogTitle>
+                <DialogDescription>
+                  Consolidez les besoins de vos membres pour obtenir de meilleurs prix
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="product">Produit</Label>
+                  <Input
+                    id="product"
+                    placeholder="Ex: Riz local, Huile de palme..."
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price">Prix unitaire (FCFA)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="1000"
+                    value={unitPrice}
+                    onChange={(e) => setUnitPrice(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Optionnel : laissez vide si le prix n'est pas encore négocié
+                  </p>
+                </div>
+                <Button
+                  className="w-full"
+                  disabled={!productName}
+                  onClick={() => {
+                    createMutation.mutate({
+                      cooperativeId,
+                      productName,
+                      unitPrice: unitPrice ? parseFloat(unitPrice) : undefined,
+                    });
+                  }}
+                >
+                  Créer la commande
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <p className="text-gray-600">
+          Regroupez les besoins de vos membres pour négocier de meilleurs prix
+        </p>
+      </div>
+
+      {/* Liste des commandes */}
+      <div className="space-y-6">
+        {!orders || orders.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-600">Aucune commande groupée pour le moment</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Créez votre première commande pour commencer
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          orders.map((order) => (
+            <Card key={order.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Package className="h-5 w-5 text-green-600" />
+                      {order.productName}
+                    </CardTitle>
+                    <CardDescription className="mt-2">
+                      Créée par {order.creatorName} le{' '}
+                      {new Date(order.createdAt).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </CardDescription>
+                  </div>
+                  {getStatusBadge(order.status)}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Statistiques */}
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600">Quantité totale</p>
+                    <p className="text-2xl font-bold text-gray-900">{order.totalQuantity}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600">Prix unitaire</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {order.unitPrice ? `${parseFloat(order.unitPrice).toLocaleString('fr-FR')} FCFA` : '-'}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600">Montant total</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {order.totalAmount ? `${parseFloat(order.totalAmount).toLocaleString('fr-FR')} FCFA` : '-'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => setSelectedOrderId(order.id)}
+                  >
+                    <Users className="h-4 w-4" />
+                    Voir les participants
+                  </Button>
+                  
+                  {order.status === 'draft' && (
+                    <Button
+                      variant="default"
+                      className="gap-2"
+                      onClick={() => confirmMutation.mutate({ groupedOrderId: order.id })}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Confirmer la commande
+                    </Button>
+                  )}
+                </div>
+
+                {/* Liste des participants */}
+                {selectedOrderId === order.id && participants && participants.length > 0 && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Participants ({participants.length})
+                    </h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Marchand</TableHead>
+                          <TableHead>Commerce</TableHead>
+                          <TableHead className="text-right">Quantité</TableHead>
+                          <TableHead className="text-right">Date d'adhésion</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {participants.map((participant) => (
+                          <TableRow key={participant.id}>
+                            <TableCell className="font-medium">{participant.merchantName}</TableCell>
+                            <TableCell>{participant.businessName}</TableCell>
+                            <TableCell className="text-right font-semibold">{participant.quantity}</TableCell>
+                            <TableCell className="text-right text-sm text-muted-foreground">
+                              {new Date(participant.joinedAt).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'short',
+                              })}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}

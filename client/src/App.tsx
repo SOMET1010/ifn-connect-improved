@@ -34,11 +34,13 @@ import Learning from "./pages/Learning";
 import CourseDetail from "./pages/CourseDetail";
 import AuditLogs from "./pages/admin/AuditLogs";
 import MyBadges from "./pages/MyBadges";
-import Leaderboard from "./pages/Leaderboard";
+import Leaderboard from './pages/Leaderboard';
+import Challenges from './pages/Challenges';
 import AdminUsers from "./pages/admin/Users";
 import Notifications from "./pages/Notifications";
 import OrderTracking from "./pages/OrderTracking";
 import CooperativeDashboard from "./pages/cooperative/Dashboard";
+import GroupedOrders from "./pages/cooperative/GroupedOrders";
 
 function Router() {
   return (
@@ -76,6 +78,7 @@ function Router() {
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={CooperativeDashboard} />
       <Route path={"/cooperative/dashboard"} component={CooperativeDashboard} />
+      <Route path={"/cooperative/grouped-orders"} component={GroupedOrders} />
       <Route path="/cooperative/journey" component={CooperativeJourney} />
       
       {/* Learning Routes */}
@@ -83,6 +86,7 @@ function Router() {
       <Route path="/learning/:id" component={CourseDetail} />
       <Route path="/my-badges" component={MyBadges} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/challenges" component={Challenges} />
       <Route path="/notifications" component={Notifications} />
       <Route path="/orders/:id" component={OrderTracking} />
       
