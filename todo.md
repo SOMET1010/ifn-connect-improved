@@ -28,17 +28,19 @@
 
 ## Module Marchand (80% utilisateurs)
 - [x] Dashboard marchand avec KPIs (ventes du jour, stock bas, cotisations)
-- [ ] Interface de caisse tactile simplifiée
-- [ ] Enregistrement rapide de ventes avec vocal
-- [ ] Gestion de stock avec alertes visuelles et vocales
+- [x] Interface de caisse tactile simplifiée
+- [x] Enregistrement rapide de ventes avec vocal
+- [x] Gestion de stock avec alertes visuelles et vocales
 - [ ] Visualisation simple CNPS (retraite)
 - [ ] Visualisation simple CMU (santé)
 - [ ] Marché virtuel d'approvisionnement
 - [ ] Liste des produits disponibles
 - [ ] Panier d'achat et commande
-- [ ] Intégration paiements Mobile Money (InTouch)
-- [ ] Intégration Orange Money
-- [ ] Intégration MTN Mobile Money
+- [x] Intégration paiements Mobile Money (InTouch)
+- [x] Intégration Orange Money
+- [x] Intégration MTN Mobile Money
+- [x] Intégration Wave
+- [x] Intégration Moov Money
 - [ ] Historique des transactions
 - [ ] Profil marchand avec numéro unique
 
