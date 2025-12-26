@@ -4,6 +4,7 @@ import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
 import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { createNotification } from './in-app-notifications';
 
 /**
  * Router pour les commandes groupées des coopératives
@@ -53,6 +54,38 @@ export const groupedOrdersRouter = router({
         status: 'draft',
         createdBy: ctx.user.id,
       }).$returningId();
+
+      // Notifier tous les membres de la coopérative
+      const members = await db
+        .select({
+          userId: merchants.userId,
+        })
+        .from(cooperativeMembers)
+        .leftJoin(merchants, eq(cooperativeMembers.merchantId, merchants.id))
+        .where(
+          and(
+            eq(cooperativeMembers.cooperativeId, input.cooperativeId),
+            eq(cooperativeMembers.isActive, true)
+          )
+        );
+
+      // Créer une notification pour chaque membre
+      for (const member of members) {
+        if (member.userId && member.userId !== ctx.user.id) {
+          await createNotification({
+            userId: member.userId,
+            type: 'group_order_created',
+            title: '🛒 Nouvelle commande groupée',
+            message: `Une commande groupée pour "${input.productName}" vient d'être créée. Rejoignez-la pour bénéficier d'un meilleur prix !`,
+            actionUrl: `/cooperative/grouped-orders`,
+            metadata: {
+              groupedOrderId: order.id,
+              productName: input.productName,
+              cooperativeId: input.cooperativeId,
+            },
+          });
+        }
+      }
 
       return { success: true, orderId: order.id };
     }),

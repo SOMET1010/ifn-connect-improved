@@ -6,7 +6,10 @@ import {
   Package,
   ShoppingCart,
   Building2,
+  ShoppingBag,
 } from 'lucide-react';
+import { Link } from 'wouter';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -33,6 +36,16 @@ export default function CooperativeDashboard() {
           </h1>
         </div>
         <p className="text-gray-600">Vue d'ensemble et consolidation des besoins des membres</p>
+      </div>
+
+      {/* Bouton d'action rapide */}
+      <div className="mb-6">
+        <Link href="/cooperative/grouped-orders">
+          <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
+            <ShoppingBag className="h-5 w-5 mr-2" />
+            Commandes groupées
+          </Button>
+        </Link>
       </div>
 
       {/* Statistiques agrégées */}

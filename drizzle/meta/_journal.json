@@ -127,6 +127,13 @@
       "when": 1766760550545,
       "tag": "0017_regular_mentallo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1766760919960,
+      "tag": "0018_noisy_saracen",
+      "breakpoints": true
     }
   ]
 }

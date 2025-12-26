@@ -2643,4 +2643,26 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Créer la page /cooperative/grouped-orders
 - [x] Permettre la création d'une commande groupée depuis le dashboard
 - [x] Afficher la liste des commandes groupées en cours
-- [ ] Notifier les membres quand une commande groupée est créée
+- [x] Notifier les membres quand une commande groupée est créée
+
+
+## 🎯 AMÉLIORATIONS COMMANDES GROUPÉES (Suite)
+
+### Amélioration 4 : Navigation vers les commandes groupées
+- [x] Ajouter un lien "Commandes groupées" dans le menu de navigation du dashboard coopérative
+- [x] Ajouter une carte d'action rapide dans le dashboard coopérative
+- [x] Améliorer la découvrabilité de la fonctionnalité
+
+### Amélioration 5 : Notifications push pour commandes groupées
+- [x] Créer une notification automatique lors de la création d'une commande groupée
+- [x] Envoyer la notification à tous les membres de la coopérative
+- [x] Inclure les détails de la commande (produit, quantité, date limite)
+- [x] Ajouter un lien direct vers la page de commande groupée
+
+### Amélioration 6 : Fonctionnalité "Rejoindre une commande"
+- [x] Ajouter un bouton "Rejoindre" sur chaque commande groupée ouverte
+- [x] Créer un formulaire pour saisir la quantité souhaitée
+- [x] Mettre à jour la quantité totale de la commande
+- [x] Créer une entrée dans group_order_items pour tracer la participation
+- [x] Afficher la liste des participants avec leurs quantités
+- [x] Calculer le prix négocié basé sur la quantité totale

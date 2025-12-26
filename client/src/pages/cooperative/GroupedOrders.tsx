@@ -33,9 +33,12 @@ import {
 
 export default function GroupedOrders() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [productName, setProductName] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
+  const [joinQuantity, setJoinQuantity] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [orderToJoin, setOrderToJoin] = useState<number | null>(null);
 
   // Récupérer les commandes groupées (hardcoded cooperativeId pour l'exemple)
   const cooperativeId = 1;
@@ -62,6 +65,22 @@ export default function GroupedOrders() {
       alert('Commande confirmée !');
     },
   });
+
+  const joinMutation = trpc.groupedOrders.join.useMutation({
+    onSuccess: () => {
+      setIsJoinDialogOpen(false);
+      setJoinQuantity('');
+      setOrderToJoin(null);
+      refetch();
+      alert('Vous avez rejoint la commande avec succès !');
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
+
+  // Récupérer le marchand connecté
+  const { data: myMerchant } = trpc.auth.myMerchant.useQuery();
 
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; color: string; icon: any }> = {
@@ -220,14 +239,27 @@ export default function GroupedOrders() {
                   </Button>
                   
                   {order.status === 'draft' && (
-                    <Button
-                      variant="default"
-                      className="gap-2"
-                      onClick={() => confirmMutation.mutate({ groupedOrderId: order.id })}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Confirmer la commande
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        className="gap-2 bg-green-100 text-green-700 hover:bg-green-200"
+                        onClick={() => {
+                          setOrderToJoin(order.id);
+                          setIsJoinDialogOpen(true);
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                        Rejoindre la commande
+                      </Button>
+                      <Button
+                        variant="default"
+                        className="gap-2"
+                        onClick={() => confirmMutation.mutate({ groupedOrderId: order.id })}
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Confirmer la commande
+                      </Button>
+                    </>
                   )}
                 </div>
 
@@ -270,6 +302,48 @@ export default function GroupedOrders() {
           ))
         )}
       </div>
+
+      {/* Dialog pour rejoindre une commande */}
+      <Dialog open={isJoinDialogOpen} onOpenChange={setIsJoinDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rejoindre la commande groupée</DialogTitle>
+            <DialogDescription>
+              Indiquez la quantité que vous souhaitez commander
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="quantity">Quantité souhaitée</Label>
+              <Input
+                id="quantity"
+                type="number"
+                placeholder="Ex: 50"
+                value={joinQuantity}
+                onChange={(e) => setJoinQuantity(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Plus la quantité totale est élevée, meilleur sera le prix négocié
+              </p>
+            </div>
+            <Button
+              className="w-full"
+              disabled={!joinQuantity || !myMerchant || parseFloat(joinQuantity) <= 0}
+              onClick={() => {
+                if (orderToJoin && myMerchant) {
+                  joinMutation.mutate({
+                    groupedOrderId: orderToJoin,
+                    merchantId: myMerchant.id,
+                    quantity: parseFloat(joinQuantity),
+                  });
+                }
+              }}
+            >
+              Rejoindre avec {joinQuantity || '0'} unités
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
