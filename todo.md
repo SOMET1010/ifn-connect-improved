@@ -2456,3 +2456,27 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [ ] Créer une page /about/vision avec la stratégie de digitalisation
 - [ ] Ajouter les impacts attendus (Efficacité, Traçabilité, Inclusion)
 - [ ] Créer des tutoriels vidéo pour chaque étape du parcours
+
+
+## 🎓 PAGE DÉTAIL COURS
+
+### Frontend - Page CourseDetail
+- [x] Créer la page /learning/[courseId]
+- [x] Intégrer lecteur vidéo (YouTube/Vimeo)
+- [x] Afficher informations du cours (titre, description, durée, catégorie, niveau)
+- [x] Afficher barre de progression globale
+- [x] Bouton "Marquer comme terminé"
+- [x] Bouton "Télécharger le certificat" (si cours terminé)
+- [x] Suivi automatique de la progression pendant le visionnage
+- [x] Design responsive et professionnel
+
+### Backend - Génération Certificat
+- [x] Procédure courses.generateCertificate
+- [x] Installer bibliothèque PDFKit ou jsPDF
+- [x] Template certificat avec logo, nom utilisateur, titre cours, date
+- [x] Retourner le PDF en base64 pour téléchargement
+- [x] Vérifier que le cours est completé avant génération
+
+### Navigation
+- [x] Ajouter la route dynamique /learning/:id dans App.tsx
+- [x] Tester la navigation depuis la page /learning
