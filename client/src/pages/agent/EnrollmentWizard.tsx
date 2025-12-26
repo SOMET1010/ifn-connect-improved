@@ -20,8 +20,6 @@ import {
 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { usePhotoCapture } from '@/hooks/usePhotoCapture';
-import { useOfflineEnrollment } from '@/hooks/useOfflineEnrollment';
-import { OfflineEnrollmentIndicator } from '@/components/OfflineEnrollmentIndicator';
 
 type EnrollmentStep = 1 | 2 | 3 | 4 | 5;
 
@@ -76,9 +74,6 @@ export default function EnrollmentWizard() {
 
   // Mutation pour l'enrôlement
   const enrollMutation = trpc.agent.enrollMerchant.useMutation();
-
-  // Hook pour le mode offline
-  const { isOnline, saveEnrollmentOffline, updatePendingEnrollmentsCount } = useOfflineEnrollment();
 
   // Mettre à jour les photos dans le state principal
   if (idPhotoCapture.photo && !data.idPhoto) {
@@ -164,44 +159,6 @@ export default function EnrollmentWizard() {
     }
 
     setIsSubmitting(true);
-
-    // MODE HORS LIGNE : Sauvegarder localement
-    if (!isOnline) {
-      try {
-        await saveEnrollmentOffline({
-          fullName: data.fullName,
-          phone: data.phone,
-          dateOfBirth: data.dateOfBirth,
-          idPhoto: data.idPhoto,
-          licensePhoto: data.licensePhoto,
-          latitude: data.latitude,
-          longitude: data.longitude,
-          marketId: data.marketId,
-          hasCNPS: data.hasCNPS,
-          cnpsNumber: data.cnpsNumber,
-          hasCMU: data.hasCMU,
-          cmuNumber: data.cmuNumber,
-        });
-
-        toast.success('💾 Enrôlement sauvegardé localement !', {
-          description: 'Il sera synchronisé automatiquement quand la connexion reviendra.',
-          duration: 5000,
-        });
-
-        // Rediriger vers le dashboard
-        setTimeout(() => {
-          setLocation('/agent/dashboard');
-        }, 2000);
-      } catch (error) {
-        console.error('Erreur sauvegarde offline:', error);
-        toast.error('Erreur lors de la sauvegarde locale');
-      } finally {
-        setIsSubmitting(false);
-      }
-      return;
-    }
-
-    // MODE EN LIGNE : Envoyer directement au serveur
     try {
       const result = await enrollMutation.mutateAsync({
         fullName: data.fullName,
@@ -218,7 +175,7 @@ export default function EnrollmentWizard() {
         cmuNumber: data.cmuNumber,
       });
 
-      toast.success('✅ Enrôlement réussi !', {
+      toast.success('Enrôlement réussi !', {
         description: `Code marchand: ${result.merchantCode}`,
         duration: 5000,
       });
@@ -241,8 +198,6 @@ export default function EnrollmentWizard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
-      {/* Indicateur de statut offline */}
-      <OfflineEnrollmentIndicator />
       <div className="container max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">

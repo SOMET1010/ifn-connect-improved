@@ -9,7 +9,6 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initExpirationAlertsCron } from "./cron-expiration-alerts";
 import { initBadgeChecker } from "../cron/badge-checker";
-import intouchWebhookRouter from "../api/intouch-webhook";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,8 +37,6 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
-  // InTouch webhook endpoint
-  app.use(intouchWebhookRouter);
   // tRPC API
   app.use(
     "/api/trpc",

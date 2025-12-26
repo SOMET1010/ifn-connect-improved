@@ -1,8 +1,4 @@
 import { useState } from 'react';
-import { PriceTiersDisplay } from '@/components/PriceTiersDisplay';
-import { CountdownDisplay } from '@/components/CountdownTimer';
-import { GroupOrderPaymentModal } from '@/components/GroupOrderPaymentModal';
-import { PaymentProgress } from '@/components/PaymentProgress';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,8 +11,6 @@ import {
   CheckCircle2,
   Clock,
   Truck,
-  Trash2,
-  TrendingDown,
 } from 'lucide-react';
 import {
   Dialog,
@@ -42,11 +36,9 @@ export default function GroupedOrders() {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [productName, setProductName] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
-  const [closingDate, setClosingDate] = useState('');
   const [joinQuantity, setJoinQuantity] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [orderToJoin, setOrderToJoin] = useState<number | null>(null);
-  const [priceTiers, setPriceTiers] = useState<Array<{ minQuantity: string; discountPercent: string; pricePerUnit: string }>>([]);
 
   // Récupérer les commandes groupées (hardcoded cooperativeId pour l'exemple)
   const cooperativeId = 1;
@@ -55,48 +47,17 @@ export default function GroupedOrders() {
     { groupedOrderId: selectedOrderId! },
     { enabled: !!selectedOrderId }
   );
-  const { data: priceTiersData } = trpc.groupedOrders.getPriceTiers.useQuery(
-    { groupedOrderId: selectedOrderId! },
-    { enabled: !!selectedOrderId }
-  );
-  const { data: currentPriceData } = trpc.groupedOrders.getCurrentPrice.useQuery(
-    { groupedOrderId: selectedOrderId! },
-    { enabled: !!selectedOrderId }
-  );
-  const { data: paymentStatus } = trpc.groupedOrders.getPaymentStatus.useQuery(
-    { groupedOrderId: selectedOrderId! },
-    { enabled: !!selectedOrderId }
-  );
-
-  // États pour le modal de paiement
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [selectedParticipant, setSelectedParticipant] = useState<{ id: number; amount: number } | null>(null);
 
   // Mutations
   const createMutation = trpc.groupedOrders.create.useMutation({
-    onSuccess: async (data) => {
-      // Si des paliers ont été définis, les créer
-      if (priceTiers.length > 0 && data.orderId) {
-        await createTiersMutation.mutateAsync({
-          groupedOrderId: data.orderId,
-          tiers: priceTiers.map(tier => ({
-            minQuantity: parseFloat(tier.minQuantity),
-            discountPercent: parseFloat(tier.discountPercent),
-            pricePerUnit: parseFloat(tier.pricePerUnit),
-          })),
-        });
-      }
+    onSuccess: () => {
       setIsCreateDialogOpen(false);
       setProductName('');
       setUnitPrice('');
-      setClosingDate('');
-      setPriceTiers([]);
       refetch();
       alert('Commande groupée créée avec succès !');
     },
   });
-
-  const createTiersMutation = trpc.groupedOrders.createPriceTiers.useMutation();
 
   const confirmMutation = trpc.groupedOrders.confirm.useMutation({
     onSuccess: () => {
@@ -184,115 +145,17 @@ export default function GroupedOrders() {
                     onChange={(e) => setUnitPrice(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Prix de base avant réductions
+                    Optionnel : laissez vide si le prix n'est pas encore négocié
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="closingDate">Date limite de participation (optionnel)</Label>
-                  <Input
-                    id="closingDate"
-                    type="datetime-local"
-                    value={closingDate}
-                    onChange={(e) => setClosingDate(e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Crée l'urgence et ferme automatiquement la commande
-                  </p>
-                </div>
-
-                {/* Section paliers de prix */}
-                <div className="space-y-3 pt-4 border-t">
-                  <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-2">
-                      <TrendingDown className="h-4 w-4 text-indigo-600" />
-                      Paliers de prix dégressifs (optionnel)
-                    </Label>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setPriceTiers([...priceTiers, { minQuantity: '', discountPercent: '', pricePerUnit: '' }]);
-                      }}
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      Ajouter un palier
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Définissez des prix dégressifs pour encourager les commandes groupées
-                  </p>
-
-                  {priceTiers.map((tier, index) => (
-                    <div key={index} className="flex items-end gap-2 p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1 space-y-1">
-                        <Label className="text-xs">Quantité min</Label>
-                        <Input
-                          type="number"
-                          placeholder="50"
-                          value={tier.minQuantity}
-                          onChange={(e) => {
-                            const newTiers = [...priceTiers];
-                            newTiers[index].minQuantity = e.target.value;
-                            setPriceTiers(newTiers);
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <Label className="text-xs">Réduction %</Label>
-                        <Input
-                          type="number"
-                          placeholder="5"
-                          value={tier.discountPercent}
-                          onChange={(e) => {
-                            const newTiers = [...priceTiers];
-                            newTiers[index].discountPercent = e.target.value;
-                            // Calculer automatiquement le prix réduit
-                            if (unitPrice && e.target.value) {
-                              const basePrice = parseFloat(unitPrice);
-                              const discount = parseFloat(e.target.value);
-                              newTiers[index].pricePerUnit = (basePrice * (1 - discount / 100)).toFixed(2);
-                            }
-                            setPriceTiers(newTiers);
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <Label className="text-xs">Prix unitaire</Label>
-                        <Input
-                          type="number"
-                          placeholder="950"
-                          value={tier.pricePerUnit}
-                          onChange={(e) => {
-                            const newTiers = [...priceTiers];
-                            newTiers[index].pricePerUnit = e.target.value;
-                            setPriceTiers(newTiers);
-                          }}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setPriceTiers(priceTiers.filter((_, i) => i !== index));
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
                 <Button
                   className="w-full"
-                  disabled={!productName || !unitPrice}
+                  disabled={!productName}
                   onClick={() => {
                     createMutation.mutate({
                       cooperativeId,
                       productName,
                       unitPrice: unitPrice ? parseFloat(unitPrice) : undefined,
-                      closingDate: closingDate ? new Date(closingDate).toISOString() : undefined,
                     });
                   }}
                 >
@@ -340,12 +203,7 @@ export default function GroupedOrders() {
                       })}
                     </CardDescription>
                   </div>
-                  <div className="flex flex-col gap-2 items-end">
-                    {getStatusBadge(order.status)}
-                    {order.closingDate && order.status === 'draft' && (
-                      <CountdownDisplay closingDate={new Date(order.closingDate)} />
-                    )}
-                  </div>
+                  {getStatusBadge(order.status)}
                 </div>
               </CardHeader>
               <CardContent>
@@ -397,8 +255,6 @@ export default function GroupedOrders() {
                         variant="default"
                         className="gap-2"
                         onClick={() => confirmMutation.mutate({ groupedOrderId: order.id })}
-                        disabled={!paymentStatus?.isFullyPaid}
-                        title={!paymentStatus?.isFullyPaid ? 'Tous les participants doivent payer avant de confirmer' : ''}
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         Confirmer la commande
@@ -407,88 +263,36 @@ export default function GroupedOrders() {
                   )}
                 </div>
 
-                {/* Paliers de prix */}
-                {selectedOrderId === order.id && priceTiersData && priceTiersData.length > 0 && (
-                  <div className="mt-6 pt-6 border-t">
-                    <PriceTiersDisplay
-                      tiers={priceTiersData}
-                      currentQuantity={order.totalQuantity}
-                      basePrice={order.unitPrice ? parseFloat(order.unitPrice) : 0}
-                      productName={order.productName}
-                      activeTier={currentPriceData?.activeTier}
-                      nextTier={currentPriceData?.nextTier}
-                    />
-                  </div>
-                )}
-
-                {/* Statut des paiements */}
-                {selectedOrderId === order.id && paymentStatus && (
-                  <div className="mt-6 pt-6 border-t">
-                    <PaymentProgress
-                      totalParticipants={paymentStatus.totalParticipants}
-                      paidParticipants={paymentStatus.paidParticipants}
-                      totalAmount={paymentStatus.totalAmount}
-                      percentagePaid={paymentStatus.percentagePaid}
-                      isFullyPaid={paymentStatus.isFullyPaid}
-                    />
-                  </div>
-                )}
-
                 {/* Liste des participants */}
-                {selectedOrderId === order.id && paymentStatus && paymentStatus.participants.length > 0 && (
+                {selectedOrderId === order.id && participants && participants.length > 0 && (
                   <div className="mt-6 pt-6 border-t">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Users className="h-5 w-5" />
-                      Participants ({paymentStatus.participants.length})
+                      Participants ({participants.length})
                     </h3>
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Marchand</TableHead>
-                          <TableHead>Quantité</TableHead>
-                          <TableHead>Statut</TableHead>
-                          <TableHead className="text-right">Action</TableHead>
+                          <TableHead>Commerce</TableHead>
+                          <TableHead className="text-right">Quantité</TableHead>
+                          <TableHead className="text-right">Date d'adhésion</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {paymentStatus.participants.map((participant) => {
-                          const currentPrice = currentPriceData?.currentPrice || parseFloat(order.unitPrice || '0');
-                          const amount = currentPrice * participant.quantity;
-                          
-                          return (
-                            <TableRow key={participant.id}>
-                              <TableCell className="font-medium">{participant.merchantName}</TableCell>
-                              <TableCell className="text-right font-semibold">{participant.quantity} unités</TableCell>
-                              <TableCell>
-                                {participant.hasPaid ? (
-                                  <Badge className="bg-green-600 text-white">
-                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                    Payé
-                                  </Badge>
-                                ) : (
-                                  <Badge className="bg-orange-600 text-white">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    En attente
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {!participant.hasPaid && (
-                                  <Button
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700"
-                                    onClick={() => {
-                                      setSelectedParticipant({ id: participant.id, amount });
-                                      setPaymentModalOpen(true);
-                                    }}
-                                  >
-                                    Payer {amount.toLocaleString('fr-FR')} FCFA
-                                  </Button>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
+                        {participants.map((participant) => (
+                          <TableRow key={participant.id}>
+                            <TableCell className="font-medium">{participant.merchantName}</TableCell>
+                            <TableCell>{participant.businessName}</TableCell>
+                            <TableCell className="text-right font-semibold">{participant.quantity}</TableCell>
+                            <TableCell className="text-right text-sm text-muted-foreground">
+                              {new Date(participant.joinedAt).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'short',
+                              })}
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
@@ -540,18 +344,6 @@ export default function GroupedOrders() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Modal de paiement */}
-      {selectedParticipant && selectedOrderId && (
-        <GroupOrderPaymentModal
-          open={paymentModalOpen}
-          onOpenChange={setPaymentModalOpen}
-          participantId={selectedParticipant.id}
-          groupedOrderId={selectedOrderId}
-          amount={selectedParticipant.amount}
-          productName={orders?.find(o => o.id === selectedOrderId)?.productName || 'Produit'}
-        />
-      )}
     </div>
   );
 }

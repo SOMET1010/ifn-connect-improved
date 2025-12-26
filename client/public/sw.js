@@ -103,9 +103,6 @@ self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-sales') {
     event.waitUntil(syncPendingSales());
   }
-  if (event.tag === 'sync-enrollments') {
-    event.waitUntil(syncPendingEnrollments());
-  }
 });
 
 // Fonction de synchronisation des ventes
@@ -144,46 +141,10 @@ async function syncPendingSales() {
   }
 }
 
-// Fonction de synchronisation des enrôlements
-async function syncPendingEnrollments() {
-  console.log('[SW] Synchronisation des enrôlements en attente...');
-  
-  // Ouvre IndexedDB pour récupérer les enrôlements en attente
-  const db = await openDB();
-  const tx = db.transaction('pending-enrollments', 'readonly');
-  const store = tx.objectStore('pending-enrollments');
-  const pendingEnrollments = await store.getAll();
-  
-  console.log('[SW] Enrôlements en attente:', pendingEnrollments.length);
-  
-  // Envoie chaque enrôlement au serveur
-  for (const enrollment of pendingEnrollments) {
-    try {
-      const response = await fetch('/api/trpc/agent.enrollMerchant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(enrollment.data),
-      });
-      
-      if (response.ok) {
-        // Supprime l'enrôlement de la file d'attente
-        const deleteTx = db.transaction('pending-enrollments', 'readwrite');
-        const deleteStore = deleteTx.objectStore('pending-enrollments');
-        await deleteStore.delete(enrollment.id);
-        console.log('[SW] Enrôlement synchronisé:', enrollment.id);
-      }
-    } catch (error) {
-      console.error('[SW] Erreur synchronisation enrôlement:', error);
-    }
-  }
-}
-
 // Ouvre IndexedDB
 function openDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('ifn-connect-db', 2); // Version 2 pour ajouter pending-enrollments
+    const request = indexedDB.open('ifn-connect-db', 1);
     
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
@@ -195,9 +156,6 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains('products')) {
         db.createObjectStore('products', { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains('pending-enrollments')) {
-        db.createObjectStore('pending-enrollments', { keyPath: 'id', autoIncrement: true });
       }
     };
   });

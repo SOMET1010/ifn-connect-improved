@@ -1,10 +1,8 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { generateReceiptPDF } from '../receipt-generator';
-import { sendReceiptEmail } from '../email-sender';
 import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants, priceTiers, groupOrderPayments } from '../../drizzle/schema';
+import { groupedOrders, groupedOrderParticipants, cooperativeMembers, users, merchants } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { createNotification } from './in-app-notifications';
 
@@ -21,7 +19,6 @@ export const groupedOrdersRouter = router({
         cooperativeId: z.number(),
         productName: z.string(),
         unitPrice: z.number().optional(),
-        closingDate: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -51,7 +48,6 @@ export const groupedOrdersRouter = router({
       const [order] = await db.insert(groupedOrders).values({
         cooperativeId: input.cooperativeId,
         productName: input.productName,
-        closingDate: input.closingDate ? new Date(input.closingDate) : null,
         totalQuantity: 0,
         unitPrice: input.unitPrice?.toString(),
         totalAmount: '0',
@@ -127,20 +123,6 @@ export const groupedOrdersRouter = router({
         });
       }
 
-      // Vérifier si la date limite est dépassée
-      if (order.closingDate && new Date(order.closingDate) < new Date()) {
-        // Fermer automatiquement la commande
-        await db
-          .update(groupedOrders)
-          .set({ status: 'closed' })
-          .where(eq(groupedOrders.id, input.groupedOrderId));
-
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'La date limite de participation est dépassée',
-        });
-      }
-
       // Vérifier que le marchand n'a pas déjà rejoint
       const [existing] = await db
         .select()
@@ -167,22 +149,6 @@ export const groupedOrdersRouter = router({
         quantity: input.quantity,
       });
 
-      // Récupérer les paliers de prix pour détecter un changement
-      const tiers = await db
-        .select()
-        .from(priceTiers)
-        .where(eq(priceTiers.groupedOrderId, input.groupedOrderId))
-        .orderBy(desc(priceTiers.minQuantity));
-
-      // Déterminer le palier actif AVANT la nouvelle quantité
-      let oldActiveTier = null;
-      for (const tier of tiers) {
-        if (order.totalQuantity >= tier.minQuantity) {
-          oldActiveTier = tier;
-          break;
-        }
-      }
-
       // Mettre à jour la quantité totale
       const newTotalQuantity = order.totalQuantity + input.quantity;
       const newTotalAmount = order.unitPrice
@@ -197,56 +163,7 @@ export const groupedOrdersRouter = router({
         })
         .where(eq(groupedOrders.id, input.groupedOrderId));
 
-      // Déterminer le palier actif APRÈS la nouvelle quantité
-      let newActiveTier = null;
-      for (const tier of tiers) {
-        if (newTotalQuantity >= tier.minQuantity) {
-          newActiveTier = tier;
-          break;
-        }
-      }
-
-      // Si un nouveau palier est atteint, notifier tous les participants
-      if (newActiveTier && (!oldActiveTier || newActiveTier.id !== oldActiveTier.id)) {
-        // Récupérer tous les participants (sauf celui qui vient de rejoindre)
-        const participants = await db
-          .select({
-            userId: merchants.userId,
-          })
-          .from(groupedOrderParticipants)
-          .leftJoin(merchants, eq(groupedOrderParticipants.merchantId, merchants.id))
-          .where(eq(groupedOrderParticipants.groupedOrderId, input.groupedOrderId));
-
-        // Calculer les économies
-        const basePrice = order.unitPrice ? parseFloat(order.unitPrice) : 0;
-        const newPrice = parseFloat(newActiveTier.pricePerUnit);
-        const savingsPercent = basePrice > 0 ? ((basePrice - newPrice) / basePrice * 100).toFixed(1) : '0';
-        const savingsAmount = (basePrice - newPrice).toFixed(0);
-
-        // Créer une notification pour chaque participant
-        for (const participant of participants) {
-          if (participant.userId && participant.userId !== ctx.user.id) {
-            await createNotification({
-              userId: participant.userId,
-              type: 'tier_reached',
-              title: '🎉 Nouveau palier atteint !',
-              message: `La commande groupée "${order.productName}" a atteint un nouveau palier ! Le prix unitaire passe à ${newPrice.toLocaleString('fr-FR')} FCFA (-${savingsPercent}%). Vous économisez ${savingsAmount} FCFA par unité !`,
-              actionUrl: `/cooperative/grouped-orders`,
-              metadata: {
-                groupedOrderId: input.groupedOrderId,
-                productName: order.productName,
-                oldPrice: basePrice,
-                newPrice,
-                savingsPercent,
-                savingsAmount,
-                minQuantity: newActiveTier.minQuantity,
-              },
-            });
-          }
-        }
-      }
-
-      return { success: true, totalQuantity: newTotalQuantity, tierReached: !!newActiveTier && (!oldActiveTier || newActiveTier.id !== oldActiveTier.id) };
+      return { success: true, totalQuantity: newTotalQuantity };
     }),
 
   /**
@@ -282,32 +199,6 @@ export const groupedOrdersRouter = router({
         });
       }
 
-      // Vérifier que tous les participants ont payé
-      const participants = await db
-        .select()
-        .from(groupedOrderParticipants)
-        .where(eq(groupedOrderParticipants.groupedOrderId, input.groupedOrderId));
-
-      const payments = await db
-        .select()
-        .from(groupOrderPayments)
-        .where(
-          and(
-            eq(groupOrderPayments.groupedOrderId, input.groupedOrderId),
-            eq(groupOrderPayments.status, 'completed')
-          )
-        );
-
-      const paidParticipants = new Set(payments.map(p => p.participantId));
-      const unpaidParticipants = participants.filter(p => !paidParticipants.has(p.id));
-
-      if (unpaidParticipants.length > 0) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `Impossible de confirmer : ${unpaidParticipants.length} participant(s) n'ont pas encore payé`,
-        });
-      }
-
       await db
         .update(groupedOrders)
         .set({
@@ -339,7 +230,6 @@ export const groupedOrdersRouter = router({
           createdBy: groupedOrders.createdBy,
           creatorName: users.name,
           createdAt: groupedOrders.createdAt,
-          closingDate: groupedOrders.closingDate,
           confirmedAt: groupedOrders.confirmedAt,
           deliveredAt: groupedOrders.deliveredAt,
         })
@@ -412,440 +302,5 @@ export const groupedOrdersRouter = router({
       }
 
       return order;
-    }),
-
-  /**
-   * Créer des paliers de prix pour une commande groupée
-   */
-  createPriceTiers: protectedProcedure
-    .input(
-      z.object({
-        groupedOrderId: z.number(),
-        tiers: z.array(
-          z.object({
-            minQuantity: z.number().positive(),
-            discountPercent: z.number().min(0).max(100),
-            pricePerUnit: z.number().positive(),
-          })
-        ),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      // Vérifier que la commande existe
-      const [order] = await db
-        .select()
-        .from(groupedOrders)
-        .where(eq(groupedOrders.id, input.groupedOrderId))
-        .limit(1);
-
-      if (!order) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Commande introuvable' });
-      }
-
-      // Vérifier que l'utilisateur est le créateur
-      if (order.createdBy !== ctx.user.id && ctx.user.role !== 'admin') {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Seul le créateur peut définir les paliers de prix',
-        });
-      }
-
-      // Supprimer les anciens paliers
-      await db.delete(priceTiers).where(eq(priceTiers.groupedOrderId, input.groupedOrderId));
-
-      // Insérer les nouveaux paliers
-      if (input.tiers.length > 0) {
-        await db.insert(priceTiers).values(
-          input.tiers.map((tier) => ({
-            groupedOrderId: input.groupedOrderId,
-            minQuantity: tier.minQuantity,
-            discountPercent: tier.discountPercent.toString(),
-            pricePerUnit: tier.pricePerUnit.toString(),
-          }))
-        );
-      }
-
-      return { success: true };
-    }),
-
-  /**
-   * Récupérer les paliers de prix d'une commande
-   */
-  getPriceTiers: protectedProcedure
-    .input(z.object({ groupedOrderId: z.number() }))
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      const tiers = await db
-        .select()
-        .from(priceTiers)
-        .where(eq(priceTiers.groupedOrderId, input.groupedOrderId))
-        .orderBy(priceTiers.minQuantity);
-
-      return tiers;
-    }),
-
-  /**
-   * Calculer le prix actuel basé sur la quantité totale
-   */
-  getCurrentPrice: protectedProcedure
-    .input(z.object({ groupedOrderId: z.number() }))
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      // Récupérer la commande
-      const [order] = await db
-        .select()
-        .from(groupedOrders)
-        .where(eq(groupedOrders.id, input.groupedOrderId))
-        .limit(1);
-
-      if (!order) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Commande introuvable' });
-      }
-
-      // Récupérer les paliers
-      const tiers = await db
-        .select()
-        .from(priceTiers)
-        .where(eq(priceTiers.groupedOrderId, input.groupedOrderId))
-        .orderBy(desc(priceTiers.minQuantity));
-
-      // Trouver le palier actif (le plus haut palier atteint)
-      let activeTier = null;
-      let nextTier = null;
-      const basePrice = order.unitPrice ? parseFloat(order.unitPrice) : 0;
-
-      for (let i = 0; i < tiers.length; i++) {
-        if (order.totalQuantity >= tiers[i].minQuantity) {
-          activeTier = tiers[i];
-          break;
-        }
-        nextTier = tiers[i];
-      }
-
-      return {
-        basePrice,
-        currentPrice: activeTier ? parseFloat(activeTier.pricePerUnit) : basePrice,
-        activeTier: activeTier ? {
-          minQuantity: activeTier.minQuantity,
-          discountPercent: parseFloat(activeTier.discountPercent),
-          pricePerUnit: parseFloat(activeTier.pricePerUnit),
-        } : null,
-        nextTier: nextTier ? {
-          minQuantity: nextTier.minQuantity,
-          discountPercent: parseFloat(nextTier.discountPercent),
-          pricePerUnit: parseFloat(nextTier.pricePerUnit),
-          quantityNeeded: nextTier.minQuantity - order.totalQuantity,
-        } : null,
-        totalQuantity: order.totalQuantity,
-      };
-    }),
-
-  /**
-   * Récupérer les économies réalisées par un membre
-   */
-  getMemberSavings: protectedProcedure
-    .input(z.object({ merchantId: z.number() }))
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      // Récupérer toutes les participations du membre
-      const participations = await db
-        .select({
-          groupedOrderId: groupedOrderParticipants.groupedOrderId,
-          quantity: groupedOrderParticipants.quantity,
-          productName: groupedOrders.productName,
-          unitPrice: groupedOrders.unitPrice,
-          totalQuantity: groupedOrders.totalQuantity,
-          joinedAt: groupedOrderParticipants.joinedAt,
-        })
-        .from(groupedOrderParticipants)
-        .leftJoin(groupedOrders, eq(groupedOrderParticipants.groupedOrderId, groupedOrders.id))
-        .where(eq(groupedOrderParticipants.merchantId, input.merchantId));
-
-      let totalSavings = 0;
-      const productSavings: Record<string, number> = {};
-      const monthlySavingsMap: Record<string, number> = {};
-
-      // Calculer les économies pour chaque participation
-      for (const participation of participations) {
-        // Récupérer les paliers de cette commande
-        const tiers = await db
-          .select()
-          .from(priceTiers)
-          .where(eq(priceTiers.groupedOrderId, participation.groupedOrderId))
-          .orderBy(desc(priceTiers.minQuantity));
-
-        // Trouver le palier actif
-        let activeTier = null;
-        for (const tier of tiers) {
-          if (participation.totalQuantity && participation.totalQuantity >= tier.minQuantity) {
-            activeTier = tier;
-            break;
-          }
-        }
-
-        if (activeTier && participation.unitPrice && participation.productName) {
-          const basePrice = parseFloat(participation.unitPrice);
-          const tierPrice = parseFloat(activeTier.pricePerUnit);
-          const savings = (basePrice - tierPrice) * participation.quantity;
-
-          totalSavings += savings;
-
-          // Accumuler par produit
-          if (!productSavings[participation.productName]) {
-            productSavings[participation.productName] = 0;
-          }
-          productSavings[participation.productName] += savings;
-
-          // Accumuler par mois
-          const month = new Date(participation.joinedAt).toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: 'short',
-          });
-          if (!monthlySavingsMap[month]) {
-            monthlySavingsMap[month] = 0;
-          }
-          monthlySavingsMap[month] += savings;
-        }
-      }
-
-      // Transformer en tableaux pour les graphiques
-      const topProducts = Object.entries(productSavings)
-        .map(([productName, savings]) => ({ productName, savings: Math.round(savings) }))
-        .sort((a, b) => b.savings - a.savings)
-        .slice(0, 5);
-
-      const monthlySavings = Object.entries(monthlySavingsMap)
-        .map(([month, savings]) => ({ month, savings: Math.round(savings) }))
-        .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
-
-      return {
-        totalSavings: Math.round(totalSavings),
-        totalOrders: participations.length,
-        averageSavings: participations.length > 0 ? Math.round(totalSavings / participations.length) : 0,
-        topProducts,
-        monthlySavings,
-      };
-    }),
-
-  /**
-   * Enregistrer un paiement pour une participation
-   */
-  recordPayment: protectedProcedure
-    .input(z.object({
-      participantId: z.number(),
-      groupedOrderId: z.number(),
-      amount: z.number(),
-      paymentMethod: z.string().optional(),
-      transactionId: z.string().optional(),
-    }))
-    .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      // Vérifier que la participation existe
-      const [participant] = await db
-        .select()
-        .from(groupedOrderParticipants)
-        .where(eq(groupedOrderParticipants.id, input.participantId))
-        .limit(1);
-
-      if (!participant) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Participation introuvable' });
-      }
-
-      // Vérifier que c'est bien le marchand qui paie
-      if (participant.merchantId !== ctx.user.id && ctx.user.role !== 'admin') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Vous ne pouvez payer que pour vos propres participations' });
-      }
-
-      // Vérifier qu'il n'y a pas déjà un paiement completed pour cette participation
-      const [existingPayment] = await db
-        .select()
-        .from(groupOrderPayments)
-        .where(
-          and(
-            eq(groupOrderPayments.participantId, input.participantId),
-            eq(groupOrderPayments.status, 'completed')
-          )
-        )
-        .limit(1);
-
-      if (existingPayment) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Cette participation a déjà été payée' });
-      }
-
-      // Enregistrer le paiement
-      const [payment] = await db.insert(groupOrderPayments).values({
-        participantId: input.participantId,
-        groupedOrderId: input.groupedOrderId,
-        merchantId: participant.merchantId,
-        amount: input.amount.toString(),
-        status: 'completed',
-        paymentMethod: input.paymentMethod || 'cash',
-        transactionId: input.transactionId,
-        paidAt: new Date(),
-      }).$returningId();
-
-      // Récupérer les informations pour le reçu
-      const [orderDetails] = await db
-        .select({
-          productName: groupedOrders.productName,
-          cooperativeId: groupedOrders.cooperativeId,
-        })
-        .from(groupedOrders)
-        .where(eq(groupedOrders.id, input.groupedOrderId))
-        .limit(1);
-
-      const [merchantDetails] = await db
-        .select({
-          merchantName: users.name,
-          merchantEmail: users.email,
-          businessName: merchants.businessName,
-        })
-        .from(merchants)
-        .leftJoin(users, eq(merchants.userId, users.id))
-        .where(eq(merchants.id, participant.merchantId))
-        .limit(1);
-
-      // Générer et envoyer le reçu PDF (ne pas bloquer la réponse en cas d'erreur)
-      if (orderDetails && merchantDetails && merchantDetails.merchantEmail) {
-        const receiptNumber = `REC-${input.groupedOrderId}-${payment.id}-${Date.now()}`;
-        const receiptData = {
-          receiptNumber,
-          date: new Date(),
-          merchantName: merchantDetails.merchantName || 'Marchand',
-          merchantEmail: merchantDetails.merchantEmail,
-          businessName: merchantDetails.businessName || 'Commerce',
-          productName: orderDetails.productName,
-          quantity: participant.quantity,
-          unitPrice: input.amount / participant.quantity,
-          totalAmount: input.amount,
-          paymentMethod: input.paymentMethod || 'cash',
-          transactionId: input.transactionId,
-          cooperativeName: 'IFN Connect',
-        };
-
-        // Générer et envoyer en arrière-plan (ne pas attendre)
-        generateReceiptPDF(receiptData)
-          .then((pdfBuffer) => {
-            return sendReceiptEmail({
-              to: merchantDetails.merchantEmail!,
-              merchantName: merchantDetails.merchantName || 'Marchand',
-              productName: orderDetails.productName,
-              amount: input.amount,
-              receiptNumber,
-              pdfBuffer,
-            });
-          })
-          .then((success) => {
-            if (success) {
-              console.log(`Reçu envoyé avec succès à ${merchantDetails.merchantEmail}`);
-            } else {
-              console.error(`Échec de l'envoi du reçu à ${merchantDetails.merchantEmail}`);
-            }
-          })
-          .catch((error) => {
-            console.error('Erreur lors de la génération/envoi du reçu:', error);
-          });
-      }
-
-      return { success: true, paymentId: payment.id };
-    }),
-
-  /**
-   * Récupérer le statut de paiement d'une commande groupée
-   */
-  getPaymentStatus: protectedProcedure
-    .input(z.object({ groupedOrderId: z.number() }))
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      // Récupérer tous les participants
-      const participants = await db
-        .select({
-          id: groupedOrderParticipants.id,
-          merchantId: groupedOrderParticipants.merchantId,
-          merchantName: merchants.businessName,
-          quantity: groupedOrderParticipants.quantity,
-        })
-        .from(groupedOrderParticipants)
-        .leftJoin(merchants, eq(groupedOrderParticipants.merchantId, merchants.id))
-        .where(eq(groupedOrderParticipants.groupedOrderId, input.groupedOrderId));
-
-      // Récupérer tous les paiements completed
-      const payments = await db
-        .select()
-        .from(groupOrderPayments)
-        .where(
-          and(
-            eq(groupOrderPayments.groupedOrderId, input.groupedOrderId),
-            eq(groupOrderPayments.status, 'completed')
-          )
-        );
-
-      // Calculer les statistiques
-      const totalParticipants = participants.length;
-      const paidParticipants = new Set(payments.map(p => p.participantId)).size;
-      const totalAmount = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
-      const percentagePaid = totalParticipants > 0 ? (paidParticipants / totalParticipants) * 100 : 0;
-
-      // Créer une map des paiements par participant
-      const paymentMap = new Map();
-      payments.forEach(p => {
-        paymentMap.set(p.participantId, p);
-      });
-
-      // Enrichir les participants avec leur statut de paiement
-      const participantsWithStatus = participants.map(p => ({
-        ...p,
-        hasPaid: paymentMap.has(p.id),
-        payment: paymentMap.get(p.id) || null,
-      }));
-
-      return {
-        totalParticipants,
-        paidParticipants,
-        totalAmount,
-        percentagePaid: Math.round(percentagePaid),
-        participants: participantsWithStatus,
-        isFullyPaid: percentagePaid === 100,
-      };
-    }),
-
-  /**
-   * Récupérer l'historique des paiements d'un marchand
-   */
-  getParticipantPayments: protectedProcedure
-    .input(z.object({ merchantId: z.number() }))
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-
-      const payments = await db
-        .select({
-          id: groupOrderPayments.id,
-          amount: groupOrderPayments.amount,
-          status: groupOrderPayments.status,
-          paymentMethod: groupOrderPayments.paymentMethod,
-          paidAt: groupOrderPayments.paidAt,
-          productName: groupedOrders.productName,
-          groupedOrderId: groupedOrders.id,
-        })
-        .from(groupOrderPayments)
-        .leftJoin(groupedOrders, eq(groupOrderPayments.groupedOrderId, groupedOrders.id))
-        .where(eq(groupOrderPayments.merchantId, input.merchantId))
-        .orderBy(desc(groupOrderPayments.createdAt));
-
-      return payments;
     }),
 });

@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE IF NOT EXISTS `auth_otp_logs` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `userId` int NOT NULL,\n  `phone` varchar(20) NOT NULL,\n  `otpCode` varchar(6) NOT NULL,\n  `status` enum('sent','verified','expired','failed') NOT NULL DEFAULT 'sent',\n  `failedAttempts` int NOT NULL DEFAULT 0,\n  `sentAt` timestamp NOT NULL DEFAULT (now()),\n  `verifiedAt` timestamp NULL,\n  `expiresAt` timestamp NOT NULL,\n  `ipAddress` varchar(45) NULL,\n  CONSTRAINT `auth_otp_logs_id` PRIMARY KEY(`id`),\n  CONSTRAINT `auth_otp_logs_userId_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,\n  INDEX `auth_otp_logs_user_idx` (`userId`),\n  INDEX `auth_otp_logs_phone_idx` (`phone`),\n  INDEX `auth_otp_logs_status_idx` (`status`),\n  INDEX `auth_otp_logs_expires_at_idx` (`expiresAt`)\n);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute CREATE TABLE IF NOT EXISTS `auth_otp_logs` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `userId` int NOT NULL,\n  `phone` varchar(20) NOT NULL,\n  `otpCode` varchar(6) NOT NULL,\n  `status` enum('sent','verified','expired','failed') NOT NULL DEFAULT 'sent',\n  `failedAttempts` int NOT NULL DEFAULT 0,\n  `sentAt` timestamp NOT NULL DEFAULT (now()),\n  `verifiedAt` timestamp NULL,\n  `expiresAt` timestamp NOT NULL,\n  `ipAddress` varchar(45) NULL,\n  CONSTRAINT `auth_otp_logs_id` PRIMARY KEY(`id`),\n  CONSTRAINT `auth_otp_logs_userId_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,\n  INDEX `auth_otp_logs_user_idx` (`userId`),\n  INDEX `auth_otp_logs_phone_idx` (`phone`),\n  INDEX `auth_otp_logs_status_idx` (`status`),\n  INDEX `auth_otp_logs_expires_at_idx` (`expiresAt`)\n);",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 264
-}

@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE IF NOT EXISTS `auth_sessions` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `sessionId` varchar(255) NOT NULL UNIQUE,\n  `userId` int NOT NULL,\n  `deviceInfo` text NULL,\n  `ipAddress` varchar(45) NULL,\n  `lastActivity` timestamp NOT NULL DEFAULT (now()),\n  `expiresAt` timestamp NOT NULL,\n  `isActive` boolean NOT NULL DEFAULT true,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `auth_sessions_id` PRIMARY KEY(`id`),\n  CONSTRAINT `auth_sessions_sessionId_unique` UNIQUE(`sessionId`),\n  CONSTRAINT `auth_sessions_userId_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,\n  INDEX `auth_sessions_session_idx` (`sessionId`),\n  INDEX `auth_sessions_user_idx` (`userId`),\n  INDEX `auth_sessions_expires_at_idx` (`expiresAt`)\n);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute CREATE TABLE IF NOT EXISTS `auth_sessions` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `sessionId` varchar(255) NOT NULL UNIQUE,\n  `userId` int NOT NULL,\n  `deviceInfo` text NULL,\n  `ipAddress` varchar(45) NULL,\n  `lastActivity` timestamp NOT NULL DEFAULT (now()),\n  `expiresAt` timestamp NOT NULL,\n  `isActive` boolean NOT NULL DEFAULT true,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `auth_sessions_id` PRIMARY KEY(`id`),\n  CONSTRAINT `auth_sessions_sessionId_unique` UNIQUE(`sessionId`),\n  CONSTRAINT `auth_sessions_userId_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,\n  INDEX `auth_sessions_session_idx` (`sessionId`),\n  INDEX `auth_sessions_user_idx` (`userId`),\n  INDEX `auth_sessions_expires_at_idx` (`expiresAt`)\n);",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 288
-}

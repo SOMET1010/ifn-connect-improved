@@ -5,7 +5,6 @@ import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/useAuth';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { toast } from 'sonner';
-import { MerchantIDCard } from '@/components/MerchantIDCard';
 
 /**
  * Page de Profil Marchand avec Identité Professionnelle
@@ -196,32 +195,6 @@ export default function MerchantProfile() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Carte d'identité numérique */}
-        <div className="mb-12">
-          <h2 className="text-5xl font-bold text-gray-900 mb-6 flex items-center gap-4">
-            <CreditCard className="w-12 h-12 text-orange-600" />
-            Carte d'Identité Numérique
-          </h2>
-          <MerchantIDCard
-            merchant={{
-              id: merchant.id,
-              merchantCode: merchant.merchantNumber,
-              fullName: merchant.businessName || 'Marchand',
-              phone: user?.phone || 'Non renseigné',
-              marketId: null,
-              photoUrl: null,
-              socialProtection: {
-                hasCNPS: !!merchant.cnpsNumber,
-                cnpsNumber: merchant.cnpsNumber,
-                hasCMU: !!merchant.cmuNumber,
-                cmuNumber: merchant.cmuNumber,
-              },
-            }}
-            level={level}
-            levelColor={levelColor}
-          />
         </div>
 
         {/* Couverture sociale */}

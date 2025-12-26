@@ -134,62 +134,6 @@
       "when": 1766760919960,
       "tag": "0018_noisy_saracen",
       "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "5",
-      "when": 1766761205025,
-      "tag": "0019_burly_famine",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "5",
-      "when": 1766761611519,
-      "tag": "0020_damp_vector",
-      "breakpoints": true
-    },
-    {
-      "idx": 21,
-      "version": "5",
-      "when": 1766761810544,
-      "tag": "0021_cynical_deathbird",
-      "breakpoints": true
-    },
-    {
-      "idx": 22,
-      "version": "5",
-      "when": 1766766876285,
-      "tag": "0022_quick_oracle",
-      "breakpoints": true
-    },
-    {
-      "idx": 23,
-      "version": "5",
-      "when": 1766767085158,
-      "tag": "0023_deep_korvac",
-      "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "5",
-      "when": 1766767103218,
-      "tag": "0024_nervous_chameleon",
-      "breakpoints": true
-    },
-    {
-      "idx": 25,
-      "version": "5",
-      "when": 1766772385566,
-      "tag": "0025_shiny_spencer_smythe",
-      "breakpoints": true
-    },
-    {
-      "idx": 26,
-      "version": "5",
-      "when": 1766773939392,
-      "tag": "0026_cheerful_inhumans",
-      "breakpoints": true
     }
   ]
 }

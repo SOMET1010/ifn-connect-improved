@@ -1,2 +1,0 @@
-ALTER TABLE `grouped_orders` MODIFY COLUMN `status` enum('draft','pending','confirmed','delivered','cancelled','closed') NOT NULL DEFAULT 'draft';--> statement-breakpoint
-ALTER TABLE `grouped_orders` ADD `closingDate` timestamp;

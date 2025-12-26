@@ -54,6 +54,36 @@ export const salesRouter = router({
     }),
 
   /**
+   * Statistiques d'hier pour comparaison
+   */
+  yesterdayStats: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      // Calculer hier
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+      
+      const yesterdayEnd = new Date(yesterday);
+      yesterdayEnd.setHours(23, 59, 59, 999);
+      
+      const stats = await getSalesHistory({
+        merchantId: input.merchantId,
+        startDate: yesterday,
+        endDate: yesterdayEnd,
+      });
+      
+      const totalAmount = stats.reduce((sum, sale) => sum + Number(sale.totalAmount), 0);
+      
+      return {
+        totalAmount,
+        totalSales: stats.length,
+      };
+    }),
+
+  /**
    * Statistiques du jour pour un marchand
    */
   todayStats: protectedProcedure

@@ -17,7 +17,6 @@ import Badges from './pages/merchant/Badges';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import VirtualMarket from './pages/merchant/VirtualMarket';
 import OrderHistory from './pages/merchant/OrderHistory';
-import SalesHistory from './pages/merchant/SalesHistory';
 import Savings from "./pages/merchant/Savings";
 import Events from "./pages/merchant/Events";
 import Stock from "./pages/merchant/Stock";
@@ -27,7 +26,6 @@ import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentTasks from "./pages/agent/AgentTasks";
-import MerchantList from "./pages/agent/MerchantList";
 import MerchantsAdmin from "./pages/MerchantsAdmin";
 import MerchantJourney from "./pages/merchant/MerchantJourney";
 import CooperativeJourney from "./pages/cooperative/CooperativeJourney";
@@ -43,22 +41,11 @@ import Notifications from "./pages/Notifications";
 import OrderTracking from "./pages/OrderTracking";
 import CooperativeDashboard from "./pages/cooperative/Dashboard";
 import GroupedOrders from "./pages/cooperative/GroupedOrders";
-import SavingsDashboard from "./pages/cooperative/SavingsDashboard";
-import MerchantCnps from "./pages/merchant/Cnps";
-import MerchantCmu from "./pages/merchant/Cmu";
-import AgentSupport from "./pages/agent/Support";
-import CnpsPayment from "./pages/CnpsPayment";
-import CmuRenewal from "./pages/CmuRenewal";
-import ProtectionSociale from "./pages/ProtectionSociale";
-import { MerchantLogin } from "./pages/MerchantLogin";
-import { MerchantChangePIN } from "./pages/MerchantChangePIN";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path="/merchant/login" component={MerchantLogin} />
-      <Route path="/merchant/change-pin" component={MerchantChangePIN} />
       <Route path={"/merchant"} component={MerchantDashboard} />
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />
@@ -68,23 +55,16 @@ function Router() {
       <Route path="/merchant/badges" component={Badges} />
       <Route path="/merchant/market" component={VirtualMarket} />
       <Route path="/merchant/orders" component={OrderHistory} />
-      <Route path="/merchant/sales-history" component={SalesHistory} />
       <Route path="/merchant/stock" component={Stock} />
       <Route path="/merchant/savings" component={Savings} />
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
-      <Route path="/merchant/cnps" component={MerchantCnps} />
-      <Route path="/merchant/cmu" component={MerchantCmu} />
-      <Route path="/merchant/protection-sociale" component={ProtectionSociale} />
-      <Route path="/cnps/payment" component={CnpsPayment} />
-      <Route path="/cmu/renewal" component={CmuRenewal} />
          {/* Merchant Routes */}
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />
-       <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
-       <Route path={"/agent/tasks"} component={AgentTasks} />
-       <Route path={"/agent/merchants"} component={MerchantList} />
-       <Route path={"/agent/support"} component={AgentSupport} />     
+      <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
+      <Route path={"/agent/tasks"} component={AgentTasks} />
+      
       {/* Admin Routes */}
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />
@@ -99,7 +79,6 @@ function Router() {
       <Route path={"/cooperative"} component={CooperativeDashboard} />
       <Route path={"/cooperative/dashboard"} component={CooperativeDashboard} />
       <Route path={"/cooperative/grouped-orders"} component={GroupedOrders} />
-      <Route path={"/cooperative/savings-dashboard"} component={SavingsDashboard} />
       <Route path="/cooperative/journey" component={CooperativeJourney} />
       
       {/* Learning Routes */}
