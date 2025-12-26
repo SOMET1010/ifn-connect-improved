@@ -17,6 +17,7 @@ import Badges from './pages/merchant/Badges';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import VirtualMarket from './pages/merchant/VirtualMarket';
 import OrderHistory from './pages/merchant/OrderHistory';
+import SalesHistory from './pages/merchant/SalesHistory';
 import Savings from "./pages/merchant/Savings";
 import Events from "./pages/merchant/Events";
 import Stock from "./pages/merchant/Stock";
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/merchant/badges" component={Badges} />
       <Route path="/merchant/market" component={VirtualMarket} />
       <Route path="/merchant/orders" component={OrderHistory} />
+      <Route path="/merchant/sales-history" component={SalesHistory} />
       <Route path="/merchant/stock" component={Stock} />
       <Route path="/merchant/savings" component={Savings} />
       <Route path="/merchant/events" component={Events} />

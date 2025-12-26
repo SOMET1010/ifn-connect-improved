@@ -41,20 +41,23 @@
 - [x] Intégration MTN Mobile Money
 - [x] Intégration Wave
 - [x] Intégration Moov Money
-- [ ] Historique des transactions
-- [ ] Profil marchand avec numéro unique
+- [x] Historique des transactions
+- [x] Profil marchand avec numéro unique
+- [x] Carte d'identité numérique avec QR code
+- [x] Export CSV/PDF de l'historique des ventes
+- [x] Graphiques de tendances des ventes
 
 ## Module Agent Terrain (15% utilisateurs)
 - [ ] Dashboard agent avec statistiques d'enrôlement
-- [ ] Wizard d'enrôlement en 5 étapes
-- [ ] Capture photo des pièces justificatives
-- [ ] Compression automatique des photos
-- [ ] Géolocalisation GPS automatique
-- [ ] Validation des données en temps réel
+- [x] Wizard d'enrôlement en 5 étapes
+- [x] Capture photo des pièces justificatives
+- [x] Compression automatique des photos
+- [x] Géolocalisation GPS automatique
+- [x] Validation des données en temps réel
 - [ ] Liste des marchands enrôlés avec filtres
 - [ ] Carte des marchands avec clustering
-- [ ] Mode offline complet pour enrôlement
-- [ ] Queue d'enrôlements en attente de sync
+- [x] Mode offline complet pour enrôlement
+- [x] Queue d'enrôlements en attente de sync
 - [ ] Support N1 avec FAQ
 - [ ] Calcul d'itinéraires optimisés
 
