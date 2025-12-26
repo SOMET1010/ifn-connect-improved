@@ -2480,3 +2480,13 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 ### Navigation
 - [x] Ajouter la route dynamique /learning/:id dans App.tsx
 - [x] Tester la navigation depuis la page /learning
+
+
+## 🎬 COURS DE DÉMONSTRATION
+
+### Création de 5 Cours
+- [x] Rechercher 5 vidéos YouTube pertinentes (gestion stocks + marketing)
+- [x] Créer un script SQL d'insertion des cours
+- [x] Exécuter le script via webdev_execute_sql
+- [x] Vérifier l'affichage sur /learning
+- [ ] Tester la lecture vidéo et la génération de certificats
