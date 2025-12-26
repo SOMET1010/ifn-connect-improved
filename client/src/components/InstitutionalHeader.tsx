@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Volume2, VolumeX, User, Plus, Minus, LogOut, Settings } from 'lucide-react';
+import { Volume2, VolumeX, User, Plus, Minus, LogOut, Settings, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/accessibility/LanguageSelector';
 import { audioManager } from '@/lib/audioManager';
@@ -12,6 +12,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
  */
 export default function InstitutionalHeader() {
   const { user, merchant, isAuthenticated, logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   // --- ÉTATS AVEC PERSISTANCE ---
   
   // Audio state
@@ -109,6 +111,17 @@ export default function InstitutionalHeader() {
             <a href="/api" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">API</a>
             <a href="/support" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Support</a>
           </nav>
+
+          {/* --- BOUTON HAMBURGER (Mobile) --- */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden h-9 w-9"
+            aria-label="Menu"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
 
           {/* --- ZONE DROITE : OUTILS --- */}
           <div className="flex items-center gap-2 md:gap-3">
@@ -268,6 +281,56 @@ export default function InstitutionalHeader() {
              </span>
         </div>
       </div>
+
+      {/* --- MENU MOBILE DÉROULANT --- */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg animate-in slide-in-from-top-4 duration-300">
+          <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
+            <a 
+              href="/" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              Accueil
+            </a>
+            <a 
+              href="/actors" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              Acteurs
+            </a>
+            <a 
+              href="/marketplace" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              Marché
+            </a>
+            <a 
+              href="/payments" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              Paiements
+            </a>
+            <a 
+              href="/api" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              API
+            </a>
+            <a 
+              href="/support" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+            >
+              Support
+            </a>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

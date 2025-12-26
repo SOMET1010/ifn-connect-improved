@@ -67,11 +67,13 @@ export function ScoreCard({ merchantId }: ScoreCardProps) {
           <p className="text-sm text-muted-foreground mb-4">
             Calculez votre Score de Confiance pour accéder au micro-crédit
           </p>
-          <Button onClick={handleCalculate} disabled={isCalculating}>
+          <Button onClick={handleCalculate} disabled={isCalculating} className="relative overflow-hidden">
             {isCalculating ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                 Calcul en cours...
+                {/* Barre de progression animée */}
+                <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-green-500 animate-[progress_2s_ease-in-out_infinite]" style={{ width: '100%' }} />
               </>
             ) : (
               <>

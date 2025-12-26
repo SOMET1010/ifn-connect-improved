@@ -17,6 +17,7 @@ import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { StockAlertsBadge } from '@/components/StockAlertsBadge';
 import { ScoreCard } from '@/components/ScoreCard';
 import { CopilotAssistant } from '@/components/CopilotAssistant';
+import { Tooltip } from '@/components/Tooltip';
 
 /**
  * Composant interne qui contient toute la logique du dashboard
@@ -76,16 +77,24 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           <div className="flex items-center gap-4 flex-wrap">
             {/* Badge code copiable */}
             <button
-              onClick={() => {
+              onClick={(e) => {
+                // Animation au clic
+                const btn = e.currentTarget;
+                btn.classList.add('animate-[wiggle_0.5s_ease-in-out]');
+                setTimeout(() => btn.classList.remove('animate-[wiggle_0.5s_ease-in-out]'), 500);
+                
                 navigator.clipboard.writeText(merchantNumber);
                 // Toast notification
                 const toast = document.createElement('div');
                 toast.textContent = '✅ Code copié !';
-                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-bottom-4 duration-300';
                 document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 2000);
+                setTimeout(() => {
+                  toast.classList.add('animate-out', 'fade-out', 'slide-out-to-bottom-4');
+                  setTimeout(() => toast.remove(), 300);
+                }, 2000);
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
             >
               <span className="text-sm font-medium text-gray-600">Code :</span>
               <span className="font-bold text-orange-600">{merchantNumber}</span>
@@ -104,7 +113,8 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           
           {/* Ventes du jour */}
-          <div className="rounded-2xl border border-black/5 bg-white shadow-sm p-5 hover:shadow-md transition-shadow">
+          <Tooltip content="Total des ventes enregistrées aujourd'hui" position="top">
+            <div className="rounded-2xl border border-black/5 bg-white shadow-sm p-5 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-neutral-600">Aujourd'hui</p>
               <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -115,10 +125,12 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
               <p className="text-4xl font-semibold leading-none text-gray-900">{todayAmount.toLocaleString()}</p>
               <p className="mt-1 text-sm text-neutral-500">FCFA</p>
             </div>
-          </div>
+            </div>
+          </Tooltip>
 
           {/* Solde total */}
-          <div className="rounded-2xl border border-black/5 bg-white shadow-sm p-5 hover:shadow-md transition-shadow">
+          <Tooltip content="Solde total de toutes vos ventes cumulées" position="top">
+            <div className="rounded-2xl border border-black/5 bg-white shadow-sm p-5 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-neutral-600">Mon Bédou</p>
               <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
@@ -129,10 +141,12 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
               <p className="text-4xl font-semibold leading-none text-gray-900">{balance.toLocaleString()}</p>
               <p className="mt-1 text-sm text-neutral-500">FCFA</p>
             </div>
-          </div>
+            </div>
+          </Tooltip>
 
           {/* Alertes stock */}
-          <div className={`rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow ${
+          <Tooltip content="Nombre de produits avec stock inférieur au seuil d'alerte" position="top">
+            <div className={`rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow ${
             lowStock > 0 
               ? 'border-orange-200 bg-orange-50' 
               : 'border-black/5 bg-white'
@@ -153,7 +167,8 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
               }`}>{lowStock}</p>
               <p className="mt-1 text-sm text-neutral-500">Produits bas</p>
             </div>
-          </div>
+            </div>
+          </Tooltip>
         </div>
 
         {/* WIDGET SCORE SUTA - Carte Action */}
@@ -161,26 +176,26 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           <ScoreCard merchantId={merchantId} />
         </div>
 
-        {/* 5 GROS BOUTONS D'ACTION */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    {/* VENDRE - Action principale */}
+        {/* 6 BOUTONS D'ACTION ÉPURÉS */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 max-w-7xl mx-auto">
+          {/* VENDRE - Action principale */}
           <button
             id="btn-cash-register"
             onClick={() => setLocation('/merchant/cash-register-simple')}
-            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group relative"
+            className="bg-white border-2 border-orange-200 rounded-2xl shadow-sm hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 p-4 md:p-8 group relative"
           >
             {/* Badge "Action principale" */}
-            <div className="absolute top-6 right-6 bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-lg font-bold">
+            <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold">
               ⭐ Principal
             </div>
 
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <ShoppingCart className="w-32 h-32 text-white" strokeWidth={2.5} />
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-orange-50 p-4 md:p-6 rounded-full group-hover:bg-orange-100 transition-colors">
+                <ShoppingCart className="w-16 md:w-24 h-16 md:h-24 text-orange-600" strokeWidth={2} />
               </div>
-              <div>
-                <h2 className="text-6xl font-bold mb-3">VENDRE</h2>
-                <p className="text-3xl text-white/90">Faire mon Djossi</p>
+              <div className="text-center">
+                <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-900">VENDRE</h2>
+                <p className="text-sm md:text-lg text-gray-600">Faire mon Djossi</p>
               </div>
             </div>
           </button>
@@ -188,15 +203,15 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           {/* COMMANDER */}
           <button
             onClick={() => setLocation('/merchant/market')}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
+            className="bg-white border-2 border-green-200 rounded-2xl shadow-sm hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 p-4 md:p-8 group"
           >
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <Package className="w-32 h-32 text-white" strokeWidth={2.5} />
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-green-50 p-4 md:p-6 rounded-full group-hover:bg-green-100 transition-colors">
+                <Package className="w-16 md:w-24 h-16 md:h-24 text-green-600" strokeWidth={2} />
               </div>
-              <div>
-                <h2 className="text-6xl font-bold mb-3">COMMANDER</h2>
-                <p className="text-3xl text-white/90">Acheter des produits</p>
+              <div className="text-center">
+                <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-900">COMMANDER</h2>
+                <p className="text-sm md:text-lg text-gray-600">Acheter des produits</p>
               </div>
             </div>
           </button>
@@ -204,15 +219,15 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           {/* MON ARGENT */}
           <button
             onClick={() => setLocation('/merchant/orders')}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
+            className="bg-white border-2 border-blue-200 rounded-2xl shadow-sm hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 p-4 md:p-8 group"
           >
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <Wallet className="w-32 h-32 text-white" strokeWidth={2.5} />
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-blue-50 p-4 md:p-6 rounded-full group-hover:bg-blue-100 transition-colors">
+                <Wallet className="w-16 md:w-24 h-16 md:h-24 text-blue-600" strokeWidth={2} />
               </div>
-              <div>
-                <h2 className="text-6xl font-bold mb-3">MON ARGENT</h2>
-                <p className="text-3xl text-white/90">Voir mon Bédou</p>
+              <div className="text-center">
+                <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-900">MON ARGENT</h2>
+                <p className="text-sm md:text-lg text-gray-600">Voir mon Bédou</p>
               </div>
             </div>
           </button>
@@ -220,15 +235,15 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           {/* MON ÉPARGNE */}
           <button
             onClick={() => setLocation('/merchant/savings')}
-            className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
+            className="bg-white border-2 border-pink-200 rounded-2xl shadow-sm hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 p-4 md:p-8 group"
           >
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <PiggyBank className="w-32 h-32 text-white" strokeWidth={2.5} />
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-pink-50 p-4 md:p-6 rounded-full group-hover:bg-pink-100 transition-colors">
+                <PiggyBank className="w-16 md:w-24 h-16 md:h-24 text-pink-600" strokeWidth={2} />
               </div>
-              <div>
-                <h2 className="text-6xl font-bold mb-3">ÉPARGNER</h2>
-                <p className="text-3xl text-white/90">Mes Cagnottes</p>
+              <div className="text-center">
+                <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-900">ÉPARGNER</h2>
+                <p className="text-sm md:text-lg text-gray-600">Mes Cagnottes</p>
               </div>
             </div>
           </button>
@@ -236,20 +251,20 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           {/* ÉVÉNEMENTS */}
           <button
             onClick={() => setLocation('/merchant/events')}
-            className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
+            className="bg-white border-2 border-indigo-200 rounded-2xl shadow-sm hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 p-4 md:p-8 group"
           >
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <svg className="w-32 h-32 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-indigo-50 p-4 md:p-6 rounded-full group-hover:bg-indigo-100 transition-colors">
+                <svg className="w-16 md:w-24 h-16 md:h-24 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
               </div>
-              <div>
-                <h2 className="text-6xl font-bold mb-3">ÉVÉNEMENTS</h2>
-                <p className="text-3xl text-white/90">Ramadan, Tabaski...</p>
+              <div className="text-center">
+                <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-900">ÉVÉNEMENTS</h2>
+                <p className="text-sm md:text-lg text-gray-600">Ramadan, Tabaski...</p>
               </div>
             </div>
           </button>
@@ -258,15 +273,15 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           <button
             id="btn-profile"
             onClick={() => setLocation('/merchant/profile')}
-            className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 p-16 group"
+            className="bg-white border-2 border-purple-200 rounded-2xl shadow-sm hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 p-4 md:p-8 group"
           >
-            <div className="flex flex-col items-center gap-6">
-              <div className="bg-white/20 p-8 rounded-full group-hover:bg-white/30 transition-colors">
-                <User className="w-32 h-32 text-white" strokeWidth={2.5} />
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-purple-50 p-4 md:p-6 rounded-full group-hover:bg-purple-100 transition-colors">
+                <User className="w-16 md:w-24 h-16 md:h-24 text-purple-600" strokeWidth={2} />
               </div>
-              <div>
-                <h2 className="text-6xl font-bold mb-3">MON PROFIL</h2>
-                <p className="text-3xl text-white/90">Mon identité</p>
+              <div className="text-center">
+                <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-900">MON PROFIL</h2>
+                <p className="text-sm md:text-lg text-gray-600">Mon identité</p>
               </div>
             </div>
           </button>
