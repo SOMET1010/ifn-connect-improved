@@ -3,6 +3,7 @@ import { Users, TrendingUp, Shield, Activity, AlertTriangle, UserX } from 'lucid
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import EnrollmentTrendChart from '@/components/charts/EnrollmentTrendChart';
 import TransactionTrendChart from '@/components/charts/TransactionTrendChart';
+import ExportButton from '@/components/ExportButton';
 
 /**
  * Dashboard Admin DGE/ANSUT
@@ -16,6 +17,9 @@ export default function AdminDashboard() {
   const { data: marketDistribution = [] } = trpc.admin.getMarketDistribution.useQuery();
   const { data: enrollmentTrend = [] } = trpc.admin.getEnrollmentTrend.useQuery();
   const { data: transactionTrend = [] } = trpc.admin.getTransactionTrend.useQuery();
+  
+  // Utils pour les exports
+  const utils = trpc.useUtils();
 
   if (statsLoading) {
     return (
@@ -33,14 +37,39 @@ export default function AdminDashboard() {
       {/* Contenu principal */}
       <main className="container mx-auto px-4 py-12">
         
-        {/* Titre */}
+        {/* Titre et boutons d'export */}
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
             Dashboard DGE/ANSUT 📊
           </h1>
-          <p className="text-3xl text-gray-700">
+          <p className="text-3xl text-gray-700 mb-6">
             Supervision Nationale - Inclusion Financière Numérique
           </p>
+          
+          {/* Boutons d'export */}
+          <div className="flex justify-center gap-4">
+            <ExportButton
+              label="Exporter Marchands"
+              onExport={async () => {
+                const result = await utils.admin.exportMerchantsExcel.fetch();
+                return result;
+              }}
+            />
+            <ExportButton
+              label="Exporter Transactions"
+              onExport={async () => {
+                const result = await utils.admin.exportTransactionsExcel.fetch({});
+                return result;
+              }}
+            />
+            <ExportButton
+              label="Exporter Statistiques"
+              onExport={async () => {
+                const result = await utils.admin.exportStatsExcel.fetch();
+                return result;
+              }}
+            />
+          </div>
         </div>
 
         {/* 4 GRANDES CARTES KPI */}

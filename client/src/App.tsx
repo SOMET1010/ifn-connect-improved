@@ -28,6 +28,7 @@ import AgentDashboard from "./pages/agent/AgentDashboard";
 import AgentTasks from "./pages/agent/AgentTasks";
 import MerchantsAdmin from "./pages/MerchantsAdmin";
 import RenewalsAdmin from "./pages/admin/RenewalsAdmin";
+import AuditLogs from "./pages/admin/AuditLogs";
 
 function Router() {
   return (
@@ -57,9 +58,10 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />
       <Route path={"/admin/markets"} component={MarketsPage} />
-      <Route path={"/admin/map"} component={MapViewPage} />
+      <Route path="/admin/map" component={MapViewPage} />
       <Route path="/admin/merchants" component={MerchantsAdmin} />
       <Route path="/admin/renewals" component={RenewalsAdmin} />
+      <Route path="/admin/audit-logs" component={AuditLogs} />
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />

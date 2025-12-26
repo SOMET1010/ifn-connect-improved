@@ -2373,3 +2373,39 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] UI : liste des tâches avec filtres (type, priorité)
 - [x] UI : actions rapides (appeler, marquer comme fait)
 - [x] Intégration dans la navigation agent- [ ] Tests unitaires
+
+### P1-3 : Export Excel des Rapports
+- [x] Backend : procédure admin.exportMerchantsExcel
+- [x] Backend : procédure admin.exportTransactionsExcel
+- [x] Backend : procédure admin.exportStatsExcel
+- [x] Installer bibliothèque exceljs
+- [x] Frontend : boutons d'export dans /admin/dashboard
+- [ ] Frontend : boutons d'export dans /admin/merchants
+- [x] Génération de fichiers Excel avec formatage
+- [ ] Tests des exports
+
+### P1-7 : Système de Logs d'Audit
+- [x] Schéma : table audit_logs (action, userId, entityType, entityId, changes, ip, timestamp)
+- [x] Migration : pnpm db:push
+- [x] Backend : helper logAudit() dans server/audit.ts
+- [x] Backend : procédure admin.getAuditLogs avec pagination et filtres
+- [ ] Intégration dans toutes les mutations critiques
+- [x] Frontend : page /admin/audit-logs
+- [x] UI : filtres (type d'action, utilisateur, date)
+- [x] UI : affichage des changements (avant/après)
+- [ ] Tests unitaires
+
+### P1-4 : Notifications In-App
+- [ ] Schéma : table notifications (userId, type, title, message, isRead, createdAt)
+- [ ] Migration : pnpm db:push
+- [ ] Backend : helper createNotification() dans server/notifications.ts
+- [ ] Backend : procédure notifications.getUnreadCount
+- [ ] Backend : procédure notifications.getAll avec pagination
+- [ ] Backend : procédure notifications.markAsRead
+- [ ] Backend : procédure notifications.markAllAsRead
+- [ ] Frontend : composant NotificationBell dans header
+- [ ] Frontend : dropdown avec liste des notifications
+- [ ] Frontend : page /notifications pour historique complet
+- [ ] Intégration : notifications lors déblocage badges
+- [ ] Intégration : notifications lors renouvellements
+- [ ] Tests unitaires

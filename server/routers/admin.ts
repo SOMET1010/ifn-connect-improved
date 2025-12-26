@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import ExcelJS from 'exceljs';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { merchants, sales, users, merchantActivity, merchantSocialProtection, merchantEditHistory } from '../../drizzle/schema';
-import { eq, and, gte, sql, desc, count } from 'drizzle-orm';
+import { merchants, sales, users, merchantActivity, merchantSocialProtection, merchantEditHistory, auditLogs } from '../../drizzle/schema';
+import { eq, and, gte, sql, desc, count, like, or } from 'drizzle-orm';
 
 /**
  * Middleware pour vérifier que l'utilisateur est admin
@@ -817,6 +818,345 @@ export const adminRouter = router({
         success: true, 
         deleted: input.merchantIds.length,
         message: `${input.merchantIds.length} marchand(s) supprimé(s) avec succès`,
+      };
+    }),
+
+  /**
+   * Exporter la liste des marchands en Excel
+   */
+  exportMerchantsExcel: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+    // Récupérer tous les marchands
+    const allMerchants = await db
+      .select({
+        merchantNumber: merchants.merchantNumber,
+        businessName: merchants.businessName,
+        businessType: merchants.businessType,
+        location: merchants.location,
+        cnpsStatus: merchants.cnpsStatus,
+        cnpsExpiryDate: merchants.cnpsExpiryDate,
+        cmuStatus: merchants.cmuStatus,
+        cmuExpiryDate: merchants.cmuExpiryDate,
+        isVerified: merchants.isVerified,
+        createdAt: merchants.createdAt,
+      })
+      .from(merchants)
+      .orderBy(merchants.createdAt);
+
+    // Créer le workbook Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Marchands');
+
+    // Définir les colonnes
+    worksheet.columns = [
+      { header: 'Code Marchand', key: 'merchantNumber', width: 15 },
+      { header: 'Nom Commerce', key: 'businessName', width: 30 },
+      { header: 'Type', key: 'businessType', width: 20 },
+      { header: 'Localisation', key: 'location', width: 25 },
+      { header: 'CNPS', key: 'cnpsStatus', width: 12 },
+      { header: 'CNPS Expiration', key: 'cnpsExpiryDate', width: 18 },
+      { header: 'CMU', key: 'cmuStatus', width: 12 },
+      { header: 'CMU Expiration', key: 'cmuExpiryDate', width: 18 },
+      { header: 'Vérifié', key: 'isVerified', width: 12 },
+      { header: 'Date Enrôlement', key: 'createdAt', width: 18 },
+    ];
+
+    // Styliser l'en-tête
+    worksheet.getRow(1).font = { bold: true, size: 12 };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' },
+    };
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+    // Ajouter les données
+    allMerchants.forEach(merchant => {
+      worksheet.addRow({
+        merchantNumber: merchant.merchantNumber,
+        businessName: merchant.businessName,
+        businessType: merchant.businessType || 'N/A',
+        location: merchant.location || 'N/A',
+        cnpsStatus: merchant.cnpsStatus || 'N/A',
+        cnpsExpiryDate: merchant.cnpsExpiryDate ? new Date(merchant.cnpsExpiryDate).toLocaleDateString() : 'N/A',
+        cmuStatus: merchant.cmuStatus || 'N/A',
+        cmuExpiryDate: merchant.cmuExpiryDate ? new Date(merchant.cmuExpiryDate).toLocaleDateString() : 'N/A',
+        isVerified: merchant.isVerified ? 'Oui' : 'Non',
+        createdAt: new Date(merchant.createdAt).toLocaleDateString(),
+      });
+    });
+
+    // Générer le buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+
+    return {
+      filename: `marchands_${new Date().toISOString().split('T')[0]}.xlsx`,
+      data: base64,
+      count: allMerchants.length,
+    };
+  }),
+
+  /**
+   * Exporter les transactions en Excel
+   */
+  exportTransactionsExcel: adminProcedure
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Construire la requête avec filtres de date
+      let query = db
+        .select({
+          id: sales.id,
+          merchantNumber: merchants.merchantNumber,
+          businessName: merchants.businessName,
+          totalAmount: sales.totalAmount,
+          paymentMethod: sales.paymentMethod,
+          createdAt: sales.createdAt,
+        })
+        .from(sales)
+        .innerJoin(merchants, eq(sales.merchantId, merchants.id))
+        .orderBy(sales.createdAt);
+
+      // Appliquer les filtres de date si fournis
+      if (input.startDate) {
+        query = query.where(sql`${sales.createdAt} >= ${input.startDate}`) as any;
+      }
+      if (input.endDate) {
+        query = query.where(sql`${sales.createdAt} <= ${input.endDate}`) as any;
+      }
+
+      const transactions = await query;
+
+      // Créer le workbook Excel
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Transactions');
+
+      // Définir les colonnes
+      worksheet.columns = [
+        { header: 'ID', key: 'id', width: 10, style: { numFmt: '@' } },
+        { header: 'Code Marchand', key: 'merchantNumber', width: 15 },
+        { header: 'Nom Commerce', key: 'businessName', width: 30 },
+        { header: 'Montant (FCFA)', key: 'totalAmount', width: 18 },
+        { header: 'Méthode Paiement', key: 'paymentMethod', width: 20 },
+        { header: 'Date', key: 'createdAt', width: 18 },
+      ];
+
+      // Styliser l'en-tête
+      worksheet.getRow(1).font = { bold: true, size: 12 };
+      worksheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF70AD47' },
+      };
+      worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+      // Ajouter les données
+      let totalVolume: any = 0;
+      transactions.forEach(transaction => {
+        totalVolume += Number(transaction.totalAmount);
+        worksheet.addRow({
+          id: transaction.id,
+          merchantNumber: transaction.merchantNumber,
+          businessName: transaction.businessName,
+          totalAmount: transaction.totalAmount,
+          paymentMethod: transaction.paymentMethod || 'N/A',
+          createdAt: new Date(transaction.createdAt).toLocaleDateString(),
+        });
+      });
+
+      // Ajouter une ligne de total
+      const totalRow = worksheet.addRow({
+        id: '',
+        merchantNumber: '',
+        businessName: 'TOTAL',
+        totalAmount: totalVolume,
+        paymentMethod: '',
+        createdAt: '',
+      });
+      totalRow.font = { bold: true };
+      totalRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE2EFDA' },
+      };
+
+      // Générer le buffer
+      const buffer = await workbook.xlsx.writeBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+
+      return {
+        filename: `transactions_${new Date().toISOString().split('T')[0]}.xlsx`,
+        data: base64,
+        count: transactions.length,
+        totalVolume,
+      };
+    }),
+
+  /**
+   * Exporter les statistiques globales en Excel
+   */
+  exportStatsExcel: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+    // Récupérer les statistiques
+    const stats = await db
+      .select({
+        totalMerchants: count(),
+      })
+      .from(merchants);
+
+    const [salesStats] = await db
+      .select({
+        totalTransactions: count(),
+        totalVolume: sql<number>`COALESCE(SUM(${sales.totalAmount}), 0)`,
+      })
+      .from(sales);
+
+    const [coverageStats] = await db
+      .select({
+        coveredMerchants: sql<number>`COUNT(CASE WHEN ${merchants.cnpsStatus} = 'active' OR ${merchants.cmuStatus} = 'active' THEN 1 END)`,
+      })
+      .from(merchants);
+
+    // Créer le workbook Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Statistiques');
+
+    // Titre
+    worksheet.mergeCells('A1:B1');
+    worksheet.getCell('A1').value = 'STATISTIQUES GLOBALES - IFN CONNECT';
+    worksheet.getCell('A1').font = { bold: true, size: 16 };
+    worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getCell('A1').fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' },
+    };
+    worksheet.getCell('A1').font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 16 };
+    worksheet.getRow(1).height = 30;
+
+    // Espacement
+    worksheet.addRow([]);
+
+    // Statistiques
+    worksheet.addRow(['Indicateur', 'Valeur']);
+    worksheet.getRow(3).font = { bold: true };
+    worksheet.getRow(3).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD9E1F2' },
+    };
+
+    worksheet.addRow(['Nombre total de marchands', stats[0].totalMerchants]);
+    worksheet.addRow(['Nombre total de transactions', salesStats.totalTransactions]);
+    worksheet.addRow(['Volume total (FCFA)', Number(salesStats.totalVolume)]);
+    worksheet.addRow(['Marchands couverts (CNPS/CMU)', coverageStats.coveredMerchants]);
+    worksheet.addRow(['Taux de couverture (%)', ((coverageStats.coveredMerchants / stats[0].totalMerchants) * 100).toFixed(1)]);
+
+    // Largeur des colonnes
+    worksheet.getColumn(1).width = 35;
+    worksheet.getColumn(2).width = 25;
+
+    // Générer le buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+
+    return {
+      filename: `statistiques_${new Date().toISOString().split('T')[0]}.xlsx`,
+      data: base64,
+    };
+  }),
+
+  /**
+   * Récupérer les logs d'audit avec pagination et filtres
+   */
+  getAuditLogs: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(50),
+        action: z.string().optional(),
+        entity: z.string().optional(),
+        userId: z.number().optional(),
+        search: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      const offset = (input.page - 1) * input.limit;
+
+      // Construire les conditions de filtrage
+      const conditions = [];
+      if (input.action) {
+        conditions.push(eq(auditLogs.action, input.action));
+      }
+      if (input.entity) {
+        conditions.push(eq(auditLogs.entity, input.entity));
+      }
+      if (input.userId) {
+        conditions.push(eq(auditLogs.userId, input.userId));
+      }
+      if (input.search) {
+        conditions.push(
+          or(
+            like(auditLogs.action, `%${input.search}%`),
+            like(auditLogs.entity, `%${input.search}%`),
+            like(auditLogs.details, `%${input.search}%`)
+          )
+        );
+      }
+
+      // Requête avec jointure sur users pour récupérer le nom
+      let query = db
+        .select({
+          id: auditLogs.id,
+          userId: auditLogs.userId,
+          userName: users.name,
+          action: auditLogs.action,
+          entity: auditLogs.entity,
+          entityId: auditLogs.entityId,
+          details: auditLogs.details,
+          ipAddress: auditLogs.ipAddress,
+          userAgent: auditLogs.userAgent,
+          createdAt: auditLogs.createdAt,
+        })
+        .from(auditLogs)
+        .leftJoin(users, eq(auditLogs.userId, users.id))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(input.limit)
+        .offset(offset);
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions)) as any;
+      }
+
+      const logs = await query;
+
+      // Compter le total
+      const [{ total }] = await db
+        .select({ total: count() })
+        .from(auditLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      return {
+        logs,
+        total,
+        page: input.page,
+        limit: input.limit,
+        totalPages: Math.ceil(total / input.limit),
       };
     }),
 });
