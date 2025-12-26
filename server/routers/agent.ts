@@ -4,7 +4,7 @@ import { getDb } from '../db';
 import { users, merchants, actors, markets } from '../../drizzle/schema';
 import { storagePut } from '../storage';
 import { randomBytes } from 'crypto';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { listMerchants, getAgentStats, getMerchantsByMarket } from '../db-agent';
 
 /**
@@ -181,4 +181,165 @@ export const agentRouter = router({
         throw new Error('Erreur lors de l\'enrôlement du marchand');
       }
     }),
+
+  /**
+   * Récupérer les tâches du jour pour un agent
+   * - Marchands inactifs (> 7 jours sans vente)
+   * - Enrôlements incomplets (photos/GPS manquants)
+   * - Renouvellements CNPS/CMU à suivre
+   * - Objectifs hebdomadaires
+   */
+  getTasks: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error('Database not available');
+
+    const tasks: any[] = [];
+
+    // 1. Marchands inactifs (> 7 jours sans vente)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const inactiveMerchants: any = await db.execute(sql`
+      SELECT 
+        m.id,
+        m.merchant_number as merchantNumber,
+        m.business_name as businessName,
+        m.phone,
+        m.location,
+        MAX(s.created_at) as lastSaleDate,
+        DATEDIFF(NOW(), MAX(s.created_at)) as daysSinceLastSale
+      FROM merchants m
+      LEFT JOIN sales s ON m.id = s.merchant_id
+      GROUP BY m.id
+      HAVING lastSaleDate IS NULL OR lastSaleDate < ${sevenDaysAgo.toISOString()}
+      ORDER BY lastSaleDate ASC
+      LIMIT 20
+    `);
+
+    (inactiveMerchants.rows || inactiveMerchants || []).forEach((merchant: any) => {
+      tasks.push({
+        id: `inactive-${merchant.id}`,
+        type: 'inactive_merchant',
+        priority: 'high',
+        title: `Marchand inactif : ${merchant.businessName}`,
+        description: merchant.lastSaleDate 
+          ? `Aucune vente depuis ${merchant.daysSinceLastSale} jours`
+          : 'Aucune vente enregistrée',
+        merchantId: merchant.id,
+        merchantNumber: merchant.merchantNumber,
+        location: merchant.location,
+        createdAt: new Date(),
+      });
+    });
+
+    // 2. Enrôlements incomplets (GPS manquant)
+    const incompleteMerchants = await db
+      .select({
+        id: merchants.id,
+        merchantNumber: merchants.merchantNumber,
+        businessName: merchants.businessName,
+        location: merchants.location,
+        latitude: merchants.latitude,
+        longitude: merchants.longitude,
+      })
+      .from(merchants)
+      .where(
+        sql`${merchants.latitude} IS NULL 
+            OR ${merchants.longitude} IS NULL`
+      )
+      .limit(10);
+
+    incompleteMerchants.forEach(merchant => {
+      tasks.push({
+        id: `incomplete-${merchant.id}`,
+        type: 'incomplete_enrollment',
+        priority: 'medium',
+        title: `Enrôlement incomplet : ${merchant.businessName}`,
+        description: `Élément manquant : Géolocalisation`,
+        merchantId: merchant.id,
+        merchantNumber: merchant.merchantNumber,
+        location: merchant.location,
+        createdAt: new Date(),
+      });
+    });
+
+    // 3. Renouvellements CNPS/CMU à suivre (expirant dans les 30 prochains jours)
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+    const expiringCoverage = await db
+      .select({
+        id: merchants.id,
+        merchantNumber: merchants.merchantNumber,
+        businessName: merchants.businessName,
+        location: merchants.location,
+        cnpsExpiryDate: merchants.cnpsExpiryDate,
+        cmuExpiryDate: merchants.cmuExpiryDate,
+        cnpsStatus: merchants.cnpsStatus,
+        cmuStatus: merchants.cmuStatus,
+      })
+      .from(merchants)
+      .where(
+        sql`(
+          (${merchants.cnpsExpiryDate} IS NOT NULL AND ${merchants.cnpsExpiryDate} <= ${thirtyDaysFromNow.toISOString()} AND ${merchants.cnpsStatus} = 'active')
+          OR
+          (${merchants.cmuExpiryDate} IS NOT NULL AND ${merchants.cmuExpiryDate} <= ${thirtyDaysFromNow.toISOString()} AND ${merchants.cmuStatus} = 'active')
+        )`
+      )
+      .limit(15);
+
+    expiringCoverage.forEach(merchant => {
+      const expiring = [];
+      if (merchant.cnpsExpiryDate && new Date(merchant.cnpsExpiryDate) <= thirtyDaysFromNow) {
+        const daysUntil = Math.ceil((new Date(merchant.cnpsExpiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        expiring.push(`CNPS (dans ${daysUntil} jours)`);
+      }
+      if (merchant.cmuExpiryDate && new Date(merchant.cmuExpiryDate) <= thirtyDaysFromNow) {
+        const daysUntil = Math.ceil((new Date(merchant.cmuExpiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        expiring.push(`CMU (dans ${daysUntil} jours)`);
+      }
+
+      tasks.push({
+        id: `expiring-${merchant.id}`,
+        type: 'expiring_coverage',
+        priority: 'high',
+        title: `Renouvellement à suivre : ${merchant.businessName}`,
+        description: `Expiration proche : ${expiring.join(', ')}`,
+        merchantId: merchant.id,
+        merchantNumber: merchant.merchantNumber,
+        location: merchant.location,
+        createdAt: new Date(),
+      });
+    });
+
+    // 4. Objectifs hebdomadaires
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const [weeklyEnrollments]: any = await db.execute(sql`
+      SELECT COUNT(*) as count
+      FROM merchants
+      WHERE created_at >= ${startOfWeek.toISOString()}
+    `);
+
+    const enrollmentsThisWeek = Number((weeklyEnrollments.rows?.[0] || weeklyEnrollments[0])?.count || 0);
+    const weeklyGoal = 10; // Objectif : 10 enrôlements par semaine
+
+    tasks.push({
+      id: 'weekly-goal',
+      type: 'weekly_goal',
+      priority: 'low',
+      title: 'Objectif hebdomadaire',
+      description: `${enrollmentsThisWeek} / ${weeklyGoal} enrôlements cette semaine`,
+      progress: Math.min(100, Math.round((enrollmentsThisWeek / weeklyGoal) * 100)),
+      createdAt: new Date(),
+    });
+
+    // Trier les tâches par priorité (high > medium > low)
+    const priorityOrder = { high: 1, medium: 2, low: 3 };
+    tasks.sort((a, b) => priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder]);
+
+    return tasks;
+  }),
 });

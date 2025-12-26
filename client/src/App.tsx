@@ -25,6 +25,7 @@ import MarketsPage from "./pages/admin/Markets";
 import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
+import AgentTasks from "./pages/agent/AgentTasks";
 import MerchantsAdmin from "./pages/MerchantsAdmin";
 import RenewalsAdmin from "./pages/admin/RenewalsAdmin";
 
@@ -50,6 +51,7 @@ function Router() {
       <Route path={"/agent"} component={AgentDashboard} />
       <Route path={"/agent/dashboard"} component={AgentDashboard} />
       <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
+      <Route path={"/agent/tasks"} component={AgentTasks} />
       
       {/* Admin Routes */}
       <Route path="/admin/dashboard" component={AdminDashboard} />

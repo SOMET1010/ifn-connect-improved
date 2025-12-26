@@ -1,6 +1,8 @@
 import { trpc } from '@/lib/trpc';
 import { Users, TrendingUp, Shield, Activity, AlertTriangle, UserX } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
+import EnrollmentTrendChart from '@/components/charts/EnrollmentTrendChart';
+import TransactionTrendChart from '@/components/charts/TransactionTrendChart';
 
 /**
  * Dashboard Admin DGE/ANSUT
@@ -12,6 +14,8 @@ export default function AdminDashboard() {
   const { data: merchantsWithAlerts = [] } = trpc.admin.getMerchantsWithAlerts.useQuery();
   const { data: inactiveMerchants = [] } = trpc.admin.getInactiveMerchants.useQuery();
   const { data: marketDistribution = [] } = trpc.admin.getMarketDistribution.useQuery();
+  const { data: enrollmentTrend = [] } = trpc.admin.getEnrollmentTrend.useQuery();
+  const { data: transactionTrend = [] } = trpc.admin.getTransactionTrend.useQuery();
 
   if (statsLoading) {
     return (
@@ -181,6 +185,12 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* GRAPHIQUES DE TENDANCES */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          <EnrollmentTrendChart data={enrollmentTrend} />
+          <TransactionTrendChart data={transactionTrend} />
         </div>
 
         {/* RÉPARTITION GÉOGRAPHIQUE */}

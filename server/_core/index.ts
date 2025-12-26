@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initExpirationAlertsCron } from "./cron-expiration-alerts";
+import { initBadgeChecker } from "../cron/badge-checker";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -63,6 +64,9 @@ async function startServer() {
     
     // Initialiser le cron job d'alertes d'expiration
     initExpirationAlertsCron();
+    
+    // Initialiser le cron job de déblocage automatique des badges
+    initBadgeChecker();
   });
 }
 

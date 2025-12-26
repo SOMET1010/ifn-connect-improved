@@ -2343,3 +2343,33 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Tester l'envoi d'emails avec des données de test (4/6 tests passés)
 - [x] Documenter la configuration Resend
 - [x] Ajouter des logs pour le suivi des envois
+
+
+## 🎯 SPRINT 2 (P1) - EN COURS
+
+### P1-2 : Graphiques de Tendances Admin (12 mois)
+- [x] Backend : procédure admin.getEnrollmentTrend (12 derniers mois)
+- [x] Backend : procédure admin.getTransactionTrend (12 derniers mois)
+- [x] Frontend : composant EnrollmentTrendChart avec Recharts
+- [x] Frontend : composant TransactionTrendChart avec Recharts
+- [x] Intégration dans /admin/dashboard
+- [ ] Tests unitaires des procédures
+
+### P1-5 : Cron Job Déblocage Automatique Badges
+- [x] Script server/cron/badge-checker.ts
+- [x] Logique de vérification des 10 badges
+- [x] Déblocage automatique si conditions remplies
+- [x] Logs des déblocages
+- [x] Initialisation du cron à minuit (fuseau Côte d'Ivoire)
+- [ ] Tests du script
+
+### P1-1 : Dashboard Agent avec Tâches du Jour
+- [x] Backend : procédure agent.getTasks
+- [x] Logique : marchands inactifs > 7 jours
+- [x] Logique : enrôlements incomplets (GPS manquant)
+- [x] Logique : renouvellements CNPS/CMU < 30 jours
+- [x] Logique : objectifs hebdomadaires
+- [x] Frontend : page /agent/tasks
+- [x] UI : liste des tâches avec filtres (type, priorité)
+- [x] UI : actions rapides (appeler, marquer comme fait)
+- [x] Intégration dans la navigation agent- [ ] Tests unitaires
