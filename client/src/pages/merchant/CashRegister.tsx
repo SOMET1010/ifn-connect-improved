@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ShoppingCart, Mic, Check, X, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Mic, Check, X, ArrowLeft, Wallet, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { trpc } from '@/lib/trpc';
 import { audioManager } from '@/lib/audioManager';
 import { toast } from 'sonner';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { parseVoiceCommand } from '@/utils/voiceCommandParser';
 import MobileNavigation from '@/components/accessibility/MobileNavigation';
+import MobileMoneyPayment from '@/components/payments/MobileMoneyPayment';
 
 /**
  * Interface de caisse tactile pour les marchands
@@ -21,6 +23,9 @@ export default function CashRegister() {
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [showVoiceCard, setShowVoiceCard] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showMobileMoneyDialog, setShowMobileMoneyDialog] = useState(false);
+  const [pendingSaleData, setPendingSaleData] = useState<any>(null);
 
   // Mock merchantId - À remplacer par l'ID réel de l'utilisateur connecté
   const merchantId = 1;
@@ -67,7 +72,7 @@ export default function CashRegister() {
     setQuantity(prev => prev.slice(0, -1));
   };
 
-  // Enregistrer la vente
+  // Ouvrir le dialogue de sélection du mode de paiement
   const handleSave = () => {
     if (!selectedProduct || !quantity) {
       toast.error('Sélectionnez un produit et entrez une quantité');
@@ -81,14 +86,56 @@ export default function CashRegister() {
     const unitPrice = parseFloat(product.basePrice || '0');
     const totalAmount = qty * unitPrice;
 
-    createSale.mutate({
+    // Stocker les données de la vente en attente
+    setPendingSaleData({
       merchantId,
       productId: selectedProduct,
       quantity: qty,
       unitPrice,
       totalAmount,
+    });
+
+    // Ouvrir le dialogue de sélection du mode de paiement
+    setShowPaymentDialog(true);
+  };
+
+  // Enregistrer la vente avec paiement cash
+  const handleCashPayment = () => {
+    if (!pendingSaleData) return;
+
+    createSale.mutate({
+      ...pendingSaleData,
       paymentMethod: 'cash',
     });
+
+    setShowPaymentDialog(false);
+    setPendingSaleData(null);
+  };
+
+  // Ouvrir le dialogue Mobile Money
+  const handleMobileMoneyPayment = () => {
+    setShowPaymentDialog(false);
+    setShowMobileMoneyDialog(true);
+  };
+
+  // Succès du paiement Mobile Money
+  const handleMobileMoneySuccess = (transactionId: string) => {
+    if (!pendingSaleData) return;
+
+    createSale.mutate({
+      ...pendingSaleData,
+      paymentMethod: 'mobile_money',
+      transactionId,
+    });
+
+    setShowMobileMoneyDialog(false);
+    setPendingSaleData(null);
+  };
+
+  // Erreur du paiement Mobile Money
+  const handleMobileMoneyError = (error: string) => {
+    console.error('Erreur paiement Mobile Money:', error);
+    // Le dialogue reste ouvert pour permettre de réessayer
   };
 
   // Hook de reconnaissance vocale
@@ -327,10 +374,60 @@ export default function CashRegister() {
             disabled={!selectedProduct || !quantity || createSale.isPending}
           >
             <Check className="mr-2" size={24} />
-            Enregistrer
+            Valider
           </Button>
         </div>
       </div>
+
+      {/* Dialogue de sélection du mode de paiement */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mode de paiement</DialogTitle>
+            <DialogDescription>
+              Montant : <span className="font-bold text-lg">{pendingSaleData?.totalAmount.toLocaleString()} FCFA</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <Card
+              className="p-6 cursor-pointer hover:shadow-lg transition-all hover:border-primary"
+              onClick={handleCashPayment}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                  <Banknote className="h-8 w-8 text-green-600" />
+                </div>
+                <p className="font-semibold text-center">Espèces</p>
+                <p className="text-xs text-muted-foreground text-center">Paiement cash</p>
+              </div>
+            </Card>
+            <Card
+              className="p-6 cursor-pointer hover:shadow-lg transition-all hover:border-primary"
+              onClick={handleMobileMoneyPayment}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
+                  <Wallet className="h-8 w-8 text-orange-600" />
+                </div>
+                <p className="font-semibold text-center">Mobile Money</p>
+                <p className="text-xs text-muted-foreground text-center">Orange, MTN, Moov, Wave</p>
+              </div>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue de paiement Mobile Money */}
+      <MobileMoneyPayment
+        open={showMobileMoneyDialog}
+        onClose={() => {
+          setShowMobileMoneyDialog(false);
+          setPendingSaleData(null);
+        }}
+        amount={pendingSaleData?.totalAmount || 0}
+        onSuccess={handleMobileMoneySuccess}
+        onError={handleMobileMoneyError}
+      />
 
       {/* Navigation mobile */}
       <MobileNavigation 
