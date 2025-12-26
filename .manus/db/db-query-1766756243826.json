@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, title FROM courses ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT id, title FROM courses ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Gérer son stock de produits vivriers"
+    },
+    {
+      "id": "2",
+      "title": "Réduire les ruptures de stock dans votre boutique"
+    },
+    {
+      "id": "3",
+      "title": "Faire connaître son commerce avec les réseaux sociaux"
+    },
+    {
+      "id": "4",
+      "title": "Les bases du marketing pour petit commerce"
+    },
+    {
+      "id": "5",
+      "title": "Bien gérer son inventaire mensuel"
+    },
+    {
+      "id": "30001",
+      "title": "Comprendre la CNPS et vos droits"
+    },
+    {
+      "id": "30002",
+      "title": "Comment s'inscrire à la CMU en ligne"
+    },
+    {
+      "id": "30003",
+      "title": "Ouvrir un compte Orange Money"
+    },
+    {
+      "id": "30004",
+      "title": "Faire un transfert d'argent avec Orange Money"
+    },
+    {
+      "id": "30005",
+      "title": "Les bases du Mobile Money pour votre commerce"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\n1\tGérer son stock de produits vivriers\n2\tRéduire les ruptures de stock dans votre boutique\n3\tFaire connaître son commerce avec les réseaux sociaux\n4\tLes bases du marketing pour petit commerce\n5\tBien gérer son inventaire mensuel\n30001\tComprendre la CNPS et vos droits\n30002\tComment s'inscrire à la CMU en ligne\n30003\tOuvrir un compte Orange Money\n30004\tFaire un transfert d'argent avec Orange Money\n30005\tLes bases du Mobile Money pour votre commerce\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

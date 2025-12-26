@@ -2501,3 +2501,32 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Exécuter le script via webdev_execute_sql
 - [x] Vérifier l'affichage des 10 cours sur /learning
 - [x] Tester les nouvelles catégories (protection_sociale, paiements_mobiles)
+
+
+## 📝 SYSTÈME DE QUIZ DE VALIDATION
+
+### Schéma Base de Données
+- [x] Créer table quizzes (courseId, question, options, correctAnswer)
+- [x] Créer table quiz_attempts (userId, courseId, score, passed, completedAt)
+- [x] Migration : pnpm db:push
+
+### Backend
+- [x] Procédure courses.getQuiz (récupérer questions d'un cours)
+- [x] Procédure courses.submitQuiz (valider réponses, calculer score)
+- [x] Procédure courses.getAttempts (historique des tentatives)
+- [ ] Modifier generateCertificate pour afficher le score
+
+### Génération Questions
+- [x] Créer 5-10 questions pour les 3 cours Gestion Stock
+- [x] Créer 5-10 questions pour les 2 cours Marketing
+- [x] Créer 5-10 questions pour les 2 cours Protection Sociale
+- [x] Créer 5-10 questions pour les 3 cours Paiements Mobiles
+- [x] Insérer 13 questions (cours 1-2) dans la base de données
+- [ ] Insérer les 50 questions restantes (cours 3-10)
+
+### Frontend
+- [ ] Créer composant Quiz avec questions à choix multiples
+- [ ] Afficher le quiz après visionnage de la vidéo
+- [ ] Afficher le score et le feedback (réussi/échoué)
+- [ ] Bloquer le certificat si score < 70%
+- [ ] Permettre de repasser le quiz en cas d'échec

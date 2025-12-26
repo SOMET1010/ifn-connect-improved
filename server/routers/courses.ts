@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
-import { courses, courseProgress } from '../../drizzle/schema';
+import { courses, courseProgress, quizzes, quizAttempts } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export const coursesRouter = router({
@@ -287,6 +287,122 @@ export const coursesRouter = router({
 
         doc.end();
       });
+    }),
+
+  /**
+   * Récupérer les questions du quiz d'un cours
+   */
+  getQuiz: protectedProcedure
+    .input(z.object({ courseId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      const questions = await db.select().from(quizzes).where(eq(quizzes.courseId, input.courseId));
+      // Ne pas renvoyer la bonne réponse au frontend
+      return questions.map(q => ({
+        id: q.id,
+        question: q.question,
+        optionA: q.optionA,
+        optionB: q.optionB,
+        optionC: q.optionC,
+        optionD: q.optionD,
+      }));
+    }),
+
+  /**
+   * Soumettre les réponses du quiz
+   */
+  submitQuiz: protectedProcedure
+    .input(z.object({
+      courseId: z.number(),
+      answers: z.array(z.object({
+        questionId: z.number(),
+        answer: z.enum(["A", "B", "C", "D"]),
+      })),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      
+      // Récupérer toutes les questions
+      const questions = await db.select().from(quizzes).where(eq(quizzes.courseId, input.courseId));
+      
+      // Calculer le score
+      let correctAnswers = 0;
+      const totalQuestions = questions.length;
+      
+      for (const userAnswer of input.answers) {
+        const question = questions.find(q => q.id === userAnswer.questionId);
+        if (question && question.correctAnswer === userAnswer.answer) {
+          correctAnswers++;
+        }
+      }
+      
+      const score = Math.round((correctAnswers / totalQuestions) * 100);
+      const passed = score >= 70;
+      
+      // Enregistrer la tentative
+      await db.insert(quizAttempts).values({
+        userId: ctx.user.id,
+        courseId: input.courseId,
+        score,
+        totalQuestions,
+        correctAnswers,
+        passed,
+        answers: JSON.stringify(input.answers),
+      });
+      
+      // Si réussi, marquer le cours comme complété
+      if (passed) {
+        const [existing] = await db.select().from(courseProgress)
+          .where(and(
+            eq(courseProgress.userId, ctx.user.id),
+            eq(courseProgress.courseId, input.courseId)
+          ));
+        
+        if (existing) {
+          await db.update(courseProgress)
+            .set({ completed: true, completedAt: new Date() })
+            .where(and(
+              eq(courseProgress.userId, ctx.user.id),
+              eq(courseProgress.courseId, input.courseId)
+            ));
+        } else {
+          await db.insert(courseProgress).values({
+            userId: ctx.user.id,
+            courseId: input.courseId,
+            progress: 100,
+            completed: true,
+            completedAt: new Date(),
+          });
+        }
+      }
+      
+      return {
+        score,
+        correctAnswers,
+        totalQuestions,
+        passed,
+        message: passed ? "Félicitations ! Vous avez réussi le quiz." : "Score insuffisant. Vous devez obtenir au moins 70% pour valider le cours.",
+      };
+    }),
+
+  /**
+   * Récupérer l'historique des tentatives de quiz
+   */
+  getAttempts: protectedProcedure
+    .input(z.object({ courseId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      return await db.select().from(quizAttempts)
+        .where(and(
+          eq(quizAttempts.userId, ctx.user.id),
+          eq(quizAttempts.courseId, input.courseId)
+        ))
+        .orderBy(desc(quizAttempts.completedAt));
     }),
 
   /**

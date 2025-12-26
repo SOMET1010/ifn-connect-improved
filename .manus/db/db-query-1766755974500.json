@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, title, category FROM courses ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT id, title, category FROM courses ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Gérer son stock de produits vivriers",
+      "category": "gestion_stock"
+    },
+    {
+      "id": "2",
+      "title": "Réduire les ruptures de stock dans votre boutique",
+      "category": "gestion_stock"
+    },
+    {
+      "id": "3",
+      "title": "Faire connaître son commerce avec les réseaux sociaux",
+      "category": "marketing"
+    },
+    {
+      "id": "4",
+      "title": "Les bases du marketing pour petit commerce",
+      "category": "marketing"
+    },
+    {
+      "id": "5",
+      "title": "Bien gérer son inventaire mensuel",
+      "category": "gestion_stock"
+    },
+    {
+      "id": "30001",
+      "title": "Comprendre la CNPS et vos droits",
+      "category": "protection_sociale"
+    },
+    {
+      "id": "30002",
+      "title": "Comment s'inscrire à la CMU en ligne",
+      "category": "protection_sociale"
+    },
+    {
+      "id": "30003",
+      "title": "Ouvrir un compte Orange Money",
+      "category": "paiements_mobiles"
+    },
+    {
+      "id": "30004",
+      "title": "Faire un transfert d'argent avec Orange Money",
+      "category": "paiements_mobiles"
+    },
+    {
+      "id": "30005",
+      "title": "Les bases du Mobile Money pour votre commerce",
+      "category": "paiements_mobiles"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tcategory\n1\tGérer son stock de produits vivriers\tgestion_stock\n2\tRéduire les ruptures de stock dans votre boutique\tgestion_stock\n3\tFaire connaître son commerce avec les réseaux sociaux\tmarketing\n4\tLes bases du marketing pour petit commerce\tmarketing\n5\tBien gérer son inventaire mensuel\tgestion_stock\n30001\tComprendre la CNPS et vos droits\tprotection_sociale\n30002\tComment s'inscrire à la CMU en ligne\tprotection_sociale\n30003\tOuvrir un compte Orange Money\tpaiements_mobiles\n30004\tFaire un transfert d'argent avec Orange Money\tpaiements_mobiles\n30005\tLes bases du Mobile Money pour votre commerce\tpaiements_mobiles\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

@@ -747,5 +747,48 @@ export const courseProgress = mysqlTable("course_progress", {
 export type CourseProgress = typeof courseProgress.$inferSelect;
 export type InsertCourseProgress = typeof courseProgress.$inferInsert;
 
+/**
+ * Questions de quiz pour les cours
+ */
+export const quizzes = mysqlTable("quizzes", {
+  id: int("id").autoincrement().primaryKey(),
+  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  question: text("question").notNull(),
+  optionA: varchar("optionA", { length: 255 }).notNull(),
+  optionB: varchar("optionB", { length: 255 }).notNull(),
+  optionC: varchar("optionC", { length: 255 }).notNull(),
+  optionD: varchar("optionD", { length: 255 }),
+  correctAnswer: mysqlEnum("correctAnswer", ["A", "B", "C", "D"]).notNull(),
+  explanation: text("explanation"), // Explication de la bonne réponse
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  courseIdx: index("quizzes_course_idx").on(table.courseId),
+}));
+
+export type Quiz = typeof quizzes.$inferSelect;
+export type InsertQuiz = typeof quizzes.$inferInsert;
+
+/**
+ * Tentatives de quiz par les utilisateurs
+ */
+export const quizAttempts = mysqlTable("quiz_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  score: int("score").notNull(), // Pourcentage (0-100)
+  totalQuestions: int("totalQuestions").notNull(),
+  correctAnswers: int("correctAnswers").notNull(),
+  passed: boolean("passed").notNull(), // true si score >= 70%
+  answers: text("answers"), // JSON des réponses de l'utilisateur
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("quiz_attempts_user_idx").on(table.userId),
+  courseIdx: index("quiz_attempts_course_idx").on(table.courseId),
+  passedIdx: index("quiz_attempts_passed_idx").on(table.passed),
+}));
+
+export type QuizAttempt = typeof quizAttempts.$inferSelect;
+export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

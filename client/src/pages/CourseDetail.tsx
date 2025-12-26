@@ -13,6 +13,8 @@ import {
   Play
 } from 'lucide-react';
 import { Link } from 'wouter';
+import { Quiz } from '@/components/Quiz';
+
 // Toast simple sans hook externe
 const showToast = (message: string) => {
   alert(message);
@@ -40,6 +42,19 @@ export default function CourseDetail() {
   const updateProgressMutation = trpc.courses.updateProgress.useMutation({
     onSuccess: () => {
       refetchProgress();
+    },
+  });
+
+  // Récupérer les questions du quiz
+  const { data: quizQuestions } = trpc.courses.getQuiz.useQuery({ courseId });
+
+  // Mutation pour soumettre le quiz
+  const submitQuizMutation = trpc.courses.submitQuiz.useMutation({
+    onSuccess: (result) => {
+      refetchProgress();
+      if (result.passed) {
+        showToast('🎉 Félicitations ! Vous avez réussi le quiz et validé le cours.');
+      }
     },
   });
 
@@ -249,6 +264,24 @@ export default function CourseDetail() {
                 </p>
               </div>
             </Card>
+
+            {/* Quiz de validation */}
+            {quizQuestions && quizQuestions.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Quiz de validation</h2>
+                <Quiz
+                  courseId={courseId}
+                  questions={quizQuestions}
+                  onSubmit={async (answers) => {
+                    const result = await submitQuizMutation.mutateAsync({
+                      courseId,
+                      answers,
+                    });
+                    return result;
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar - Progression */}
