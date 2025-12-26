@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { generateContextualMessages } from "@/lib/contextual-messages";
+import type { WeatherCondition, MerchantContext } from "@/lib/contextual-messages";
 // import { WeatherWidget } from "@/components/WeatherWidget";
 
 interface CopilotMessage {
@@ -59,79 +61,30 @@ export function CopilotAssistant() {
     const hour = new Date().getHours();
     const firstName = user.name?.split(" ")[0] || "Ami(e)";
 
-    // Message de salutation basé sur l'heure
-    if (hour < 12) {
+    // Préparer le contexte marchand
+    const merchantContext: MerchantContext = {
+      firstName,
+      salesCount: todayStats?.salesCount || 0,
+      totalSales: parseFloat(String(todayStats?.totalSales || "0")),
+      lowStockCount: lowStock?.length || 0,
+    };
+
+    // Générer les messages contextuels enrichis
+    const contextualMessages = generateContextualMessages(
+      weather as WeatherCondition | undefined,
+      merchantContext
+    );
+
+    // Ajouter les messages contextuels
+    contextualMessages.forEach((msg) => {
       newMessages.push({
-        id: "greeting",
-        text: `🌅 Bonjour ${firstName} ! Je suis SUTA, ton assistant ANSUT. Prêt(e) pour une belle journée de commerce ?`,
-        type: "greeting",
-        icon: "👋",
+        id: msg.id,
+        text: msg.text,
+        type: msg.type as any,
+        icon: msg.icon,
         timestamp: new Date(),
       });
-    } else if (hour < 18) {
-      newMessages.push({
-        id: "greeting",
-        text: `☀️ Bon après-midi ${firstName} ! SUTA est là pour t'aider. Comment se passe ta journée ?`,
-        type: "greeting",
-        icon: "👋",
-        timestamp: new Date(),
-      });
-    } else {
-      newMessages.push({
-        id: "greeting",
-        text: `🌙 Bonsoir ${firstName} ! SUTA espère que tu as passé une bonne journée. N'oublie pas de compter ta caisse !`,
-        type: "greeting",
-        icon: "👋",
-        timestamp: new Date(),
-      });
-    }
-
-    // Statistiques du jour
-    if (todayStats) {
-      const totalSales = parseFloat(String(todayStats.totalSales || "0"));
-      const salesCount = todayStats.salesCount || 0;
-
-      if (salesCount > 0) {
-        newMessages.push({
-          id: "stats",
-          text: `📊 Aujourd'hui, tu as déjà fait ${salesCount} vente${salesCount > 1 ? "s" : ""} pour un total de ${totalSales.toLocaleString("fr-FR")} FCFA. ${
-            salesCount >= 5 ? "Bravo ! Continue comme ça !" : "C'est un bon début !"
-          }`,
-          type: "stats",
-          icon: "💰",
-          timestamp: new Date(),
-        });
-      } else if (hour > 10) {
-        newMessages.push({
-          id: "stats",
-          text: `📊 ${firstName}, tu n'as pas encore enregistré de vente aujourd'hui. N'oublie pas d'enregistrer chaque vente dans la caisse !`,
-          type: "alert",
-          icon: "⚠️",
-          timestamp: new Date(),
-        });
-      }
-    }
-
-    // Message météo
-    if (weather) {
-      if (weather.willRain) {
-        newMessages.push({
-          id: "weather-rain",
-          text: `${weather.icon} Attention ${firstName} ! Il risque de pleuvoir aujourd'hui. Range tes marchandises à l'abri et protège-les de la pluie !`,
-          type: "weather",
-          icon: "🌧️",
-          timestamp: new Date(),
-        });
-      } else if (hour >= 8 && hour < 10) {
-        newMessages.push({
-          id: "weather-good",
-          text: `${weather.icon} ${firstName}, il fait ${weather.description} aujourd'hui (${weather.temp}°C). C'est parfait pour exposer tes produits dehors !`,
-          type: "weather",
-          icon: weather.icon,
-          timestamp: new Date(),
-        });
-      }
-    }
+    });
 
     // Statistiques du marché
     if (marketStats && hour >= 8 && hour < 11) {
@@ -242,7 +195,7 @@ export function CopilotAssistant() {
     }
 
     setMessages(newMessages);
-  }, [merchant, user, todayStats, lowStock, weather, marketStats, upcomingEvents]);
+  }, [merchant, user, todayStats, weather, lowStock, marketStats, upcomingEvents]);
 
   // Rotation automatique des messages
   useEffect(() => {

@@ -4,12 +4,75 @@ import { getDb } from '../db';
 import { merchants } from '../../drizzle/schema';
 import { sql, gte } from 'drizzle-orm';
 import { getWeatherForAbidjan, getWeatherIcon } from '../weather';
+import { generateContextualMessages } from '../contextual-messages';
+import type { WeatherCondition, MerchantContext } from '../contextual-messages';
 
 /**
  * Router pour le copilote SUTA
  * Fournit des données contextuelles : météo, activité du marché, etc.
  */
 export const copilotRouter = router({
+  /**
+   * Générer des messages contextuels enrichis
+   * Combine météo, heure, et données du marchand
+   */
+  contextualMessages: protectedProcedure
+    .query(async ({ ctx }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+
+      // Récupérer le marchand
+      const merchant = await db.query.merchants.findFirst({
+        where: (merchants, { eq }) => eq(merchants.userId, userId),
+      });
+
+      if (!merchant) {
+        return [];
+      }
+
+      // Récupérer la météo
+      const weatherData = await getWeatherForAbidjan();
+      const weather: WeatherCondition | null = weatherData ? {
+        temp: weatherData.temperature,
+        description: weatherData.description,
+        main: weatherData.main,
+        willRain: weatherData.rain,
+        icon: getWeatherIcon(weatherData)
+      } : null;
+
+      // Récupérer les stats du jour
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const todayStats = await db.execute(sql`
+        SELECT 
+          COUNT(*) as salesCount,
+          COALESCE(SUM(total_amount), 0) as totalSales
+        FROM sales
+        WHERE merchant_id = ${merchant.id}
+        AND created_at >= ${today.toISOString()}
+      `);
+
+      // Récupérer le stock bas
+      const lowStock = await db.execute(sql`
+        SELECT COUNT(*) as lowStockCount
+        FROM inventory
+        WHERE merchant_id = ${merchant.id}
+        AND quantity <= alert_threshold
+      `);
+
+      // Construire le contexte marchand
+      const merchantContext: MerchantContext = {
+        firstName: ctx.user.name?.split(' ')[0] || 'Ami(e)',
+        salesCount: Number((todayStats.rows[0] as any)?.salesCount || 0),
+        totalSales: Number((todayStats.rows[0] as any)?.totalSales || 0),
+        lowStockCount: Number((lowStock.rows[0] as any)?.lowStockCount || 0),
+      };
+
+      // Générer les messages contextuels
+      return generateContextualMessages(weather, merchantContext);
+    }),
+
   /**
    * Récupérer la météo actuelle pour Abidjan
    * Utilise le module weather.ts avec cache intégré

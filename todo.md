@@ -1712,4 +1712,38 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Tester l'affichage du bouton flottant SUTA
 - [x] Vérifier que les messages s'affichent correctement
 - [x] Tester le WeatherWidget intégré
+- [x] Sauvegarder le checkpoint
+
+
+## 💬 ENRICHISSEMENT MESSAGES COPILOTE SUTA
+
+### Analyse
+- [x] Analyser le CopilotAssistant existant
+- [x] Identifier les messages actuels (heure, météo basique)
+- [x] Planifier l'enrichissement avec contextes combinés
+
+### Messages Contextuels par Heure
+- [ ] Matin (5h-11h) : "Bon matin ! Prépare ton étal, les clients arrivent bientôt"
+- [ ] Midi (11h-14h) : "C'est l'heure du rush ! Garde ton stock à jour"
+- [ ] Après-midi (14h-18h) : "Bon après-midi ! Profite du calme pour réapprovisionner"
+- [ ] Soir (18h-21h) : "Dernière ligne droite ! Fais le point sur tes ventes"
+- [ ] Nuit (21h-5h) : "Bonne nuit ! Repose-toi bien pour demain"
+
+### Messages Contextuels Météo
+- [ ] Soleil : "☀️ Beau temps ! Expose tes produits dehors pour attirer les clients"
+- [ ] Pluie : "🌧️ Attention pluie ! Protège tes marchandises et rentre-les à l'abri"
+- [ ] Orage : "⛈️ Orage prévu ! Sécurise ton stock rapidement"
+- [ ] Nuageux : "☁️ Temps couvert, prépare-toi à une possible pluie"
+- [ ] Forte chaleur : "🌡️ Chaleur intense ! Protège les produits périssables"
+
+### Logique Backend
+- [x] Créer fonction getContextualMessage(hour, weather, merchantData)
+- [x] Combiner heure + météo pour messages intelligents
+- [x] Ajouter conseils basés sur l'activité commerciale
+- [x] Intégrer dans le router copilot
+
+### Intégration Frontend
+- [x] Afficher les messages contextuels dans CopilotAssistant
+- [x] Ajouter animations pour nouveaux messages
+- [x] Tester différents scénarios (message nuit testé avec succès)
 - [ ] Sauvegarder le checkpoint
