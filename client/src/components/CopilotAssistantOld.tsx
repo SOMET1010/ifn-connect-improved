@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { X, Volume2, VolumeX, MessageCircle, Send, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { generateContextualMessages } from "@/lib/contextual-messages";
 import type { WeatherCondition, MerchantContext } from "@/lib/contextual-messages";
+// import { WeatherWidget } from "@/components/WeatherWidget";
 
 interface CopilotMessage {
   id: string;
@@ -15,28 +16,17 @@ interface CopilotMessage {
   timestamp: Date;
 }
 
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-}
-
-function CopilotAssistantContent() {
+export function CopilotAssistant() {
   const { user, merchant } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [messages, setMessages] = useState<CopilotMessage[]>([]);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [isLoadingChat, setIsLoadingChat] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Récupérer les statistiques du marchand
   const { data: todayStats } = trpc.sales.todayStats.useQuery(
     { merchantId: merchant?.id || 0 },
-    { enabled: !!merchant, refetchInterval: 60000 }
+    { enabled: !!merchant, refetchInterval: 60000 } // Rafraîchir chaque minute
   );
 
   // Récupérer le stock bas
@@ -48,52 +38,27 @@ function CopilotAssistantContent() {
   // Récupérer la météo
   const { data: weather } = trpc.copilot.weather.useQuery(
     undefined,
-    { enabled: !!merchant, refetchInterval: 300000 }
+    { enabled: !!merchant, refetchInterval: 300000 } // Rafraîchir toutes les 5 minutes
   );
 
   // Récupérer les stats du marché
   const { data: marketStats } = trpc.copilot.marketStats.useQuery(
     undefined,
-    { enabled: !!merchant, refetchInterval: 120000 }
+    { enabled: !!merchant, refetchInterval: 120000 } // Rafraîchir toutes les 2 minutes
   );
 
-  // Récupérer les événements à venir
+  // Récupérer les événements à venir avec recommandations (30 prochains jours)
   const { data: upcomingEvents } = trpc.events.getWithRecommendations.useQuery(
     undefined,
-    { enabled: !!merchant, refetchInterval: 3600000 }
+    { enabled: !!merchant, refetchInterval: 3600000 } // Rafraîchir toutes les heures
   );
-
-  // Mutation pour envoyer un message au chat
-  const sendChatMessage = trpc.copilotChat.sendMessage.useMutation({
-    onSuccess: (data) => {
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: String(data.message),
-          timestamp: data.timestamp,
-        },
-      ]);
-      setIsLoadingChat(false);
-    },
-    onError: () => {
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "😔 Désolé, j'ai un problème technique. Réessaye dans quelques instants !",
-          timestamp: new Date(),
-        },
-      ]);
-      setIsLoadingChat(false);
-    },
-  });
 
   // Générer les messages personnalisés
   useEffect(() => {
     if (!merchant || !user) return;
 
     const newMessages: CopilotMessage[] = [];
+    const hour = new Date().getHours();
     const firstName = user.name?.split(" ")[0] || "Ami(e)";
 
     // Préparer le contexte marchand
@@ -121,36 +86,116 @@ function CopilotAssistantContent() {
       });
     });
 
-    // Alertes stock bas
-    if (lowStock && lowStock.length > 0) {
+    // Statistiques du marché
+    if (marketStats && hour >= 8 && hour < 11) {
       newMessages.push({
-        id: "stock-alert",
-        text: `⚠️ ${firstName}, tu as ${lowStock.length} produit${lowStock.length > 1 ? "s" : ""} en stock bas ! Pense à réapprovisionner.`,
-        type: "alert",
-        icon: "📦",
+        id: "market-stats",
+        text: `🏪 ${firstName}, il y a ${marketStats.connectedMerchants} commerçants connectés au marché aujourd'hui. ${marketStats.connectedMerchants >= 10 ? "C'est un bon jour pour vendre !" : "Le marché est calme aujourd'hui."}`,
+        type: "market",
+        icon: "👥",
         timestamp: new Date(),
       });
     }
 
-    // Événements à venir
+    // Alertes stock bas
+    if (lowStock && lowStock.length > 0) {
+      const productNames = lowStock.slice(0, 3).map((item) => item.productName).join(", ");
+      newMessages.push({
+        id: "stock-alert",
+        text: `📦 Attention ${firstName} ! Tu as ${lowStock.length} produit${lowStock.length > 1 ? "s" : ""} en stock bas : ${productNames}${
+          lowStock.length > 3 ? "..." : ""
+        }. Tu dois commander bientôt !`,
+        type: "alert",
+        icon: "⚠️",
+        timestamp: new Date(),
+      });
+    }
+
+    // Alertes événements à venir
     if (upcomingEvents && upcomingEvents.length > 0) {
-      const nextEvent = upcomingEvents[0];
-      const daysUntil = Math.ceil(
-        (new Date(nextEvent.startDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
-      if (daysUntil <= 7) {
-        newMessages.push({
-          id: "event-alert",
-          text: `🎉 ${firstName}, ${nextEvent.name} arrive dans ${daysUntil} jour${daysUntil > 1 ? "s" : ""} ! Prépare ton stock.`,
-          type: "advice",
-          icon: "📅",
-          timestamp: new Date(),
-        });
-      }
+      // Prendre les 2 événements les plus proches
+      upcomingEvents.slice(0, 2).forEach((event) => {
+        const eventDate = new Date(event.date);
+        const today = new Date();
+        const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysUntil <= 7 && daysUntil > 0) {
+          let urgencyText = "";
+          if (daysUntil === 1) urgencyText = "demain";
+          else if (daysUntil <= 3) urgencyText = `dans ${daysUntil} jours`;
+          else urgencyText = `dans ${daysUntil} jours`;
+
+          // Construire le message avec recommandations de stock
+          let message = `${event.iconEmoji || "📅"} ${firstName}, ${event.name} commence ${urgencyText} !`;
+          
+          // Ajouter les recommandations de stock (top 3-5 produits)
+          if (event.recommendations && event.recommendations.length > 0) {
+            const topProducts = event.recommendations
+              .slice(0, 5)
+              .map((r: any) => `${r.productName} (+${r.demandIncrease}%)`)
+              .join(", ");
+            message += ` Commande : ${topProducts}.`;
+          } else {
+            message += " Fais ton stock maintenant pour ne rien manquer !";
+          }
+
+          newMessages.push({
+            id: `event-${event.id}`,
+            text: message,
+            type: "alert",
+            icon: event.iconEmoji || "📅",
+            timestamp: new Date(),
+          });
+        }
+      });
+    }
+
+    // Message basé sur le jour de la semaine
+    const dayOfWeek = new Date().getDay();
+    if (dayOfWeek === 1 && hour < 12) {
+      // Lundi matin
+      newMessages.push({
+        id: "day-advice",
+        text: `📅 C'est lundi ${firstName} ! Début de semaine. Vérifie ton stock et prépare-toi pour une bonne semaine de ventes !`,
+        type: "advice",
+        icon: "💡",
+        timestamp: new Date(),
+      });
+    } else if (dayOfWeek === 5 && hour > 15) {
+      // Vendredi après-midi
+      newMessages.push({
+        id: "day-advice",
+        text: `📅 C'est vendredi ${firstName} ! Bientôt le week-end. As-tu assez de stock pour samedi ?`,
+        type: "advice",
+        icon: "💡",
+        timestamp: new Date(),
+      });
+    }
+
+    // Conseil de fin de journée
+    if (hour >= 17 && hour < 19) {
+      newMessages.push({
+        id: "end-day",
+        text: `🌆 ${firstName}, il est ${hour}h. Bientôt la fermeture. N'oublie pas de compter ta caisse et de ranger tes marchandises en sécurité !`,
+        type: "advice",
+        icon: "✅",
+        timestamp: new Date(),
+      });
+    }
+
+    // Message de motivation
+    if (hour >= 8 && hour < 10 && messages.length === 0) {
+      newMessages.push({
+        id: "motivation",
+        text: `💪 ${firstName}, l'ANSUT croit en toi ! Chaque vente compte. Tu fais un excellent travail pour développer ton commerce !`,
+        type: "advice",
+        icon: "🌟",
+        timestamp: new Date(),
+      });
     }
 
     setMessages(newMessages);
-  }, [merchant, user, todayStats, lowStock, weather, marketStats, upcomingEvents]);
+  }, [merchant, user, todayStats, weather, lowStock, marketStats, upcomingEvents]);
 
   // Rotation automatique des messages
   useEffect(() => {
@@ -158,40 +203,10 @@ function CopilotAssistantContent() {
 
     const interval = setInterval(() => {
       setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 10000);
+    }, 10000); // Changer de message toutes les 10 secondes
 
     return () => clearInterval(interval);
   }, [messages.length]);
-
-  // Envoyer un message
-  const handleSendMessage = async () => {
-    if (!chatInput.trim() || isLoadingChat) return;
-
-    const userMessage = chatInput.trim();
-    setChatInput("");
-    setIsLoadingChat(true);
-
-    // Ajouter le message utilisateur
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        role: "user",
-        content: userMessage,
-        timestamp: new Date(),
-      },
-    ]);
-
-    // Envoyer au backend
-    await sendChatMessage.mutateAsync({
-      message: userMessage,
-      conversationHistory: chatMessages,
-    });
-  };
-
-  // Scroll automatique vers le dernier message
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
 
   // Synthèse vocale
   const speakMessage = (text: string) => {
@@ -350,78 +365,18 @@ function CopilotAssistantContent() {
               </div>
             )}
 
-            {/* Historique du chat */}
-            {chatMessages.length > 0 && (
-              <div className="mt-4 space-y-3 max-h-64 overflow-y-auto border-t pt-4">
-                {chatMessages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      msg.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                        msg.role === "user"
-                          ? "bg-orange-500 text-white"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      <p className="text-sm">{msg.content}</p>
-                      <span className="text-xs opacity-70 mt-1 block">
-                        {msg.timestamp.toLocaleTimeString("fr-FR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
-            )}
+            {/* Widget Météo - Temporairement désactivé pour débogage */}
+            {/* <div className="mt-4">
+              <WeatherWidget enabled={!!merchant} />
+            </div> */}
 
-            {/* Champ de saisie du chat */}
-            <div className="mt-4 border-t pt-4">
-              <div className="flex items-center gap-2">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  placeholder="Pose ta question à SUTA..."
-                  disabled={isLoadingChat}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!chatInput.trim() || isLoadingChat}
-                  className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isLoadingChat ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                💡 SUTA est là pour t'aider 24h/24
-              </p>
+            {/* Footer */}
+            <div className="text-center text-xs text-gray-500 pt-2 border-t mt-4">
+              💡 SUTA est là pour t'aider 24h/24
             </div>
           </div>
         </Card>
       )}
     </>
   );
-}
-
-export function CopilotAssistant() {
-  return <CopilotAssistantContent />;
 }

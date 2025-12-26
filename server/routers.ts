@@ -13,6 +13,7 @@ import { certificatesRouter } from "./routers/certificates";
 import { adminRouter } from "./routers/admin";
 import { paymentsRouter } from "./routers/payments";
 import { copilotRouter } from "./routers/copilot";
+import { copilotChatRouter } from "./routers/copilot-chat";
 import { scoresRouter } from "./routers/scores";
 import { savingsRouter } from './routers/savings';
 import { eventsRouter } from './routers/events';
@@ -32,6 +33,7 @@ export const appRouter = router({
   admin: adminRouter,
   payments: paymentsRouter,
   copilot: copilotRouter,
+  copilotChat: copilotChatRouter,
   scores: scoresRouter,
   savings: savingsRouter,
   events: eventsRouter,

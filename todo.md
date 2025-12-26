@@ -1746,4 +1746,40 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Afficher les messages contextuels dans CopilotAssistant
 - [x] Ajouter animations pour nouveaux messages
 - [x] Tester différents scénarios (message nuit testé avec succès)
+- [x] Sauvegarder le checkpoint
+
+
+## 💬 CHAT INTERACTIF COPILOTE SUTA
+
+### Analyse
+- [x] Analyser l'architecture actuelle du CopilotAssistant
+- [x] Identifier l'emplacement pour le chat (après les messages contextuels)
+- [x] Planifier l'intégration avec l'API LLM existante
+
+### Backend - API Chat LLM
+- [x] Créer procédure tRPC copilot.chat pour gérer les conversations
+- [x] Intégrer invokeLLM avec contexte marchand (nom, stock, ventes, score SUTA)
+- [x] Créer système de prompts pour SUTA (personnalité, connaissances métier)
+- [x] Gérer l'historique des conversations (en mémoire)
+- [ ] Ajouter streaming pour réponses en temps réel (optionnel)
+
+### Frontend - Interface Chat
+- [x] Ajouter champ de saisie (input) dans le panel CopilotAssistant
+- [x] Afficher les messages utilisateur et SUTA dans la conversation
+- [x] Implémenter l'envoi de messages avec Enter ou bouton
+- [x] Afficher indicateur de chargement pendant la réponse LLM
+- [x] Gérer le scroll automatique vers le dernier message
+- [x] Ajouter bouton "Effacer conversation" (optionnel, historique en mémoire)
+
+### Personnalisation SUTA
+- [x] Définir la personnalité de SUTA (amical, professionnel, encourageant)
+- [x] Ajouter connaissances sur ANSUT, IFN, micro-crédit, score SUTA
+- [x] Contextualiser avec données du marchand (stock, ventes, météo)
+- [x] Ajouter procédure getSuggestedQuestions (backend prêt)
+
+### Tests
+- [x] Tester questions simples ("Bonjour", "Comment vas-tu ?") - Réponse parfaite
+- [x] Tester questions métier ("Comment améliorer mon score SUTA ?") - Réponse experte
+- [x] Tester questions sur le score SUTA - Conseils concrets donnés
+- [x] Vérifier que les réponses sont personnalisées et contextuelles - Utilise le prénom
 - [ ] Sauvegarder le checkpoint
