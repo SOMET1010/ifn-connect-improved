@@ -2062,3 +2062,14 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [ ] Tester le rendu visuel
 - [ ] Tester l'export PDF
 - [ ] Sauvegarder le checkpoint 56
+
+
+---
+
+## 🐛 CORRECTION BUG SELECT.ITEM
+
+- [x] Corriger les Select.Item avec value="" dans MerchantsAdmin.tsx
+- [x] Remplacer par value="all" ou valeur non-vide
+- [x] Mettre à jour les handlers pour gérer "all"
+- [x] Tester la page admin
+- [x] Sauvegarder le checkpoint 57

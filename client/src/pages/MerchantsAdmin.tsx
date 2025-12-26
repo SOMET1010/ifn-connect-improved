@@ -357,15 +357,15 @@ export default function MerchantsAdmin() {
           </div>
 
           {/* Coopérative */}
-          <Select value={cooperative} onValueChange={(value) => {
-            setCooperative(value);
+          <Select value={cooperative || 'all'} onValueChange={(value) => {
+            setCooperative(value === 'all' ? '' : value);
             setPage(1);
           }}>
             <SelectTrigger>
               <SelectValue placeholder="Toutes les coopératives" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Toutes les coopératives</SelectItem>
+              <SelectItem value="all">Toutes les coopératives</SelectItem>
               {cooperatives?.map((coop) => (
                 <SelectItem key={coop.market} value={coop.market || ''}>
                   {coop.market} ({coop.count})
@@ -375,30 +375,30 @@ export default function MerchantsAdmin() {
           </Select>
 
           {/* Téléphone */}
-          <Select value={hasPhone === undefined ? '' : hasPhone.toString()} onValueChange={(value) => {
-            setHasPhone(value === '' ? undefined : value === 'true');
+          <Select value={hasPhone === undefined ? 'all' : hasPhone.toString()} onValueChange={(value) => {
+            setHasPhone(value === 'all' ? undefined : value === 'true');
             setPage(1);
           }}>
             <SelectTrigger>
               <SelectValue placeholder="Téléphone" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous</SelectItem>
+              <SelectItem value="all">Tous</SelectItem>
               <SelectItem value="true">Avec téléphone</SelectItem>
               <SelectItem value="false">Sans téléphone</SelectItem>
             </SelectContent>
           </Select>
 
           {/* Vérification */}
-          <Select value={isVerified === undefined ? '' : isVerified.toString()} onValueChange={(value) => {
-            setIsVerified(value === '' ? undefined : value === 'true');
+          <Select value={isVerified === undefined ? 'all' : isVerified.toString()} onValueChange={(value) => {
+            setIsVerified(value === 'all' ? undefined : value === 'true');
             setPage(1);
           }}>
             <SelectTrigger>
               <SelectValue placeholder="Vérification" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous</SelectItem>
+              <SelectItem value="all">Tous</SelectItem>
               <SelectItem value="true">Vérifiés</SelectItem>
               <SelectItem value="false">Non vérifiés</SelectItem>
             </SelectContent>
