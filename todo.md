@@ -2322,3 +2322,24 @@ Afficher automatiquement les alertes d'expiration de couverture sociale (CNPS/CM
 - [x] Récupérer les dates d'expiration depuis le backend
 - [x] Tester l'affichage avec des dates d'expiration proches
 - [x] Vérifier le bouton "Renouveler maintenant" redirige vers /merchant/social-protection
+
+
+## ✅ Notifications Email Automatiques - Expiration Couverture Sociale
+
+**Statut** : ✅ TERMINÉ (26 déc 2024)
+**Priorité** : P1 (ESSENTIEL)
+**Effort** : 3 heures
+
+### Objectif
+Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNPS/CMU/RSTI) expire dans 30, 7 ou 1 jour(s) pour maximiser le taux de renouvellement.
+
+### Tâches
+- [x] Installer le package resend (remplacement de SendGrid)
+- [x] Créer le service d'envoi d'emails (server/_core/email.ts)
+- [x] Créer les templates HTML d'emails (30j, 7j, 1j)
+- [x] Implémenter la fonction de détection des expirations
+- [x] Créer le cron job quotidien (8h00 heure locale)
+- [x] Ajouter les variables d'environnement RESEND_API_KEY et RESEND_FROM_EMAIL
+- [x] Tester l'envoi d'emails avec des données de test (4/6 tests passés)
+- [x] Documenter la configuration Resend
+- [x] Ajouter des logs pour le suivi des envois
