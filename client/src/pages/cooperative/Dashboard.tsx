@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   Building2,
   ShoppingBag,
+  TrendingDown,
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -38,12 +39,18 @@ export default function CooperativeDashboard() {
         <p className="text-gray-600">Vue d'ensemble et consolidation des besoins des membres</p>
       </div>
 
-      {/* Bouton d'action rapide */}
-      <div className="mb-6">
+      {/* Boutons d'action rapide */}
+      <div className="mb-6 flex gap-4 flex-wrap">
         <Link href="/cooperative/grouped-orders">
-          <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
+          <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
             <ShoppingBag className="h-5 w-5 mr-2" />
             Commandes groupées
+          </Button>
+        </Link>
+        <Link href="/cooperative/savings-dashboard">
+          <Button size="lg" variant="outline" className="border-2 border-green-600 text-green-600 hover:bg-green-50">
+            <TrendingDown className="h-5 w-5 mr-2" />
+            Mes économies
           </Button>
         </Link>
       </div>

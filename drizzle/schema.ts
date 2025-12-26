@@ -922,9 +922,10 @@ export const groupedOrders = mysqlTable("grouped_orders", {
   totalQuantity: int("totalQuantity").notNull(),
   unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }),
   totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }),
-  status: mysqlEnum("status", ["draft", "pending", "confirmed", "delivered", "cancelled"]).notNull().default("draft"),
+  status: mysqlEnum("status", ["draft", "pending", "confirmed", "delivered", "cancelled", "closed"]).notNull().default("draft"),
   createdBy: int("createdBy").notNull().references(() => users.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  closingDate: timestamp("closingDate"), // Date limite de participation
   confirmedAt: timestamp("confirmedAt"),
   deliveredAt: timestamp("deliveredAt"),
 }, (table) => ({

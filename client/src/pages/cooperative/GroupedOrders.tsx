@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PriceTiersDisplay } from '@/components/PriceTiersDisplay';
+import { CountdownDisplay } from '@/components/CountdownTimer';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export default function GroupedOrders() {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [productName, setProductName] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
+  const [closingDate, setClosingDate] = useState('');
   const [joinQuantity, setJoinQuantity] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [orderToJoin, setOrderToJoin] = useState<number | null>(null);
@@ -77,6 +79,7 @@ export default function GroupedOrders() {
       setIsCreateDialogOpen(false);
       setProductName('');
       setUnitPrice('');
+      setClosingDate('');
       setPriceTiers([]);
       refetch();
       alert('Commande groupée créée avec succès !');
@@ -174,6 +177,18 @@ export default function GroupedOrders() {
                     Prix de base avant réductions
                   </p>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="closingDate">Date limite de participation (optionnel)</Label>
+                  <Input
+                    id="closingDate"
+                    type="datetime-local"
+                    value={closingDate}
+                    onChange={(e) => setClosingDate(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Crée l'urgence et ferme automatiquement la commande
+                  </p>
+                </div>
 
                 {/* Section paliers de prix */}
                 <div className="space-y-3 pt-4 border-t">
@@ -267,6 +282,7 @@ export default function GroupedOrders() {
                       cooperativeId,
                       productName,
                       unitPrice: unitPrice ? parseFloat(unitPrice) : undefined,
+                      closingDate: closingDate ? new Date(closingDate).toISOString() : undefined,
                     });
                   }}
                 >
@@ -314,7 +330,12 @@ export default function GroupedOrders() {
                       })}
                     </CardDescription>
                   </div>
-                  {getStatusBadge(order.status)}
+                  <div className="flex flex-col gap-2 items-end">
+                    {getStatusBadge(order.status)}
+                    {order.closingDate && order.status === 'draft' && (
+                      <CountdownDisplay closingDate={new Date(order.closingDate)} />
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -381,6 +402,7 @@ export default function GroupedOrders() {
                       tiers={priceTiersData}
                       currentQuantity={order.totalQuantity}
                       basePrice={order.unitPrice ? parseFloat(order.unitPrice) : 0}
+                      productName={order.productName}
                       activeTier={currentPriceData?.activeTier}
                       nextTier={currentPriceData?.nextTier}
                     />

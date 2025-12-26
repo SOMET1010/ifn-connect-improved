@@ -19,6 +19,7 @@ export const groupedOrdersRouter = router({
         cooperativeId: z.number(),
         productName: z.string(),
         unitPrice: z.number().optional(),
+        closingDate: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -48,6 +49,7 @@ export const groupedOrdersRouter = router({
       const [order] = await db.insert(groupedOrders).values({
         cooperativeId: input.cooperativeId,
         productName: input.productName,
+        closingDate: input.closingDate ? new Date(input.closingDate) : null,
         totalQuantity: 0,
         unitPrice: input.unitPrice?.toString(),
         totalAmount: '0',
@@ -120,6 +122,20 @@ export const groupedOrdersRouter = router({
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'Cette commande n\'est plus ouverte aux participants',
+        });
+      }
+
+      // Vérifier si la date limite est dépassée
+      if (order.closingDate && new Date(order.closingDate) < new Date()) {
+        // Fermer automatiquement la commande
+        await db
+          .update(groupedOrders)
+          .set({ status: 'closed' })
+          .where(eq(groupedOrders.id, input.groupedOrderId));
+
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'La date limite de participation est dépassée',
         });
       }
 
@@ -295,6 +311,7 @@ export const groupedOrdersRouter = router({
           createdBy: groupedOrders.createdBy,
           creatorName: users.name,
           createdAt: groupedOrders.createdAt,
+          closingDate: groupedOrders.closingDate,
           confirmedAt: groupedOrders.confirmedAt,
           deliveredAt: groupedOrders.deliveredAt,
         })
@@ -499,6 +516,95 @@ export const groupedOrdersRouter = router({
           quantityNeeded: nextTier.minQuantity - order.totalQuantity,
         } : null,
         totalQuantity: order.totalQuantity,
+      };
+    }),
+
+  /**
+   * Récupérer les économies réalisées par un membre
+   */
+  getMemberSavings: protectedProcedure
+    .input(z.object({ merchantId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer toutes les participations du membre
+      const participations = await db
+        .select({
+          groupedOrderId: groupedOrderParticipants.groupedOrderId,
+          quantity: groupedOrderParticipants.quantity,
+          productName: groupedOrders.productName,
+          unitPrice: groupedOrders.unitPrice,
+          totalQuantity: groupedOrders.totalQuantity,
+          joinedAt: groupedOrderParticipants.joinedAt,
+        })
+        .from(groupedOrderParticipants)
+        .leftJoin(groupedOrders, eq(groupedOrderParticipants.groupedOrderId, groupedOrders.id))
+        .where(eq(groupedOrderParticipants.merchantId, input.merchantId));
+
+      let totalSavings = 0;
+      const productSavings: Record<string, number> = {};
+      const monthlySavingsMap: Record<string, number> = {};
+
+      // Calculer les économies pour chaque participation
+      for (const participation of participations) {
+        // Récupérer les paliers de cette commande
+        const tiers = await db
+          .select()
+          .from(priceTiers)
+          .where(eq(priceTiers.groupedOrderId, participation.groupedOrderId))
+          .orderBy(desc(priceTiers.minQuantity));
+
+        // Trouver le palier actif
+        let activeTier = null;
+        for (const tier of tiers) {
+          if (participation.totalQuantity && participation.totalQuantity >= tier.minQuantity) {
+            activeTier = tier;
+            break;
+          }
+        }
+
+        if (activeTier && participation.unitPrice && participation.productName) {
+          const basePrice = parseFloat(participation.unitPrice);
+          const tierPrice = parseFloat(activeTier.pricePerUnit);
+          const savings = (basePrice - tierPrice) * participation.quantity;
+
+          totalSavings += savings;
+
+          // Accumuler par produit
+          if (!productSavings[participation.productName]) {
+            productSavings[participation.productName] = 0;
+          }
+          productSavings[participation.productName] += savings;
+
+          // Accumuler par mois
+          const month = new Date(participation.joinedAt).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'short',
+          });
+          if (!monthlySavingsMap[month]) {
+            monthlySavingsMap[month] = 0;
+          }
+          monthlySavingsMap[month] += savings;
+        }
+      }
+
+      // Transformer en tableaux pour les graphiques
+      const topProducts = Object.entries(productSavings)
+        .map(([productName, savings]) => ({ productName, savings: Math.round(savings) }))
+        .sort((a, b) => b.savings - a.savings)
+        .slice(0, 5);
+
+      const monthlySavings = Object.entries(monthlySavingsMap)
+        .map(([month, savings]) => ({ month, savings: Math.round(savings) }))
+        .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+
+      return {
+        totalSavings: Math.round(totalSavings),
+        totalOrders: participations.length,
+        averageSavings: participations.length > 0 ? Math.round(totalSavings / participations.length) : 0,
+        topProducts,
+        monthlySavings,
       };
     }),
 });

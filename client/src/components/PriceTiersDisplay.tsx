@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingDown, Target, Trophy, ArrowRight } from 'lucide-react';
+import { ShareButton } from './ShareButton';
 
 interface PriceTier {
   minQuantity: number;
@@ -18,6 +19,7 @@ interface PriceTiersDisplayProps {
   }>;
   currentQuantity: number;
   basePrice: number;
+  productName?: string;
   activeTier?: PriceTier | null;
   nextTier?: (PriceTier & { quantityNeeded: number }) | null;
 }
@@ -26,6 +28,7 @@ export function PriceTiersDisplay({
   tiers,
   currentQuantity,
   basePrice,
+  productName = 'ce produit',
   activeTier,
   nextTier,
 }: PriceTiersDisplayProps) {
@@ -193,6 +196,16 @@ export function PriceTiersDisplay({
           </div>
         </CardContent>
       </Card>
+
+      {/* Bouton de partage si un palier est actif */}
+      {activeTier && (
+        <div className="flex justify-center pt-2">
+          <ShareButton
+            title="🎉 Palier atteint dans notre commande groupée !"
+            text={`🎉 Super nouvelle ! Nous avons atteint un nouveau palier de prix pour ${productName} !\n\n💰 Prix actuel : ${currentPrice.toLocaleString('fr-FR')} FCFA\n📉 Économie : ${savings.toFixed(1)}% (${totalSavings.toLocaleString('fr-FR')} FCFA)\n👥 Quantité totale : ${currentQuantity} unités\n\nRejoignez-nous pour profiter de ce prix avantageux !`}
+          />
+        </div>
+      )}
     </div>
   );
 }

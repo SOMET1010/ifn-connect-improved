@@ -41,6 +41,7 @@ import Notifications from "./pages/Notifications";
 import OrderTracking from "./pages/OrderTracking";
 import CooperativeDashboard from "./pages/cooperative/Dashboard";
 import GroupedOrders from "./pages/cooperative/GroupedOrders";
+import SavingsDashboard from "./pages/cooperative/SavingsDashboard";
 
 function Router() {
   return (
@@ -79,6 +80,7 @@ function Router() {
       <Route path={"/cooperative"} component={CooperativeDashboard} />
       <Route path={"/cooperative/dashboard"} component={CooperativeDashboard} />
       <Route path={"/cooperative/grouped-orders"} component={GroupedOrders} />
+      <Route path={"/cooperative/savings-dashboard"} component={SavingsDashboard} />
       <Route path="/cooperative/journey" component={CooperativeJourney} />
       
       {/* Learning Routes */}

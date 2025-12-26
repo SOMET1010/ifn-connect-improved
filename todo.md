@@ -2740,3 +2740,67 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Calculer les économies (pourcentage et montant)
 - [x] Créer des notifications personnalisées avec métadonnées complètes
 - [x] Exclure l'utilisateur qui vient de rejoindre de la notification
+
+
+## 🚀 SPRINT 4 - FONCTIONNALITÉS AVANCÉES
+
+### 1️⃣ Date limite avec compte à rebours
+- [ ] Ajouter le champ closingDate (timestamp) au schéma grouped_orders
+- [ ] Appliquer la migration de schéma
+- [ ] Ajouter le champ dans le formulaire de création de commande
+- [ ] Créer un composant CountdownTimer pour afficher le temps restant
+- [ ] Afficher le compte à rebours sur chaque commande groupée active
+- [ ] Implémenter la fermeture automatique (status = 'closed') à l'expiration
+- [ ] Empêcher les nouvelles participations après la date limite
+- [ ] Ajouter un badge "Expire dans X jours/heures" avec code couleur (vert > 7j, orange 3-7j, rouge < 3j)
+
+### 2️⃣ Tableau de bord des économies
+- [ ] Créer la page /cooperative/savings-dashboard
+- [ ] Ajouter la route dans App.tsx
+- [ ] Créer une procédure tRPC getMemberSavings(merchantId)
+- [ ] Calculer les économies totales par membre (somme des différences prix base - prix palier)
+- [ ] Créer un graphique des économies mensuelles (recharts)
+- [ ] Afficher le top 5 des produits les plus économisés
+- [ ] Afficher les statistiques : total économisé, nombre de commandes, économie moyenne
+- [ ] Ajouter un lien vers le dashboard dans le menu coopérative
+
+### 3️⃣ Partage social des paliers
+- [ ] Créer un composant ShareButton avec icônes WhatsApp, Facebook, Twitter
+- [ ] Générer un message de partage personnalisé avec les économies
+- [ ] Ajouter le bouton de partage dans la notification de palier atteint
+- [ ] Ajouter le bouton de partage sur la page de détail de commande
+- [ ] Utiliser l'API Web Share si disponible, sinon liens directs
+- [ ] Inclure un lien de redirection vers la commande groupée
+
+## ✅ DATE LIMITE - TÂCHES TERMINÉES
+
+- [x] Ajouter le champ closingDate (timestamp) au schéma grouped_orders
+- [x] Ajouter le status 'closed' au schéma
+- [x] Appliquer la migration de schéma (0021_cynical_deathbird.sql)
+- [x] Ajouter le champ dans le formulaire de création de commande
+- [x] Créer le composant CountdownTimer pour afficher le temps restant
+- [x] Afficher le compte à rebours sur chaque commande groupée active
+- [x] Implémenter la fermeture automatique (status = 'closed') à l'expiration
+- [x] Empêcher les nouvelles participations après la date limite
+- [x] Badge avec code couleur (vert > 7j, orange 3-7j, rouge < 3j)
+
+## ✅ DASHBOARD DES ÉCONOMIES - TÂCHES TERMINÉES
+
+- [x] Créer la page /cooperative/savings-dashboard
+- [x] Ajouter la route dans App.tsx
+- [x] Créer la procédure tRPC getMemberSavings(merchantId)
+- [x] Calculer les économies totales par membre
+- [x] Créer un graphique des économies mensuelles (recharts LineChart)
+- [x] Afficher le top 5 des produits les plus économisés (recharts BarChart)
+- [x] Afficher les statistiques : total économisé, nombre de commandes, économie moyenne
+- [x] Ajouter un lien vers le dashboard dans le menu coopérative
+- [x] Installer recharts pour les graphiques
+
+## ✅ PARTAGE SOCIAL - TÂCHES TERMINÉES
+
+- [x] Créer le composant ShareButton avec icônes WhatsApp, Facebook, Twitter
+- [x] Générer un message de partage personnalisé avec les économies
+- [x] Ajouter le bouton de partage dans PriceTiersDisplay (quand palier actif)
+- [x] Utiliser l'API Web Share si disponible, sinon liens directs
+- [x] Inclure les détails du palier (prix, économies, quantité)
+- [x] Ajouter l'option "Copier le lien" dans le menu
