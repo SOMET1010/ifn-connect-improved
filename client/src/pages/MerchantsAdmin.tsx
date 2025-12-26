@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import MerchantEditModal from '@/components/MerchantEditModal';
+import MerchantIdentificationCard from '@/components/MerchantIdentificationCard';
+import MerchantPhysicalCard from '@/components/MerchantPhysicalCard';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import {
   Select,
@@ -48,6 +51,11 @@ export default function MerchantsAdmin() {
 
   // États pour la sélection multiple
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  
+  // États pour les modals de documents
+  const [ficheModalOpen, setFicheModalOpen] = useState(false);
+  const [carteModalOpen, setCarteModalOpen] = useState(false);
+  const [selectedMerchantForDoc, setSelectedMerchantForDoc] = useState<any>(null);
 
   // États pour le modal d'édition
   const [editingMerchantId, setEditingMerchantId] = useState<number | null>(null);
@@ -484,13 +492,42 @@ export default function MerchantsAdmin() {
                       {new Date(merchant.createdAt).toLocaleDateString('fr-FR')}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingMerchantId(merchant.id)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedMerchantForDoc(merchant);
+                            setFicheModalOpen(true);
+                          }}
+                          title="Fiche d'identification"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedMerchantForDoc(merchant);
+                            setCarteModalOpen(true);
+                          }}
+                          title="Carte physique"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                          </svg>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingMerchantId(merchant.id)}
+                          title="Modifier"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -596,6 +633,30 @@ export default function MerchantsAdmin() {
           }}
         />
       )}
+
+      {/* Modal Fiche d'identification */}
+      <Dialog open={ficheModalOpen} onOpenChange={setFicheModalOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Fiche d'Identification PNAVIM-CI</DialogTitle>
+          </DialogHeader>
+          {selectedMerchantForDoc && (
+            <MerchantIdentificationCard merchant={selectedMerchantForDoc} />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Carte physique */}
+      <Dialog open={carteModalOpen} onOpenChange={setCarteModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Carte Physique PNAVIM-CI</DialogTitle>
+          </DialogHeader>
+          {selectedMerchantForDoc && (
+            <MerchantPhysicalCard merchant={selectedMerchantForDoc} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

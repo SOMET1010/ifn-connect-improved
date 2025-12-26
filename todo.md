@@ -2031,3 +2031,34 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [ ] Tester l'édition complète d'un marchand
 - [ ] Tester la génération de fiche
 - [ ] Sauvegarder le checkpoint 55 final
+
+
+---
+
+## 🎴 GÉNÉRATION FICHES & CARTES PNAVIM-CI
+
+### Phase 1 : Dépendances
+- [ ] Installer qrcode.react pour les QR Codes
+- [ ] Installer html2canvas pour la capture HTML
+- [ ] Installer jspdf pour l'export PDF
+
+### Phase 2 : Fiche d'identification (A4)
+- [ ] Créer MerchantIdentificationCard.tsx
+- [ ] Header vert avec logo + badge catégorie
+- [ ] Section identité avec photo
+- [ ] Section activité commerciale
+- [ ] Section situation sociale
+- [ ] Section identifiants + QR Code + signature
+- [ ] Bouton export PDF
+
+### Phase 3 : Carte physique
+- [ ] Créer MerchantPhysicalCard.tsx
+- [ ] Recto : Nom, marché, catégorie, identifiants, QR Code
+- [ ] Verso : Informations institutionnelles + contact
+- [ ] Format carte bancaire (85.6mm x 53.98mm)
+
+### Phase 4 : Intégration
+- [ ] Ajouter les boutons dans MerchantsAdmin
+- [ ] Tester le rendu visuel
+- [ ] Tester l'export PDF
+- [ ] Sauvegarder le checkpoint 56
