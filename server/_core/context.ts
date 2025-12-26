@@ -13,11 +13,25 @@ export async function createContext(
 ): Promise<TrpcContext> {
   let user: User | null = null;
 
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    // Authentication is optional for public procedures.
-    user = null;
+  // Mode test E2E : bypass authentification avec un utilisateur mock marchand
+  if (process.env.E2E_TEST_MODE === 'true') {
+    user = {
+      id: 1,
+      openId: 'test-merchant',
+      name: 'Test Merchant',
+      email: 'merchant@test.com',
+      phone: '0123456789',
+      role: 'merchant' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as User;
+  } else {
+    try {
+      user = await sdk.authenticateRequest(opts.req);
+    } catch (error) {
+      // Authentication is optional for public procedures.
+      user = null;
+    }
   }
 
   return {

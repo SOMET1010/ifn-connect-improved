@@ -16,7 +16,20 @@ import { TRPCError } from "@trpc/server";
  * - Webhook de confirmation
  * - Rembourser un paiement
  * - Historique des transactions
+ * 
+ * MODE SIMULATION :
+ * Par défaut, le mode simulation est activé (SIMULATION_MODE=true)
+ * - Numéro se terminant par 00 → SUCCESS immédiat
+ * - Numéro se terminant par 99 → FAILED (solde insuffisant)
+ * - Numéro se terminant par 98 → FAILED (numéro invalide)
+ * - Autres numéros → SUCCESS après 2 secondes
+ * 
+ * Pour activer les vraies transactions :
+ * - Définir SIMULATION_MODE=false dans .env
+ * - Configurer CHIPDEALS_API_KEY dans .env
  */
+
+const SIMULATION_MODE = process.env.SIMULATION_MODE !== "false";
 
 export const paymentsRouter = router({
   /**
@@ -82,32 +95,92 @@ export const paymentsRouter = router({
         })
         .$returningId();
 
-      // 3. TODO: Appeler l'API Chipdeals pour initier le paiement
-      // const chipdealsResponse = await fetch("https://api.chipdeals.me/v1/payments", {
-      //   method: "POST",
-      //   headers: {
-      //     "Authorization": `Bearer ${process.env.CHIPDEALS_API_KEY}`,
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     amount: order.totalAmount,
-      //     currency: "XOF",
-      //     provider: input.provider,
-      //     phone: input.phoneNumber,
-      //     reference,
-      //     callback_url: `${process.env.APP_URL}/api/trpc/payments.paymentWebhook`,
-      //   }),
-      // });
-      //
-      // const chipdealsData = await chipdealsResponse.json();
-      //
-      // await db
-      //   .update(transactions)
-      //   .set({
-      //     transactionId: chipdealsData.transaction_id,
-      //     webhookData: JSON.stringify(chipdealsData),
-      //   })
-      //   .where(eq(transactions.id, transaction.id));
+      // 3. MODE SIMULATION ou appel API Chipdeals
+      if (SIMULATION_MODE) {
+        console.log(`[SIMULATION] Paiement initié: ${reference}`);
+        
+        // Simuler un délai de traitement (2 secondes)
+        setTimeout(async () => {
+          const lastTwoDigits = input.phoneNumber.slice(-2);
+          let simulatedStatus: "success" | "failed" = "success";
+          let errorMessage: string | null = null;
+
+          if (lastTwoDigits === "99") {
+            simulatedStatus = "failed";
+            errorMessage = "Solde insuffisant (simulation)";
+          } else if (lastTwoDigits === "98") {
+            simulatedStatus = "failed";
+            errorMessage = "Numéro invalide ou inactif (simulation)";
+          }
+
+          // Mettre à jour le statut après simulation
+          const dbUpdate = await getDb();
+          if (dbUpdate) {
+            await dbUpdate
+              .update(transactions)
+              .set({
+                status: simulatedStatus,
+                transactionId: `SIM-${Date.now()}`,
+                errorMessage,
+                webhookData: JSON.stringify({
+                  simulation: true,
+                  timestamp: new Date().toISOString(),
+                }),
+              })
+              .where(eq(transactions.id, transaction.id));
+
+            // Si succès, mettre à jour la commande
+            if (simulatedStatus === "success") {
+              await dbUpdate
+                .update(marketplaceOrders)
+                .set({ status: "paid" })
+                .where(eq(marketplaceOrders.id, order.id));
+            }
+          }
+        }, 2000);
+
+        return {
+          transactionId: transaction.id,
+          reference,
+          status: "pending",
+          message: "Paiement simulé initié. Vérifiez le statut dans 2 secondes.",
+          simulation: true,
+        };
+      }
+
+      // Mode production avec vraie API Chipdeals
+      if (!process.env.CHIPDEALS_API_KEY) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Clé API Chipdeals non configurée. Contactez l'administrateur.",
+        });
+      }
+
+      const chipdealsResponse = await fetch("https://api.chipdeals.me/v1/payments", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.CHIPDEALS_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: order.totalAmount,
+          currency: "XOF",
+          provider: input.provider,
+          phone: input.phoneNumber,
+          reference,
+          callback_url: `${process.env.APP_URL}/api/trpc/payments.paymentWebhook`,
+        }),
+      });
+
+      const chipdealsData = await chipdealsResponse.json();
+
+      await db
+        .update(transactions)
+        .set({
+          transactionId: chipdealsData.transaction_id,
+          webhookData: JSON.stringify(chipdealsData),
+        })
+        .where(eq(transactions.id, transaction.id));
 
       return {
         transactionId: transaction.id,
