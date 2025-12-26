@@ -677,5 +677,147 @@ export const adminRouter = router({
         message: `SMS envoyé à ${validPhones.length}/${input.merchantIds.length} marchands`,
       };
     }),
+
+  /**
+   * Créer un nouveau marchand (CREATE)
+   */
+  createMerchant: adminProcedure
+    .input(z.object({
+      name: z.string().min(1, 'Le nom est obligatoire'),
+      cooperative: z.string().optional(),
+      phone: z.string().optional(),
+      email: z.string().email().optional().or(z.literal('')),
+      category: z.enum(['A', 'B', 'C']).optional(),
+      isVerified: z.boolean().default(false),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Générer un merchantNumber unique
+      const prefix = input.cooperative || 'PNAVIM';
+      const timestamp = Date.now().toString().slice(-6);
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      const merchantNumber = `${prefix}-${timestamp}-${random}`;
+
+      // Créer un utilisateur associé
+      const openId = `merchant-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      
+      await db
+        .insert(users)
+        .values({
+          openId,
+          name: input.name,
+          role: 'merchant',
+        });
+      
+      // Récupérer l'utilisateur créé
+      const [newUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.openId, openId))
+        .limit(1);
+
+      // Créer le marchand
+      await db
+        .insert(merchants)
+        .values({
+          userId: newUser.id,
+          merchantNumber,
+          businessName: input.name,
+          isVerified: input.isVerified,
+        });
+
+      // Récupérer le marchand créé
+      const [newMerchant] = await db
+        .select()
+        .from(merchants)
+        .where(eq(merchants.merchantNumber, merchantNumber))
+        .limit(1);
+
+      return newMerchant;
+    }),
+
+  /**
+   * Supprimer un marchand (DELETE individuel)
+   */
+  deleteMerchant: adminProcedure
+    .input(z.object({
+      merchantId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer le marchand pour obtenir userId
+      const merchant = await db
+        .select()
+        .from(merchants)
+        .where(eq(merchants.id, input.merchantId))
+        .limit(1);
+
+      if (!merchant.length) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Marchand introuvable' });
+      }
+
+      const userId = merchant[0].userId;
+
+      // Supprimer les données associées (cascade)
+      await db.delete(merchantActivity).where(eq(merchantActivity.merchantId, input.merchantId));
+      await db.delete(merchantSocialProtection).where(eq(merchantSocialProtection.merchantId, input.merchantId));
+      await db.delete(merchantEditHistory).where(eq(merchantEditHistory.merchantId, input.merchantId));
+      await db.delete(sales).where(eq(sales.merchantId, input.merchantId));
+
+      // Supprimer le marchand
+      await db.delete(merchants).where(eq(merchants.id, input.merchantId));
+
+      // Supprimer l'utilisateur associé
+      if (userId) {
+        await db.delete(users).where(eq(users.id, userId));
+      }
+
+      return { success: true, message: 'Marchand supprimé avec succès' };
+    }),
+
+  /**
+   * Supprimer plusieurs marchands en masse (DELETE en masse)
+   */
+  bulkDeleteMerchants: adminProcedure
+    .input(z.object({
+      merchantIds: z.array(z.number()).min(1, 'Au moins un marchand doit être sélectionné'),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+
+      // Récupérer les userIds associés
+      const merchantsData = await db
+        .select({ userId: merchants.userId })
+        .from(merchants)
+        .where(sql`${merchants.id} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`)
+        .execute();
+
+      const userIds = merchantsData.map(m => m.userId).filter(Boolean);
+
+      // Supprimer les données associées pour tous les marchands
+      await db.delete(merchantActivity).where(sql`${merchantActivity.merchantId} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`);
+      await db.delete(merchantSocialProtection).where(sql`${merchantSocialProtection.merchantId} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`);
+      await db.delete(merchantEditHistory).where(sql`${merchantEditHistory.merchantId} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`);
+      await db.delete(sales).where(sql`${sales.merchantId} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`);
+
+      // Supprimer les marchands
+      await db.delete(merchants).where(sql`${merchants.id} IN (${sql.join(input.merchantIds.map(id => sql`${id}`), sql`, `)})`);
+
+      // Supprimer les utilisateurs associés
+      if (userIds.length > 0) {
+        await db.delete(users).where(sql`${users.id} IN (${sql.join(userIds.map(id => sql`${id}`), sql`, `)})`);
+      }
+
+      return { 
+        success: true, 
+        deleted: input.merchantIds.length,
+        message: `${input.merchantIds.length} marchand(s) supprimé(s) avec succès`,
+      };
+    }),
 });
 

@@ -2073,3 +2073,32 @@ Le composant `WeatherWidget` est créé et prêt à être utilisé dans d'autres
 - [x] Mettre à jour les handlers pour gérer "all"
 - [x] Tester la page admin
 - [x] Sauvegarder le checkpoint 57
+
+
+---
+
+## ✏️ CRUD COMPLET MARCHANDS
+
+### Phase 1 : Backend CREATE & DELETE
+- [x] Créer la procédure `admin.createMerchant` (avec génération merchantNumber unique)
+- [x] Créer la procédure `admin.deleteMerchant` (suppression individuelle)
+- [x] Créer la procédure `admin.bulkDeleteMerchants` (suppression en masse)
+- [x] Gérer les contraintes de clés étrangères (cascade delete)
+
+### Phase 2 : Modal CREATE
+- [x] Créer le composant MerchantCreateModal.tsx
+- [x] Formulaire avec tous les champs obligatoires (nom, coopérative, téléphone)
+- [x] Validation des données avant soumission
+- [x] Bouton "Ajouter un marchand" dans le header de la page admin
+
+### Phase 3 : Boutons DELETE
+- [x] Ajouter bouton "Supprimer" sur chaque ligne du tableau
+- [x] Confirmation avant suppression individuelle
+- [x] Ajouter action "Supprimer" dans la barre d'actions en masse
+- [x] Confirmation avant suppression en masse
+
+### Phase 4 : Tests et livraison
+- [x] Tester la création d'un marchand
+- [x] Tester la suppression individuelle
+- [x] Tester la suppression en masse
+- [x] Sauvegarder le checkpoint 58

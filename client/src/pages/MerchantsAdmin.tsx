@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import MerchantEditModal from '@/components/MerchantEditModal';
+import MerchantCreateModal from '@/components/MerchantCreateModal';
 import MerchantIdentificationCard from '@/components/MerchantIdentificationCard';
 import MerchantPhysicalCard from '@/components/MerchantPhysicalCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -38,7 +39,10 @@ import {
   X,
   Edit,
   Mail,
-  MapPin
+  MapPin,
+  Plus,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function MerchantsAdmin() {
@@ -59,6 +63,9 @@ export default function MerchantsAdmin() {
 
   // États pour le modal d'édition
   const [editingMerchantId, setEditingMerchantId] = useState<number | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deletingMerchantId, setDeletingMerchantId] = useState<number | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -179,7 +186,34 @@ export default function MerchantsAdmin() {
       toast.success(`SMS envoyé à ${selectedIds.size} marchand(s)`);
       clearSelection();
     },
-    onError: (error: any) => toast.error(`Erreur: ${error.message}`),
+    onError: (error) => {
+      toast.error(`Erreur: ${error.message}`);
+    },
+  });
+
+  const deleteMerchant = trpc.admin.deleteMerchant.useMutation({
+    onSuccess: () => {
+      toast.success('Marchand supprimé avec succès');
+      utils.admin.listMerchants.invalidate();
+      utils.admin.getMerchantsStats.invalidate();
+      setDeletingMerchantId(null);
+    },
+    onError: (error) => {
+      toast.error(`Erreur: ${error.message}`);
+    },
+  });
+
+  const bulkDeleteMerchants = trpc.admin.bulkDeleteMerchants.useMutation({
+    onSuccess: () => {
+      toast.success(`${selectedIds.size} marchand(s) supprimé(s)`);
+      utils.admin.listMerchants.invalidate();
+      utils.admin.getMerchantsStats.invalidate();
+      clearSelection();
+      setShowBulkDeleteConfirm(false);
+    },
+    onError: (error) => {
+      toast.error(`Erreur: ${error.message}`);
+    },
   });
 
   // Actions en masse
@@ -197,6 +231,28 @@ export default function MerchantsAdmin() {
       return;
     }
     bulkSendSMS.mutate({ merchantIds: Array.from(selectedIds), message: 'Bienvenue sur IFN Connect!' });
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) {
+      toast.error('Aucun marchand sélectionné');
+      return;
+    }
+    setShowBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = () => {
+    bulkDeleteMerchants.mutate({ merchantIds: Array.from(selectedIds) });
+  };
+
+  const handleDeleteMerchant = (merchantId: number) => {
+    setDeletingMerchantId(merchantId);
+  };
+
+  const confirmDelete = () => {
+    if (deletingMerchantId) {
+      deleteMerchant.mutate({ merchantId: deletingMerchantId });
+    }
   };
 
   const handleExportSelected = () => {
@@ -259,10 +315,16 @@ export default function MerchantsAdmin() {
             Administration et suivi de tous les marchands de la plateforme
           </p>
         </div>
-        <Button onClick={handleExportCSV} disabled={!merchantsData?.merchants.length}>
-          <Download className="w-4 h-4 mr-2" />
-          Exporter CSV
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={() => setShowCreateModal(true)} className="bg-green-600 hover:bg-green-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Ajouter un marchand
+          </Button>
+          <Button onClick={handleExportCSV} disabled={!merchantsData?.merchants.length}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter CSV
+          </Button>
+        </div>
       </div>
 
       {/* Statistiques */}
@@ -527,6 +589,15 @@ export default function MerchantsAdmin() {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteMerchant(merchant.id)}
+                          title="Supprimer"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -611,6 +682,17 @@ export default function MerchantsAdmin() {
             </Button>
 
             <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleteMerchants.isPending}
+              className="text-red-600 hover:text-red-700 border-red-300 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Supprimer
+            </Button>
+
+            <Button
               variant="ghost"
               size="sm"
               onClick={clearSelection}
@@ -655,6 +737,78 @@ export default function MerchantsAdmin() {
           {selectedMerchantForDoc && (
             <MerchantPhysicalCard merchant={selectedMerchantForDoc} />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Création marchand */}
+      <MerchantCreateModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          utils.admin.listMerchants.invalidate();
+          utils.admin.getMerchantsStats.invalidate();
+        }}
+      />
+
+      {/* Modal Confirmation suppression individuelle */}
+      <Dialog open={deletingMerchantId !== null} onOpenChange={() => setDeletingMerchantId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="w-5 h-5" />
+              Confirmer la suppression
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-700">
+            Êtes-vous sûr de vouloir supprimer ce marchand ? Cette action est irréversible.
+          </p>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDeletingMerchantId(null)}
+              disabled={deleteMerchant.isPending}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              disabled={deleteMerchant.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMerchant.isPending ? 'Suppression...' : 'Supprimer'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Confirmation suppression en masse */}
+      <Dialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="w-5 h-5" />
+              Confirmer la suppression en masse
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-700">
+            Êtes-vous sûr de vouloir supprimer <strong>{selectedIds.size} marchand(s)</strong> ? Cette action est irréversible.
+          </p>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowBulkDeleteConfirm(false)}
+              disabled={bulkDeleteMerchants.isPending}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={confirmBulkDelete}
+              disabled={bulkDeleteMerchants.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {bulkDeleteMerchants.isPending ? 'Suppression...' : `Supprimer ${selectedIds.size} marchand(s)`}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
