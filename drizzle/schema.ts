@@ -994,3 +994,145 @@ export type InsertGroupOrderPayment = typeof groupOrderPayments.$inferInsert;
 
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";
+
+
+// ============================================================================
+// CNPS PAYMENTS (Historique des paiements CNPS)
+// ============================================================================
+
+export const cnpsPayments = mysqlTable("cnps_payments", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  paymentDate: timestamp("paymentDate").notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", ["mobile_money", "bank_transfer", "cash", "card"]).notNull(),
+  reference: varchar("reference", { length: 100 }).notNull().unique(),
+  status: mysqlEnum("status", ["pending", "completed", "failed", "cancelled"]).default("pending").notNull(),
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("cnps_payments_merchant_idx").on(table.merchantId),
+  paymentDateIdx: index("cnps_payments_payment_date_idx").on(table.paymentDate),
+  statusIdx: index("cnps_payments_status_idx").on(table.status),
+}));
+
+export type CnpsPayment = typeof cnpsPayments.$inferSelect;
+export type InsertCnpsPayment = typeof cnpsPayments.$inferInsert;
+
+// ============================================================================
+// CMU REIMBURSEMENTS (Historique des remboursements CMU)
+// ============================================================================
+
+export const cmuReimbursements = mysqlTable("cmu_reimbursements", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  careType: mysqlEnum("careType", [
+    "consultation",
+    "hospitalization",
+    "medication",
+    "surgery",
+    "dental",
+    "optical",
+    "maternity",
+    "emergency",
+    "other"
+  ]).notNull(),
+  careDate: timestamp("careDate").notNull(),
+  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(), // Montant total des soins
+  reimbursedAmount: decimal("reimbursedAmount", { precision: 10, scale: 2 }).notNull(), // Montant remboursé
+  reimbursementRate: decimal("reimbursementRate", { precision: 5, scale: 2 }).notNull(), // Taux de remboursement (%)
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "paid"]).default("pending").notNull(),
+  healthFacility: text("healthFacility"), // Établissement de santé
+  reference: varchar("reference", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("cmu_reimbursements_merchant_idx").on(table.merchantId),
+  careDateIdx: index("cmu_reimbursements_care_date_idx").on(table.careDate),
+  statusIdx: index("cmu_reimbursements_status_idx").on(table.status),
+  careTypeIdx: index("cmu_reimbursements_care_type_idx").on(table.careType),
+}));
+
+export type CmuReimbursement = typeof cmuReimbursements.$inferSelect;
+export type InsertCmuReimbursement = typeof cmuReimbursements.$inferInsert;
+
+
+// ============================================================================
+// FAQ ARTICLES (Base de connaissances pour agents)
+// ============================================================================
+
+export const faqArticles = mysqlTable("faq_articles", {
+  id: int("id").autoincrement().primaryKey(),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  category: mysqlEnum("category", [
+    "enrollment",
+    "payments",
+    "technical",
+    "cnps_cmu",
+    "cooperatives",
+    "general"
+  ]).notNull(),
+  views: int("views").default(0).notNull(),
+  upvotes: int("upvotes").default(0).notNull(),
+  downvotes: int("downvotes").default(0).notNull(),
+  isPublished: boolean("isPublished").default(true).notNull(),
+  createdBy: int("createdBy").references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("faq_articles_category_idx").on(table.category),
+  viewsIdx: index("faq_articles_views_idx").on(table.views),
+}));
+
+export type FaqArticle = typeof faqArticles.$inferSelect;
+export type InsertFaqArticle = typeof faqArticles.$inferInsert;
+
+// ============================================================================
+// SUPPORT CONVERSATIONS (Historique des conversations chatbot)
+// ============================================================================
+
+export const supportConversations = mysqlTable("support_conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  agentId: int("agentId").notNull().references(() => agents.id, { onDelete: "cascade" }),
+  messages: text("messages").notNull(), // JSON array of messages
+  status: mysqlEnum("status", ["active", "resolved", "escalated"]).default("active").notNull(),
+  satisfaction: int("satisfaction"), // 1-5 rating
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  agentIdx: index("support_conversations_agent_idx").on(table.agentId),
+  statusIdx: index("support_conversations_status_idx").on(table.status),
+  createdAtIdx: index("support_conversations_created_at_idx").on(table.createdAt),
+}));
+
+export type SupportConversation = typeof supportConversations.$inferSelect;
+export type InsertSupportConversation = typeof supportConversations.$inferInsert;
+
+// ============================================================================
+// SUPPORT TICKETS (Escalade vers support humain)
+// ============================================================================
+
+export const supportTickets = mysqlTable("support_tickets", {
+  id: int("id").autoincrement().primaryKey(),
+  agentId: int("agentId").notNull().references(() => agents.id, { onDelete: "cascade" }),
+  conversationId: int("conversationId").references(() => supportConversations.id),
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  status: mysqlEnum("status", ["open", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  assignedTo: int("assignedTo").references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+}, (table) => ({
+  agentIdx: index("support_tickets_agent_idx").on(table.agentId),
+  statusIdx: index("support_tickets_status_idx").on(table.status),
+  priorityIdx: index("support_tickets_priority_idx").on(table.priority),
+  assignedToIdx: index("support_tickets_assigned_to_idx").on(table.assignedTo),
+}));
+
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type InsertSupportTicket = typeof supportTickets.$inferInsert;

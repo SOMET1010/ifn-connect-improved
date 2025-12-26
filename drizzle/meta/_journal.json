@@ -155,6 +155,27 @@
       "when": 1766761810544,
       "tag": "0021_cynical_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1766766876285,
+      "tag": "0022_quick_oracle",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1766767085158,
+      "tag": "0023_deep_korvac",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1766767103218,
+      "tag": "0024_nervous_chameleon",
+      "breakpoints": true
     }
   ]
 }

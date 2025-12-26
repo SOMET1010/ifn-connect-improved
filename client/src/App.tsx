@@ -44,6 +44,9 @@ import OrderTracking from "./pages/OrderTracking";
 import CooperativeDashboard from "./pages/cooperative/Dashboard";
 import GroupedOrders from "./pages/cooperative/GroupedOrders";
 import SavingsDashboard from "./pages/cooperative/SavingsDashboard";
+import MerchantCnps from "./pages/merchant/Cnps";
+import MerchantCmu from "./pages/merchant/Cmu";
+import AgentSupport from "./pages/agent/Support";
 
 function Router() {
   return (
@@ -63,12 +66,15 @@ function Router() {
       <Route path="/merchant/savings" component={Savings} />
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
+      <Route path="/merchant/cnps" component={MerchantCnps} />
+      <Route path="/merchant/cmu" component={MerchantCmu} />
          {/* Merchant Routes */}
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />
        <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
        <Route path={"/agent/tasks"} component={AgentTasks} />
-       <Route path={"/agent/merchants"} component={MerchantList} />     
+       <Route path={"/agent/merchants"} component={MerchantList} />
+       <Route path={"/agent/support"} component={AgentSupport} />     
       {/* Admin Routes */}
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />

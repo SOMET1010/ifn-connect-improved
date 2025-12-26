@@ -2946,3 +2946,76 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Implémenter l'export Excel de la liste filtrée
 - [x] Ajouter la pagination pour grandes listes
 - [ ] Ajouter le lien vers la carte interactive
+
+
+## 🎯 NOUVELLES FONCTIONNALITÉS PRIORITAIRES (Sprint 3)
+
+### 1. Dashboard Coopérative avec KPIs et Rapports PDF
+- [x] KPIs Commandes Groupées
+  - [x] Statistiques globales (total commandes, en cours, livrées, annulées)
+  - [x] Montant total des économies réalisées
+  - [x] Nombre de participants actifs
+  - [x] Graphique d'évolution des commandes (12 mois)
+- [x] Gestion Stocks Centralisés
+  - [x] Vue consolidée des stocks par produit
+  - [x] Alertes de rupture de stock
+  - [x] Historique des mouvements de stock
+  - [x] Prévisions de réapprovisionnement
+- [x] Traitement Automatique des Commandes
+  - [x] Workflow automatisé (création → confirmation → préparation → livraison)
+  - [x] Notifications automatiques aux participants
+  - [x] Suivi du statut en temps réel
+  - [x] Gestion des retards et incidents
+- [x] Rapports Financiers Exportables PDF
+  - [x] Rapport mensuel (CA, économies, participants, produits)
+  - [x] Rapport par produit (volumes, marges, tendances)
+  - [x] Rapport par membre (participations, économies, paiements)
+  - [x] Graphiques intégrés dans les PDF (Chart.js → Canvas → PDF)
+  - [x] Design professionnel avec en-tête/pied de page
+
+### 2. Pages CNPS/CMU pour Marchands
+- [x] Page /merchant/cnps
+  - [x] Solde de cotisations en temps réel
+  - [x] Historique des paiements (date, montant, statut)
+  - [x] Date d'expiration avec countdown visuel
+  - [x] Simulateur de pension (âge, années cotisées, salaire → montant estimé)
+  - [x] Graphique d'évolution des cotisations (12 mois)
+  - [ ] Bouton de paiement en ligne des cotisations
+  - [ ] Téléchargement d'attestation de cotisation PDF
+- [x] Page /merchant/cmu
+  - [x] Statut de couverture santé (actif/inactif/en attente)
+  - [x] Historique des remboursements médicaux (date, type, montant)
+  - [x] Date d'expiration avec countdown visuel
+  - [x] Simulateur de remboursements (type de soin → montant remboursé)
+  - [x] Graphique d'utilisation de la CMU (12 mois)
+  - [ ] Bouton de renouvellement en ligne
+  - [ ] Téléchargement de carte CMU digitale PDF
+- [x] Backend et Base de Données
+  - [x] Table cnps_payments (merchantId, amount, date, status, reference)
+  - [x] Table cmu_reimbursements (merchantId, type, amount, date, status)
+  - [x] Procédures tRPC pour CNPS (getBalance, getHistory, simulatePension, pay)
+  - [x] Procédures tRPC pour CMU (getStatus, getReimbursements, simulateReimbursement, renew)
+
+### 3. Support N1 avec FAQ et Chatbot IA pour Agents
+- [x] Page /agent/support avec FAQ
+  - [x] Base de données FAQ (question, réponse, catégorie, vues, votes)
+  - [x] Recherche intelligente dans la FAQ (full-text search)
+  - [x] Catégories (Enrôlement, Paiements, Technique, CNPS/CMU, Coopératives)
+  - [ ] Articles détaillés avec captures d'écran et vidéos
+  - [x] Compteur de vues et système de votes (utile/pas utile)
+  - [x] Suggestions d'articles similaires
+  - [ ] Export PDF des articles pour consultation offline
+- [x] Chatbot IA pour Agents
+  - [x] Intégration LLM (invokeLLM) avec contexte PNAVIM-CI
+  - [x] Interface de chat en temps réel (composant ChatBox)
+  - [x] Historique des conversations sauvegardé
+  - [x] Réponses contextuelles basées sur le rôle (agent terrain)
+  - [x] Escalade vers support humain si nécessaire
+  - [x] Bouton "Contacter un superviseur" avec formulaire
+  - [ ] Statistiques d'utilisation du chatbot (questions fréquentes, taux de résolution)
+- [x] Backend et Base de Données
+  - [x] Table faq_articles (id, question, answer, category, views, upvotes, downvotes)
+  - [x] Table support_conversations (agentId, messages, status, createdAt)
+  - [x] Table support_tickets (agentId, subject, description, priority, status, assignedTo)
+  - [x] Procédures tRPC pour FAQ (search, getByCategory, vote, incrementViews)
+  - [x] Procédures tRPC pour chatbot (sendMessage, getHistory, escalate)
