@@ -1138,3 +1138,113 @@ export const supportTickets = mysqlTable("support_tickets", {
 
 export type SupportTicket = typeof supportTickets.$inferSelect;
 export type InsertSupportTicket = typeof supportTickets.$inferInsert;
+
+// ============================================================================
+// AUTHENTICATION MULTI-NIVEAUX
+// ============================================================================
+
+/**
+ * Table auth_pins : Stockage sécurisé des codes PIN
+ * Chaque utilisateur a un PIN unique hashé avec bcrypt
+ */
+export const authPins = mysqlTable("auth_pins", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  pinHash: varchar("pinHash", { length: 255 }).notNull(), // Hashed with bcrypt
+  isTemporary: boolean("isTemporary").default(true).notNull(), // PIN temporaire défini par l'agent
+  mustChange: boolean("mustChange").default(true).notNull(), // Doit changer le PIN à la première connexion
+  failedAttempts: int("failedAttempts").default(0).notNull(), // Compteur de tentatives échouées
+  lockedUntil: timestamp("lockedUntil"), // Verrouillage temporaire après 5 tentatives
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("auth_pins_user_idx").on(table.userId),
+}));
+
+export type AuthPin = typeof authPins.$inferSelect;
+export type InsertAuthPin = typeof authPins.$inferInsert;
+
+/**
+ * Table auth_sessions : Gestion des sessions utilisateur
+ * Durée de vie : 7 jours d'inactivité
+ */
+export const authSessions = mysqlTable("auth_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull().unique(), // UUID v4
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  deviceInfo: text("deviceInfo"), // User agent, device type, etc.
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 ou IPv6
+  lastActivity: timestamp("lastActivity").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // 7 jours après lastActivity
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdx: index("auth_sessions_session_idx").on(table.sessionId),
+  userIdx: index("auth_sessions_user_idx").on(table.userId),
+  expiresAtIdx: index("auth_sessions_expires_at_idx").on(table.expiresAt),
+}));
+
+export type AuthSession = typeof authSessions.$inferSelect;
+export type InsertAuthSession = typeof authSessions.$inferInsert;
+
+/**
+ * Table auth_otp_logs : Historique des OTP envoyés
+ * Durée de vie OTP : 5 minutes
+ */
+export const authOtpLogs = mysqlTable("auth_otp_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  otpCode: varchar("otpCode", { length: 6 }).notNull(), // Code à 6 chiffres
+  status: mysqlEnum("status", ["sent", "verified", "expired", "failed"]).default("sent").notNull(),
+  failedAttempts: int("failedAttempts").default(0).notNull(), // Max 3 tentatives
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  verifiedAt: timestamp("verifiedAt"),
+  expiresAt: timestamp("expiresAt").notNull(), // 5 minutes après sentAt
+  ipAddress: varchar("ipAddress", { length: 45 }),
+}, (table) => ({
+  userIdx: index("auth_otp_logs_user_idx").on(table.userId),
+  phoneIdx: index("auth_otp_logs_phone_idx").on(table.phone),
+  statusIdx: index("auth_otp_logs_status_idx").on(table.status),
+  expiresAtIdx: index("auth_otp_logs_expires_at_idx").on(table.expiresAt),
+}));
+
+export type AuthOtpLog = typeof authOtpLogs.$inferSelect;
+export type InsertAuthOtpLog = typeof authOtpLogs.$inferInsert;
+
+/**
+ * Table auth_audit_logs : Logs d'audit pour toutes les tentatives d'authentification
+ * Permet de détecter les tentatives de fraude et d'analyser les patterns de connexion
+ */
+export const authAuditLogs = mysqlTable("auth_audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").references(() => users.id, { onDelete: "cascade" }),
+  action: mysqlEnum("action", [
+    "login_attempt",
+    "login_success",
+    "login_failed",
+    "otp_sent",
+    "otp_verified",
+    "otp_failed",
+    "pin_verified",
+    "pin_failed",
+    "pin_changed",
+    "session_created",
+    "session_expired",
+    "logout"
+  ]).notNull(),
+  merchantNumber: varchar("merchantNumber", { length: 50 }), // MRC-XXXXX
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  details: text("details"), // JSON avec détails supplémentaires
+  success: boolean("success").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("auth_audit_logs_user_idx").on(table.userId),
+  actionIdx: index("auth_audit_logs_action_idx").on(table.action),
+  createdAtIdx: index("auth_audit_logs_created_at_idx").on(table.createdAt),
+  merchantNumberIdx: index("auth_audit_logs_merchant_number_idx").on(table.merchantNumber),
+}));
+
+export type AuthAuditLog = typeof authAuditLogs.$inferSelect;
+export type InsertAuthAuditLog = typeof authAuditLogs.$inferInsert;

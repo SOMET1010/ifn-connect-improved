@@ -3148,3 +3148,58 @@ Envoyer automatiquement des emails aux marchands dont la couverture sociale (CNP
 - [x] Actions recommandées contextuelles selon le statut
 - [x] Intégration dans le dashboard Protection Sociale
 - [x] Badges d'urgence pour actions critiques
+
+
+## 🔐 SYSTÈME D'AUTHENTIFICATION MULTI-NIVEAUX (EN COURS)
+
+### Configuration Brevo SMS
+- [x] Ajouter BREVO_API_KEY dans les variables d'environnement
+- [x] Créer le module server/_core/brevo-sms.ts pour envoi d'OTP
+- [x] Fonction sendOTP(phone, code) avec template SMS
+- [x] Fonction generateOTP() pour codes à 6 chiffres
+- [x] Logs d'envoi pour monitoring
+
+### Schéma de Base de Données
+- [x] Table auth_pins (userId, pinHash, isTemporary, mustChange, createdAt, updatedAt)
+- [x] Table auth_sessions (sessionId, userId, deviceInfo, lastActivity, expiresAt)
+- [x] Table auth_otp_logs (userId, phone, otpCode, status, sentAt, verifiedAt, expiresAt)
+- [x] Index optimisés pour les requêtes fréquentes
+- [x] Migration Drizzle
+
+### Backend tRPC Procedures
+- [x] auth.loginWithMerchantNumber - Étape 1 : Vérifier MRC et décider OTP/PIN
+- [x] auth.sendOTP - Envoyer OTP SMS via Brevo
+- [x] auth.verifyOTP - Vérifier code OTP et créer session
+- [x] auth.verifyPIN - Vérifier code PIN et créer session
+- [x] auth.changePIN - Changer PIN (obligatoire si temporaire)
+- [x] auth.requestPINReset - Demander réinitialisation PIN via OTP
+- [x] auth.checkSession - Vérifier validité session (7 jours)
+- [x] auth.logout - Invalider session
+
+### Frontend Pages
+- [ ] Page /login avec saisie numéro marchand (MRC-XXXXX)
+- [ ] Page /verify-otp avec saisie code à 6 chiffres
+- [ ] Page /verify-pin avec saisie code à 4 chiffres
+- [ ] Page /change-pin pour changement obligatoire
+- [ ] Composant SessionGuard pour protéger les routes
+- [ ] Gestion des erreurs (OTP expiré, PIN incorrect, etc.)
+- [ ] Feedback visuel et vocal pour accessibilité
+
+### Tests Unitaires
+- [x] Test génération OTP (6 chiffres, unique)
+- [x] Test envoi SMS Brevo (API réelle)
+- [x] Test vérification OTP (valide, expiré, incorrect)
+- [x] Test hashage PIN (bcrypt)
+- [x] Test vérification PIN (valide, incorrect, tentatives)
+- [x] Test création session (durée 7 jours)
+- [x] Test expiration session automatique)
+- [x] Test changement PIN obligatoire
+
+### Sécurité
+- [x] Hashage bcrypt pour les PIN (salt rounds 10)
+- [x] Limitation tentatives OTP (3 max en 10 minutes)
+- [x] Limitation tentatives PIN (5 max avant blocage)
+- [x] Expiration OTP après 5 minutes
+- [x] Expiration session après 7 jours d'inactivité
+- [x] Logs d'audit pour toutes les tentatives d'authentification
+- [x] Protection CSRF avec tokens
