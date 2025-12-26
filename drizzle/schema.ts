@@ -671,5 +671,37 @@ export const merchantEditHistory = mysqlTable("merchant_edit_history", {
 export type MerchantEditHistory = typeof merchantEditHistory.$inferSelect;
 export type InsertMerchantEditHistory = typeof merchantEditHistory.$inferInsert;
 
+// ============================================================================
+// SOCIAL PROTECTION RENEWALS (Demandes de renouvellement CNPS/CMU)
+// ============================================================================
+
+export const socialProtectionRenewals = mysqlTable("social_protection_renewals", {
+  id: int("id").autoincrement().primaryKey(),
+  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", ["cnps", "cmu", "rsti"]).notNull(), // Type de couverture à renouveler
+  currentExpiryDate: timestamp("currentExpiryDate"), // Date d'expiration actuelle
+  requestedExpiryDate: timestamp("requestedExpiryDate").notNull(), // Nouvelle date d'expiration demandée
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "cancelled"]).default("pending").notNull(),
+  proofDocumentUrl: text("proofDocumentUrl"), // URL du justificatif (S3)
+  proofDocumentKey: varchar("proofDocumentKey", { length: 255 }), // Clé S3 du justificatif
+  merchantNotes: text("merchantNotes"), // Notes du marchand (raison de la demande)
+  adminNotes: text("adminNotes"), // Notes de l'admin (raison approbation/rejet)
+  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"), // Date de traitement de la demande
+  reviewedBy: int("reviewedBy").references(() => users.id), // Admin qui a traité la demande
+  approvedAt: timestamp("approvedAt"), // Date d'approbation
+  rejectedAt: timestamp("rejectedAt"), // Date de rejet
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  merchantIdx: index("social_protection_renewals_merchant_idx").on(table.merchantId),
+  statusIdx: index("social_protection_renewals_status_idx").on(table.status),
+  typeIdx: index("social_protection_renewals_type_idx").on(table.type),
+  requestedAtIdx: index("social_protection_renewals_requested_at_idx").on(table.requestedAt),
+}));
+
+export type SocialProtectionRenewal = typeof socialProtectionRenewals.$inferSelect;
+export type InsertSocialProtectionRenewal = typeof socialProtectionRenewals.$inferInsert;
+
 // Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";

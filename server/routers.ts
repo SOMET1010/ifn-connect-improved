@@ -18,6 +18,7 @@ import { scoresRouter } from "./routers/scores";
 import { savingsRouter } from './routers/savings';
 import { eventsRouter } from './routers/events';
 import { weatherRouter } from './routers/weather';
+import { socialProtectionRouter } from './routers/social-protection';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -38,6 +39,7 @@ export const appRouter = router({
   savings: savingsRouter,
   events: eventsRouter,
   weather: weatherRouter,
+  socialProtection: socialProtectionRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

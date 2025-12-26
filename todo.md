@@ -2207,3 +2207,101 @@ Le router payments vérifie `order.buyerId !== ctx.user.id` mais :
 - [ ] Faire passer les tests unitaires (P1)
 - [ ] Obtenir les clés API Chipdeals pour production (P1)
 - [ ] Ajouter l'historique des transactions dans le dashboard marchand (P2)
+
+
+## ✅ P0-2 : MODULE RENOUVELLEMENT CNPS/CMU - TERMINÉ
+
+**Statut** : ✅ TERMINÉ (26 déc 2024)
+**Priorité** : P0 (BLOQUANT)
+**Effort** : 5 jours
+
+### Objectif
+Permettre aux marchands de renouveler leur couverture sociale (CNPS retraite et CMU santé) directement depuis la plateforme avec un workflow d'approbation admin.
+
+### Tâches Backend
+
+- [ ] Créer la table `social_protection_renewals` dans drizzle/schema.ts
+  - [ ] Champs : id, merchantId, type (cnps/cmu), currentExpiryDate, requestedExpiryDate, status, proofDocument, adminNotes, requestedAt, approvedAt, approvedBy
+  - [ ] Statuts : pending, approved, rejected, expired
+- [ ] Créer les procédures tRPC dans server/routers/social-protection.ts
+  - [ ] renewals.create - Créer une demande de renouvellement
+  - [ ] renewals.listByMerchant - Liste des demandes d'un marchand
+  - [ ] renewals.listPending - Liste des demandes en attente (admin)
+  - [ ] renewals.approve - Approuver une demande (admin)
+  - [ ] renewals.reject - Rejeter une demande (admin)
+  - [ ] renewals.getStats - Statistiques des renouvellements (admin)
+- [ ] Créer la logique de notification automatique
+  - [ ] Détecter les expirations dans 30 jours
+  - [ ] Détecter les expirations dans 7 jours
+  - [ ] Envoyer notifications push/email
+
+### Tâches Frontend Marchand
+
+- [ ] Créer la page /merchant/social-protection
+  - [ ] Afficher le statut actuel CNPS (date d'expiration, jours restants)
+  - [ ] Afficher le statut actuel CMU (date d'expiration, jours restants)
+  - [ ] Alertes visuelles si expiration < 30 jours
+  - [ ] Bouton "Renouveler CNPS" et "Renouveler CMU"
+- [ ] Créer le formulaire de demande de renouvellement
+  - [ ] Sélection du type (CNPS ou CMU)
+  - [ ] Upload du justificatif (carte, attestation)
+  - [ ] Compression automatique de l'image
+  - [ ] Date d'expiration actuelle (pré-remplie)
+  - [ ] Date de renouvellement souhaitée
+  - [ ] Validation et soumission
+- [ ] Créer la page de suivi des demandes
+  - [ ] Liste des demandes avec statuts
+  - [ ] Détail de chaque demande
+  - [ ] Possibilité de télécharger le justificatif
+
+### Tâches Frontend Admin
+
+- [ ] Créer la page /admin/renewals
+  - [ ] Liste des demandes en attente (tableau)
+  - [ ] Filtres par type (CNPS/CMU), statut, date
+  - [ ] Recherche par nom de marchand
+  - [ ] Badge de notification (nombre de demandes en attente)
+- [ ] Créer le dialogue d'approbation/rejet
+  - [ ] Afficher les détails de la demande
+  - [ ] Visualiser le justificatif uploadé
+  - [ ] Champ "Notes admin" pour commentaires
+  - [ ] Boutons "Approuver" et "Rejeter"
+  - [ ] Confirmation avant action
+- [ ] Intégrer dans le dashboard admin
+  - [ ] Carte KPI "Demandes en attente"
+  - [ ] Lien rapide vers /admin/renewals
+
+### Tâches Notifications
+
+- [ ] Créer le cron job de détection d'expiration
+  - [ ] Exécution quotidienne à 8h00
+  - [ ] Détecter CNPS expirant dans 30 jours
+  - [ ] Détecter CMU expirant dans 30 jours
+  - [ ] Détecter CNPS expirant dans 7 jours
+  - [ ] Détecter CMU expirant dans 7 jours
+- [ ] Créer les templates de notification
+  - [ ] Email "Votre CNPS expire dans 30 jours"
+  - [ ] Email "Votre CMU expire dans 7 jours"
+  - [ ] Notification in-app avec badge
+- [ ] Intégrer avec le système de notification existant
+
+### Tests
+
+- [ ] Tests unitaires backend (social-protection.test.ts)
+  - [ ] Test création de demande
+  - [ ] Test approbation
+  - [ ] Test rejet
+  - [ ] Test détection d'expiration
+- [ ] Tests manuels UI
+  - [ ] Soumettre une demande CNPS
+  - [ ] Soumettre une demande CMU
+  - [ ] Approuver une demande (admin)
+  - [ ] Rejeter une demande (admin)
+  - [ ] Vérifier les notifications
+
+### Documentation
+
+- [ ] Documenter le workflow dans README.md
+- [ ] Documenter les procédures tRPC
+- [ ] Créer un guide utilisateur pour les marchands
+- [ ] Créer un guide admin pour l'approbation

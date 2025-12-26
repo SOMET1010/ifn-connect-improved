@@ -12,6 +12,7 @@ import CashRegister from './pages/merchant/CashRegister';
 import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
 import MerchantProfile from './pages/merchant/Profile';
 import SocialCoverage from './pages/merchant/SocialCoverage';
+import SocialProtection from './pages/merchant/SocialProtection';
 import Badges from './pages/merchant/Badges';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import VirtualMarket from './pages/merchant/VirtualMarket';
@@ -25,6 +26,7 @@ import MapViewPage from "./pages/admin/MapView";
 import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import MerchantsAdmin from "./pages/MerchantsAdmin";
+import RenewalsAdmin from "./pages/admin/RenewalsAdmin";
 
 function Router() {
   return (
@@ -35,6 +37,7 @@ function Router() {
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />
       <Route path="/merchant/profile" component={MerchantProfile} />
       <Route path="/merchant/social-coverage" component={SocialCoverage} />
+      <Route path="/merchant/social-protection" component={SocialProtection} />
       <Route path="/merchant/badges" component={Badges} />
       <Route path="/merchant/market" component={VirtualMarket} />
       <Route path="/merchant/orders" component={OrderHistory} />
@@ -53,7 +56,8 @@ function Router() {
       <Route path={"/admin"} component={() => <div className="p-8 text-center">Page Admin - En développement</div>} />
       <Route path={"/admin/markets"} component={MarketsPage} />
       <Route path={"/admin/map"} component={MapViewPage} />
-      <Route path={"/admin/merchants"} component={MerchantsAdmin} />
+      <Route path="/admin/merchants" component={MerchantsAdmin} />
+      <Route path="/admin/renewals" component={RenewalsAdmin} />
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={() => <div className="p-8 text-center">Page Coopérative - En développement</div>} />
