@@ -9,6 +9,7 @@ import MerchantDashboard from "./pages/merchant/Dashboard";
 import MerchantDashboardNew from "./pages/MerchantDashboard";
 import MerchantDashboardSimple from './pages/MerchantDashboardSimple';
 import MerchantDashboardUltraSimple from './pages/MerchantDashboardUltraSimple';
+import MerchantDashboardMGX from './pages/MerchantDashboardMGX';
 import CashRegister from './pages/merchant/CashRegister';
 import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
 import MerchantProfile from './pages/merchant/Profile';
@@ -52,7 +53,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/merchant"} component={MerchantDashboardUltraSimple} />
+      <Route path={"/merchant"} component={MerchantDashboardMGX} />
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />

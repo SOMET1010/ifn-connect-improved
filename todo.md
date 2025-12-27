@@ -3061,3 +3061,68 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [ ] Simplifier également la page Caisse
 - [ ] Simplifier la page Stock
 - [ ] Ajouter animations visuelles (flèches, pulsations)
+
+
+## 🔥 PHASE MGX - EXPÉRIENCE UTILISATEUR OPTIMISÉE
+
+### Traduction Nouchi
+- [ ] Créer le fichier de traductions `client/src/lib/nouchiTranslations.ts`
+- [ ] Créer le hook `useNouchi()` pour basculer FR/Nouchi
+- [ ] Appliquer les traductions sur le Dashboard Marchand
+- [ ] Appliquer les traductions sur la page Caisse
+- [ ] Appliquer les traductions sur l'authentification
+- [ ] Traduire tous les toasts et messages d'erreur
+
+### Feedback Sensoriel
+- [ ] Créer le système de vibrations haptiques (double succès, triple erreur)
+- [ ] Créer le système de feedback sonore (800Hz succès, 200Hz erreur)
+- [ ] Intégrer les vibrations sur les actions critiques (vente, paiement)
+- [ ] Intégrer les sons sur les toasts de succès/erreur
+
+### Design KPATA
+- [ ] Remplacer rounded-2xl par rounded-3xl partout
+- [ ] Ajouter les ombres colorées (shadow-green-900/20, shadow-amber-500/20)
+- [ ] Ajouter les icônes géantes en arrière-plan (10% opacité)
+- [ ] Implémenter hover:scale-[1.02] sur tous les boutons
+- [ ] Implémenter active:scale-[0.98] sur tous les boutons
+- [ ] Ajouter group-hover:translate-x-1 sur les flèches
+
+### Optimisation Caisse
+- [ ] Créer les pills de filtrage par catégorie
+- [ ] Implémenter le sticky cart (panier toujours visible)
+- [ ] Agrandir les inputs de recherche (h-12)
+- [ ] Optimiser la sélection de produits par pictogrammes
+
+## ✅ PHASE MGX - IMPLÉMENTATION TERMINÉE (Checkpoint actuel)
+
+### Traduction Nouchi ✅
+- [x] Créer le fichier de traductions `client/src/lib/nouchiTranslations.ts`
+- [x] Créer le hook `useNouchi()` pour basculer FR/Nouchi
+- [x] Appliquer les traductions sur le Dashboard Marchand (MerchantDashboardMGX)
+- [x] Bouton de basculement FR/Nouchi dans l'interface
+- [ ] Appliquer les traductions sur la page Caisse
+- [ ] Appliquer les traductions sur l'authentification
+- [ ] Traduire tous les toasts et messages d'erreur
+
+### Feedback Sensoriel ✅
+- [x] Créer le système de vibrations haptiques (double succès, triple erreur)
+- [x] Créer le système de feedback sonore (800Hz succès, 200Hz erreur)
+- [x] Intégrer les vibrations sur les boutons du dashboard
+- [x] Hook useSensoryFeedback() pour utilisation facile
+- [ ] Intégrer sur les actions critiques (vente, paiement)
+- [ ] Intégrer les sons sur les toasts de succès/erreur
+
+### Design KPATA ✅
+- [x] Remplacer rounded-2xl par rounded-3xl sur le dashboard
+- [x] Ajouter les ombres colorées (shadow-emerald-900/20, shadow-amber-900/20, etc.)
+- [x] Ajouter les icônes géantes en arrière-plan (10% opacité)
+- [x] Implémenter hover:scale-[1.02] sur tous les boutons
+- [x] Implémenter active:scale-[0.98] sur tous les boutons
+- [x] Ajouter group-hover:translate-x-1 sur les flèches
+- [x] Utiliser les couleurs MGX (emerald, amber, green, indigo)
+
+### Optimisation Caisse (À faire)
+- [ ] Créer les pills de filtrage par catégorie
+- [ ] Implémenter le sticky cart (panier toujours visible)
+- [ ] Agrandir les inputs de recherche (h-12)
+- [ ] Optimiser la sélection de produits par pictogrammes
