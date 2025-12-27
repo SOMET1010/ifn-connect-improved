@@ -30,6 +30,7 @@ import { cooperativeDashboardRouter } from './routers/cooperative-dashboard';
 import { groupedOrdersRouter } from './routers/grouped-orders';
 import { merchantSettingsRouter } from './routers/merchant-settings';
 import { dailySessionsRouter } from './routers/daily-sessions';
+import { attendanceBadgesRouter } from './routers/attendance-badges';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -61,6 +62,7 @@ export const appRouter = router({
   groupedOrders: groupedOrdersRouter,
   merchantSettings: merchantSettingsRouter,
   dailySessions: dailySessionsRouter,
+  attendanceBadges: attendanceBadgesRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

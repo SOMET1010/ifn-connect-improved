@@ -46,6 +46,7 @@ import MorningBriefing from "./pages/merchant/MorningBriefing";
 import OpenDayBriefing from "./pages/merchant/OpenDayBriefing";
 import CloseDaySummary from "./pages/merchant/CloseDaySummary";
 import SessionsHistory from "./pages/merchant/SessionsHistory";
+import AttendanceBadgesPage from "./pages/merchant/AttendanceBadgesPage";
 
 function Router() {
   return (
@@ -55,6 +56,7 @@ function Router() {
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
+      <Route path="/merchant/attendance-badges" component={AttendanceBadgesPage} />
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />
       <Route path="/merchant/profile" component={MerchantProfile} />
       <Route path="/merchant/social-coverage" component={SocialCoverage} />

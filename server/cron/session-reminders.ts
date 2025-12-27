@@ -1,58 +1,68 @@
 /**
  * Cron job pour les rappels intelligents d'ouverture/fermeture de journée
  * 
- * S'exécute deux fois par jour :
- * - 9h00 : Détecte les marchands qui n'ont pas ouvert leur journée
- * - 20h00 : Détecte les marchands qui n'ont pas fermé leur journée
+ * NOUVEAU SYSTÈME PERSONNALISÉ :
+ * - Chaque marchand configure ses heures de rappel dans ses paramètres
+ * - Le cron s'exécute toutes les heures et vérifie les paramètres de chaque marchand
+ * - Envoie les rappels uniquement aux marchands ayant configuré l'heure actuelle
  * 
  * Crée des notifications in-app pour rappeler aux marchands d'effectuer l'action
  */
 
 import { getDb } from '../db';
-import { merchants, merchantDailySessions, inAppNotifications } from '../../drizzle/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { merchants, merchantDailySessions, inAppNotifications, merchantSettings } from '../../drizzle/schema';
+import { eq, and, isNull, sql } from 'drizzle-orm';
 
 /**
- * Vérifie les marchands qui n'ont pas ouvert leur journée à 9h
+ * Vérifie les marchands qui n'ont pas ouvert leur journée
+ * et dont l'heure de rappel d'ouverture correspond à l'heure actuelle
  */
-export async function checkMissingOpenings() {
-  console.log('[Session Reminders] Checking for missing openings at 9 AM...');
-
+export async function checkMissingOpeningsAtTime(currentTime: string) {
   try {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) {
+      return { success: false, error: 'Database not available', notificationsCreated: 0 };
+    }
 
-    // Récupérer tous les marchands actifs
-    const allMerchants = await db.select({
-      id: merchants.id,
-      userId: merchants.userId,
-      merchantNumber: merchants.merchantNumber,
-      businessName: merchants.businessName,
-    }).from(merchants);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    console.log(`[Session Reminders] Found ${allMerchants.length} merchants to check`);
+    // Récupérer tous les marchands actifs avec leurs paramètres
+    const merchantsWithSettings = await db
+      .select({
+        merchantId: merchants.id,
+        userId: merchants.userId,
+        businessName: merchants.businessName,
+        reminderOpeningTime: merchantSettings.reminderOpeningTime,
+      })
+      .from(merchants)
+      .leftJoin(merchantSettings, eq(merchants.id, merchantSettings.merchantId))
+      .where(eq(merchants.isVerified, true));
 
     let notificationsCreated = 0;
 
-    // Pour chaque marchand, vérifier s'il a ouvert sa journée aujourd'hui
-    for (const merchant of allMerchants) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    for (const merchant of merchantsWithSettings) {
+      // Vérifier si l'heure de rappel correspond à l'heure actuelle
+      const reminderTime = merchant.reminderOpeningTime || '09:00';
+      if (!reminderTime.startsWith(currentTime.substring(0, 2))) {
+        continue; // Pas l'heure de rappel pour ce marchand
+      }
 
-      // Chercher une session pour aujourd'hui
-      const todaySession = await db.select()
+      // Vérifier si la session d'aujourd'hui existe et n'est pas ouverte
+      const todaySession = await db
+        .select()
         .from(merchantDailySessions)
         .where(
           and(
-            eq(merchantDailySessions.merchantId, merchant.id),
-            sql`DATE(${merchantDailySessions.date}) = DATE(${today})`
+            eq(merchantDailySessions.merchantId, merchant.merchantId),
+            sql`DATE(${merchantDailySessions.sessionDate}) = DATE(${today})`,
+            isNull(merchantDailySessions.openedAt)
           )
         )
         .limit(1);
 
-      // Si pas de session ou session NOT_OPENED, créer une notification
-      if (todaySession.length === 0 || todaySession[0].status === 'NOT_OPENED') {
-        // Vérifier qu'on n'a pas déjà créé une notification aujourd'hui
+      if (todaySession.length > 0) {
+        // Vérifier qu'on n'a pas déjà créé une notification d'ouverture aujourd'hui
         const existingNotification = await db.select()
           .from(inAppNotifications)
           .where(
@@ -70,7 +80,7 @@ export async function checkMissingOpenings() {
             userId: merchant.userId,
             type: 'session_reminder',
             title: '🌅 N\'oubliez pas d\'ouvrir votre journée !',
-            message: `Bonjour ! Il est 9h00 et vous n'avez pas encore ouvert votre journée. Ouvrez-la maintenant pour commencer à enregistrer vos ventes.`,
+            message: `Bonjour ! Il est ${reminderTime} et vous n'avez pas encore ouvert votre journée. Ouvrez-la maintenant pour commencer à enregistrer vos ventes.`,
             actionUrl: '/merchant/dashboard',
             isRead: false,
             createdAt: new Date(),
@@ -81,49 +91,58 @@ export async function checkMissingOpenings() {
       }
     }
 
-    console.log(`[Session Reminders] Created ${notificationsCreated} opening reminders`);
+    console.log(`[Session Reminders] Created ${notificationsCreated} opening reminders at ${currentTime}`);
     return { success: true, notificationsCreated };
   } catch (error) {
     console.error('[Session Reminders] Error checking missing openings:', error);
-    return { success: false, error };
+    return { success: false, error: String(error), notificationsCreated: 0 };
   }
 }
 
 /**
- * Vérifie les marchands qui n'ont pas fermé leur journée à 20h
+ * Vérifie les marchands qui n'ont pas fermé leur journée
+ * et dont l'heure de rappel de fermeture correspond à l'heure actuelle
  */
-export async function checkMissingClosings() {
-  console.log('[Session Reminders] Checking for missing closings at 8 PM...');
-
+export async function checkMissingClosingsAtTime(currentTime: string) {
   try {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) {
+      return { success: false, error: 'Database not available', notificationsCreated: 0 };
+    }
 
-    // Récupérer tous les marchands actifs
-    const allMerchants = await db.select({
-      id: merchants.id,
-      userId: merchants.userId,
-      merchantNumber: merchants.merchantNumber,
-      businessName: merchants.businessName,
-    }).from(merchants);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    console.log(`[Session Reminders] Found ${allMerchants.length} merchants to check`);
+    // Récupérer tous les marchands actifs avec leurs paramètres
+    const merchantsWithSettings = await db
+      .select({
+        merchantId: merchants.id,
+        userId: merchants.userId,
+        businessName: merchants.businessName,
+        reminderClosingTime: merchantSettings.reminderClosingTime,
+      })
+      .from(merchants)
+      .leftJoin(merchantSettings, eq(merchants.id, merchantSettings.merchantId))
+      .where(eq(merchants.isVerified, true));
 
     let notificationsCreated = 0;
 
-    // Pour chaque marchand, vérifier s'il a une session ouverte aujourd'hui
-    for (const merchant of allMerchants) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    for (const merchant of merchantsWithSettings) {
+      // Vérifier si l'heure de rappel correspond à l'heure actuelle
+      const reminderTime = merchant.reminderClosingTime || '20:00';
+      if (!reminderTime.startsWith(currentTime.substring(0, 2))) {
+        continue; // Pas l'heure de rappel pour ce marchand
+      }
 
-      // Chercher une session ouverte pour aujourd'hui
-      const todaySession = await db.select()
+      // Vérifier si la session d'aujourd'hui est ouverte mais pas fermée
+      const todaySession = await db
+        .select()
         .from(merchantDailySessions)
         .where(
           and(
-            eq(merchantDailySessions.merchantId, merchant.id),
-            sql`DATE(${merchantDailySessions.date}) = DATE(${today})`,
-            eq(merchantDailySessions.status, 'OPENED')
+            eq(merchantDailySessions.merchantId, merchant.merchantId),
+            sql`DATE(${merchantDailySessions.sessionDate}) = DATE(${today})`,
+            isNull(merchantDailySessions.closedAt)
           )
         )
         .limit(1);
@@ -149,7 +168,7 @@ export async function checkMissingClosings() {
             userId: merchant.userId,
             type: 'session_reminder',
             title: '🌙 N\'oubliez pas de fermer votre journée !',
-            message: `Bonsoir ! Il est 20h00 et votre journée est toujours ouverte. Fermez-la maintenant pour faire le bilan de votre journée.`,
+            message: `Bonsoir ! Il est ${reminderTime} et votre journée est toujours ouverte. Fermez-la maintenant pour faire le bilan de votre journée.`,
             actionUrl: '/merchant/dashboard',
             isRead: false,
             createdAt: new Date(),
@@ -160,10 +179,21 @@ export async function checkMissingClosings() {
       }
     }
 
-    console.log(`[Session Reminders] Created ${notificationsCreated} closing reminders`);
+    console.log(`[Session Reminders] Created ${notificationsCreated} closing reminders at ${currentTime}`);
     return { success: true, notificationsCreated };
   } catch (error) {
     console.error('[Session Reminders] Error checking missing closings:', error);
-    return { success: false, error };
+    return { success: false, error: String(error), notificationsCreated: 0 };
   }
+}
+
+/**
+ * Fonctions de compatibilité (conservées pour ne pas casser le code existant)
+ */
+export async function checkMissingOpenings() {
+  return await checkMissingOpeningsAtTime('09:00');
+}
+
+export async function checkMissingClosings() {
+  return await checkMissingClosingsAtTime('20:00');
 }

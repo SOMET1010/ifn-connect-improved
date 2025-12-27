@@ -1,7 +1,7 @@
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/useAuth';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
-import { Calendar, Clock, TrendingUp, Award } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Award, Trophy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import SessionsChart, { ComparisonCard } from '@/components/SessionsChart';
@@ -100,14 +100,23 @@ export default function SessionsHistory() {
       
       <main className="container mx-auto px-4 py-8">
         {/* En-tête */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <Calendar className="h-10 w-10 text-orange-600" />
-            Historique des Sessions
-          </h1>
-          <p className="text-lg text-gray-600">
-            Consultez votre calendrier de travail et vos statistiques
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+              <Calendar className="h-10 w-10 text-orange-600" />
+              Historique des Sessions
+            </h1>
+            <p className="text-lg text-gray-600">
+              Consultez votre calendrier de travail et vos statistiques
+            </p>
+          </div>
+          <a
+            href="/merchant/attendance-badges"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-yellow-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+          >
+            <Trophy className="h-5 w-5" />
+            Mes Badges
+          </a>
         </div>
 
         {/* Statistiques globales */}

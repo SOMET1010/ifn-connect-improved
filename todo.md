@@ -2896,3 +2896,62 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Ajouter graphique comparaison mois vs mois précédent
 - [x] Afficher la tendance (hausse/baisse) avec indicateur visuel
 - [x] Intégrer Recharts pour les visualisations
+
+## ✅ BADGES D'ASSIDUITÉ (GAMIFICATION) - TERMINÉ
+
+- [x] Créer le module db-attendance-badges.ts pour calculer les statistiques
+- [x] Implémenter le calcul de la série actuelle (currentStreak)
+- [x] Implémenter le calcul de la plus longue série (longestStreak)
+- [x] Implémenter le calcul des jours travaillés par mois
+- [x] Implémenter le calcul des ouvertures matinales (avant 10h)
+- [x] Créer le router tRPC attendanceBadges
+- [x] Créer le composant AttendanceBadges.tsx
+- [x] Définir 7 badges débloquables (streak_7, streak_30, month_20, month_30, early_bird, regular, champion)
+- [x] Créer la page AttendanceBadgesPage
+- [x] Ajouter la route dans App.tsx
+- [x] Ajouter le bouton "Mes Badges" dans SessionsHistory
+- [x] Afficher les statistiques d'assiduité (série actuelle, meilleure série, jours ce mois, lève-tôt)
+- [x] Afficher les badges débloqués avec design gradient
+- [x] Afficher les badges verrouillés avec indication de progression
+- [x] Message d'encouragement personnalisé selon la progression
+
+
+## 🎯 AUDIT UX & FINALISATION OPÉRATIONNELLE
+
+### Parcours Marchand - Expérience Simplifiée
+- [ ] Vérifier que le menu principal est clair et intuitif
+- [ ] S'assurer que les 4 actions principales sont accessibles en 1 clic
+- [ ] Vérifier la cohérence des icônes et pictogrammes
+- [ ] Tester le parcours d'ouverture de journée
+- [ ] Tester le parcours d'enregistrement de vente
+- [ ] Tester le parcours de gestion de stock
+- [ ] Tester le parcours de fermeture de journée
+- [ ] Vérifier que toutes les notifications sont claires
+- [ ] S'assurer que le feedback vocal fonctionne
+- [ ] Vérifier que les messages d'erreur sont compréhensibles
+
+### Navigation et Accessibilité
+- [ ] Vérifier que tous les boutons sont assez grands (min 48x48px)
+- [ ] S'assurer que les contrastes sont suffisants
+- [ ] Vérifier que la navigation au clavier fonctionne
+- [ ] Tester sur mobile (responsive)
+- [ ] Vérifier que le mode offline fonctionne
+- [ ] S'assurer que les temps de chargement sont acceptables
+
+### Cohérence Visuelle
+- [ ] Vérifier que la charte graphique est respectée partout
+- [ ] S'assurer que les couleurs orange/vert sont cohérentes
+- [ ] Vérifier que les logos DGE/ANSUT sont bien visibles
+- [ ] S'assurer que les images n'ont pas de fond blanc
+- [ ] Vérifier que les espacements sont harmonieux
+
+### Parcours Complet de Test
+- [ ] Créer un compte marchand test
+- [ ] Ouvrir la journée
+- [ ] Enregistrer 3 ventes
+- [ ] Consulter le stock
+- [ ] Commander des produits au marché virtuel
+- [ ] Consulter les cotisations sociales
+- [ ] Fermer la journée
+- [ ] Consulter l'historique
+- [ ] Vérifier les badges débloqués
