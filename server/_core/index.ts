@@ -10,6 +10,8 @@ import { serveStatic, setupVite } from "./vite";
 import { initExpirationAlertsCron } from "./cron-expiration-alerts";
 import { initBadgeChecker } from "../cron/badge-checker";
 import { initSessionRemindersCron } from "../cron/init-session-reminders";
+import { applyGlobalRateLimit } from "./rate-limit";
+import { enableLogSanitization } from "./log-sanitizer";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -31,11 +33,17 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Activer la sanitization automatique des logs
+  enableLogSanitization();
+  
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  
+  // Apply rate limiting to protect against abuse
+  applyGlobalRateLimit(app);
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API

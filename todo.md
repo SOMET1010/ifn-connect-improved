@@ -3019,3 +3019,22 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Créer le test `micro-goals.spec.ts` (système de micro-objectifs)
 - [x] Créer le test `savings-system.spec.ts` (système d'épargne)
 - [x] Configurer les scripts npm pour lancer les tests e2e
+
+
+## 🔴 AUDIT PRÉ-PRODUCTION - ACTIONS CRITIQUES (GO CONDITIONNEL)
+
+### Phase 1 : Corrections bloquantes sécurité (OBLIGATOIRES AVANT PILOTE)
+- [x] 1. Activer le RLS au niveau base de données (exécuter rls-policies.sql + tests)
+- [x] 2. Implémenter rate-limit global API (express-rate-limit : 100 req/15min/IP)
+- [ ] 3. Séparer environnements DEV/STAGING/PROD (créer projet Manus STAGING)
+- [x] 4. Sécuriser upload fichiers avec antivirus (validation + scan basique, ClamAV ready)
+
+### Phase 2 : Corrections importantes (NON-BLOQUANTES PILOTE)
+- [x] 5. Purger les logs applicatifs (masquer téléphone, CNI, montants exacts)
+- [x] 6. Sécuriser exports lourds avec file d'attente (BullMQ + génération async)
+- [x] 7. Formaliser politique de données (document officiel ANSUT/État)
+
+### Phase 3 : Livrables officiels pour validation DG
+- [x] 8. Générer plan d'action sécurité (2 pages, 10 correctifs priorisés)
+- [x] 9. Générer checklist pré-prod (50 points, signable DG)
+- [x] 10. Générer note de cadrage "Conditions de déploiement pilote" (ANSUT/IFN)
