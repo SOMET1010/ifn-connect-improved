@@ -2961,3 +2961,30 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Exécuter la suite de tests complète (pnpm test)
 - [x] Ajouter tests d'intégration pour workflow ouverture → vente → fermeture
 - [x] Valider que tous les tests passent
+
+## 🎯 Validation Finale et Nettoyage (27 décembre 2024) - EN COURS
+
+### Phase 1 : Analyse des données
+- [x] Analyser les données en base de données pour identifier les données mockées
+- [x] Créer un rapport d'audit des données
+
+### Phase 2 : Corrections tests notifications
+- [x] Corriger les 3 tests d'expiration de notifications (rate limit Resend)
+- [x] Ajouter des délais ou mocker l'API Resend
+
+### Phase 3 : Tests d'intégration Agent
+- [x] Ajouter des tests d'intégration pour le module Agent (enrôlement complet)
+- [x] Valider le workflow : capture photo → géolocalisation → validation
+
+### Phase 4 : Tests de performance
+- [x] Créer des tests de performance pour les requêtes critiques
+- [x] Tester le dashboard marchand avec 100 ventes
+- [x] Tester la création de vente et mise à jour de stock
+
+### Phase 5 : Nettoyage des données
+- [x] Identifier toutes les données mockées (4 marchands de test)
+- [x] Vérifier l'intégrité des données réelles (1616 marchands légitimes)
+
+### Phase 6 : Livraison finale
+- [x] Livrer le rapport final avec toutes les validations
+- [ ] Créer un checkpoint final

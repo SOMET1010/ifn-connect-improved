@@ -1,0 +1,77 @@
+{
+  "date": "2025-12-27T20:23:40.030Z",
+  "summary": {
+    "users": {
+      "total": 1776
+    },
+    "merchants": {
+      "total": 1616,
+      "verified": 1363,
+      "suspicious": 4
+    },
+    "sales": {
+      "total": 0,
+      "cash": 0,
+      "mobileMoney": 0,
+      "last24h": 0,
+      "last7days": 0,
+      "last30days": 0,
+      "suspiciousRoundAmounts": 0
+    },
+    "products": {
+      "total": 34,
+      "withImage": 34,
+      "suspicious": 0
+    },
+    "stock": {
+      "total": 0,
+      "zero": 0,
+      "low": 0
+    }
+  },
+  "suspiciousData": {
+    "merchants": [
+      {
+        "merchantNumber": "M1766705995011",
+        "businessName": "Boutique Test Admin",
+        "createdAt": "2025-12-25T23:39:55.000Z"
+      },
+      {
+        "merchantNumber": "DJEDJE BAGNON::0000122B",
+        "businessName": "ISHOLA ADEMOLA AZIZ",
+        "createdAt": "2025-12-26T01:33:27.000Z"
+      },
+      {
+        "merchantNumber": "MRC-TEST-PAY-1766740926263",
+        "businessName": "Test Business Payments",
+        "createdAt": "2025-12-26T09:22:06.000Z"
+      },
+      {
+        "merchantNumber": "MRC-NOPROT-1766744175082",
+        "businessName": "Test No Protection",
+        "createdAt": "2025-12-26T10:16:15.000Z"
+      }
+    ],
+    "topSales": []
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Marchands",
+      "message": "4 marchands ont des noms suspects (test, demo, mock, fake). Vérifier et nettoyer si nécessaire.",
+      "action": "DELETE_SUSPICIOUS_MERCHANTS"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Ventes",
+      "message": "Aucune vente dans les 7 derniers jours. Les données semblent anciennes ou mockées.",
+      "action": "VERIFY_DATA_FRESHNESS"
+    },
+    {
+      "priority": "INFO",
+      "category": "Produits",
+      "message": "Exactement 34 produits trouvés. Il s'agit probablement des produits de seed initiaux. ✅",
+      "action": "NONE"
+    }
+  ]
+}

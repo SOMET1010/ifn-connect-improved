@@ -73,6 +73,9 @@ describe('Expiration Notifications System', () => {
     const in7Days = new Date();
     in7Days.setDate(in7Days.getDate() + 7);
 
+    // Attendre 600ms pour respecter le rate limit Resend (2 emails/seconde)
+    await new Promise(resolve => setTimeout(resolve, 600));
+
     const result = await sendExpirationAlert({
       to: testEmail,
       merchantName: 'Test Merchant Notifications',
@@ -87,6 +90,9 @@ describe('Expiration Notifications System', () => {
   it('should send CMU expiration alert email successfully', async () => {
     const in30Days = new Date();
     in30Days.setDate(in30Days.getDate() + 30);
+
+    // Attendre 600ms pour respecter le rate limit Resend (2 emails/seconde)
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     const result = await sendExpirationAlert({
       to: testEmail,
@@ -103,6 +109,9 @@ describe('Expiration Notifications System', () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Attendre 600ms pour respecter le rate limit Resend (2 emails/seconde)
+    await new Promise(resolve => setTimeout(resolve, 600));
+
     const result = await sendExpirationAlert({
       to: testEmail,
       merchantName: 'Test Merchant Notifications',
@@ -117,6 +126,9 @@ describe('Expiration Notifications System', () => {
   it('should include correct urgency level in subject for 1 day remaining', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Attendre 600ms pour respecter le rate limit Resend (2 emails/seconde)
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     // Le test vérifie juste que l'envoi réussit
     // L'urgence "critique" est gérée dans le template
@@ -135,6 +147,9 @@ describe('Expiration Notifications System', () => {
     const in7Days = new Date();
     in7Days.setDate(in7Days.getDate() + 7);
 
+    // Attendre 600ms pour respecter le rate limit Resend (2 emails/seconde)
+    await new Promise(resolve => setTimeout(resolve, 600));
+
     // Le test vérifie juste que l'envoi réussit
     // L'urgence "urgente" est gérée dans le template
     const result = await sendExpirationAlert({
@@ -151,6 +166,9 @@ describe('Expiration Notifications System', () => {
   it('should include correct urgency level in subject for 30 days remaining', async () => {
     const in30Days = new Date();
     in30Days.setDate(in30Days.getDate() + 30);
+
+    // Attendre 600ms pour respecter le rate limit Resend (2 emails/seconde)
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     // Le test vérifie juste que l'envoi réussit
     // L'urgence "importante" est gérée dans le template
