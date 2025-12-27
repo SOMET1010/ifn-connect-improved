@@ -3038,3 +3038,26 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] 8. Générer plan d'action sécurité (2 pages, 10 correctifs priorisés)
 - [x] 9. Générer checklist pré-prod (50 points, signable DG)
 - [x] 10. Générer note de cadrage "Conditions de déploiement pilote" (ANSUT/IFN)
+
+
+## 🚨 AMÉLIORATION UX MARCHANDS - 27 DEC 2024
+
+### Interface ultra-simplifiée
+- [x] Créer MerchantDashboardUltraSimple avec 4 GROS boutons uniquement
+- [x] Pictogrammes géants (200px)
+- [x] Supprimer tous les graphiques et statistiques
+- [x] Activer la version ultra-simplifiée par défaut sur /merchant
+
+### Synthèse vocale améliorée
+- [x] Créer le hook useVoice avec Google TTS
+- [x] Configurer vitesse lente (0.7) pour meilleure compréhension
+- [x] Intégrer dans le dashboard ultra-simple
+- [x] Message de bienvenue automatique au chargement
+- [x] Guidage vocal au survol des boutons
+- [x] Bouton de contrôle audio (activer/désactiver)
+
+### Prochaines améliorations
+- [ ] Enregistrements audio réels en Dioula (nécessite fichiers MP3)
+- [ ] Simplifier également la page Caisse
+- [ ] Simplifier la page Stock
+- [ ] Ajouter animations visuelles (flèches, pulsations)

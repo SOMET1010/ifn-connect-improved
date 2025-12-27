@@ -7,7 +7,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import MerchantDashboard from "./pages/merchant/Dashboard";
 import MerchantDashboardNew from "./pages/MerchantDashboard";
-import MerchantDashboardSimple from "./pages/MerchantDashboardSimple";
+import MerchantDashboardSimple from './pages/MerchantDashboardSimple';
+import MerchantDashboardUltraSimple from './pages/MerchantDashboardUltraSimple';
 import CashRegister from './pages/merchant/CashRegister';
 import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
 import MerchantProfile from './pages/merchant/Profile';
@@ -51,7 +52,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/merchant"} component={MerchantDashboard} />
+      <Route path={"/merchant"} component={MerchantDashboardUltraSimple} />
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
@@ -67,10 +68,11 @@ function Router() {
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
       <Route path="/merchant/settings" component={MerchantSettings} />
-         {/* Merchant Routes */}
-      <Route path="/merchant" component={MerchantDashboard} />
-      <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />
-      <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
+      {/* Merchant Routes (version simplifiée par défaut) */}
+      <Route path="/merchant/journey" component={MerchantJourney} />
+      
+      {/* Agent Routes */}
+      <Route path={"/agent/dashboard"} component={AgentDashboard} />      <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
       <Route path={"/agent/tasks"} component={AgentTasks} />
       
       {/* Admin Routes */}
