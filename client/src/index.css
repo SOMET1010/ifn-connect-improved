@@ -411,3 +411,66 @@
 .status-indicator.pending {
   background-color: var(--color-warning);
 }
+
+
+/* ============================================================================
+ * ACCESSIBILITÉ : Focus visible pour navigation clavier
+ * ============================================================================ */
+
+/* Supprimer le focus par défaut pour les interactions souris */
+*:focus {
+  outline: none;
+}
+
+/* Ajouter un focus visible uniquement pour la navigation clavier */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Focus visible pour les boutons */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Focus visible pour les liens */
+a:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+
+/* Focus visible pour les inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 0px;
+  border-color: hsl(var(--ring));
+}
+
+/* Focus visible pour les éléments interactifs personnalisés */
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Skip link pour navigation clavier (optionnel) */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 100;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}

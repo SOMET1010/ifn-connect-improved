@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { merchantProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { badges, merchantBadges } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
@@ -23,7 +23,7 @@ export const badgesRouter = router({
   /**
    * Récupère les badges débloqués par un marchand
    */
-  myBadges: publicProcedure
+  myBadges: merchantProcedure
     .input(z.object({ merchantId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
@@ -41,7 +41,7 @@ export const badgesRouter = router({
   /**
    * Débloquer un badge pour un marchand
    */
-  unlock: publicProcedure
+  unlock: merchantProcedure
     .input(z.object({
       merchantId: z.number(),
       badgeCode: z.string(),
@@ -92,7 +92,7 @@ export const badgesRouter = router({
   /**
    * Marquer un badge comme vu (pour retirer l'animation "nouveau")
    */
-  markAsSeen: publicProcedure
+  markAsSeen: merchantProcedure
     .input(z.object({
       merchantId: z.number(),
       badgeId: z.number(),

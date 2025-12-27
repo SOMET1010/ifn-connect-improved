@@ -7,8 +7,32 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
+import { initSentry, reportWebVitals, captureError } from "@/lib/sentry";
 
-const queryClient = new QueryClient();
+// Initialiser Sentry pour le monitoring d'erreurs
+initSentry();
+
+// Reporter les Web Vitals vers Sentry
+reportWebVitals();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Cache par défaut : 5 minutes
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (anciennement cacheTime)
+      
+      // Retry configuration
+      retry: 1,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      
+      // Refetch configuration
+      refetchOnWindowFocus: false, // Ne pas refetch au focus de la fenêtre
+      refetchOnReconnect: true, // Refetch à la reconnexion
+      refetchOnMount: false, // Ne pas refetch au montage si données en cache
+    },
+  },
+});
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
@@ -26,6 +50,10 @@ queryClient.getQueryCache().subscribe(event => {
     const error = event.query.state.error;
     redirectToLoginIfUnauthorized(error);
     console.error("[API Query Error]", error);
+    // Capturer l'erreur dans Sentry
+    if (error instanceof Error) {
+      captureError(error, { type: 'query', query: event.query.queryKey });
+    }
   }
 });
 
@@ -34,6 +62,10 @@ queryClient.getMutationCache().subscribe(event => {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
     console.error("[API Mutation Error]", error);
+    // Capturer l'erreur dans Sentry
+    if (error instanceof Error) {
+      captureError(error, { type: 'mutation', mutation: event.mutation.options.mutationKey });
+    }
   }
 });
 

@@ -18,6 +18,7 @@ export const audioLibraryRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
       const [audio] = await db
         .select()
         .from(audioLibrary)
@@ -38,6 +39,7 @@ export const audioLibraryRouter = router({
       if (input.keys.length === 0) return [];
       
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
       const audios = await db
         .select()
         .from(audioLibrary)
@@ -64,6 +66,7 @@ export const audioLibraryRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
       const audios = await db
         .select()
         .from(audioLibrary)
@@ -77,6 +80,7 @@ export const audioLibraryRouter = router({
    */
   getAll: publicProcedure.query(async () => {
     const db = await getDb();
+    if (!db) throw new Error('Database not available');
     const audios = await db
       .select()
       .from(audioLibrary);
@@ -89,6 +93,7 @@ export const audioLibraryRouter = router({
    */
   getStats: publicProcedure.query(async () => {
     const db = await getDb();
+    if (!db) throw new Error('Database not available');
     const allAudios = await db
       .select()
       .from(audioLibrary);

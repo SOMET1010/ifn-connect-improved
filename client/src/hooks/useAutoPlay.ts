@@ -142,9 +142,10 @@ class AudioQueue {
  * }
  * ```
  */
-export function useAutoPlay(keys: string[] = [], autoPlay = true, delay = 500) {
+export function useAutoPlay(keys: string[], autoPlay = false, delay = 500) {
   const [isPlaying, setIsPlaying] = useState(false);
   const queueRef = useRef<AudioQueue | null>(null);
+  const utils = trpc.useUtils();
   const hasPlayedRef = useRef(false);
 
   // Récupérer les audios depuis la base de données
@@ -198,17 +199,17 @@ export function useAutoPlay(keys: string[] = [], autoPlay = true, delay = 500) {
     const keysToPlay = Array.isArray(keyOrKeys) ? keyOrKeys : [keyOrKeys];
     
     // Récupérer les audios
-    const response = await trpc.audioLibrary.getByKeys.query({ keys: keysToPlay });
+    const response = await utils.audioLibrary.getByKeys.fetch({ keys: keysToPlay });
     
     const audioUrls = response
-      .filter(a => a.audioUrl)
-      .sort((a, b) => (b.priority || 0) - (a.priority || 0))
-      .map(a => a.audioUrl!);
+      .filter((a: any) => a.audioUrl)
+      .sort((a: any, b: any) => (b.priority || 0) - (a.priority || 0))
+      .map((a: any) => a.audioUrl!);
 
     if (audioUrls.length > 0) {
       queueRef.current?.addMultiple(audioUrls);
     }
-  }, []);
+  }, [utils]);
 
   /**
    * Mettre en pause

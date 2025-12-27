@@ -1,8 +1,9 @@
-import { Button, ButtonProps } from './ui/button';
+import { Button, buttonVariants } from './ui/button';
+import type { VariantProps } from 'class-variance-authority';
 import { useAudioClick } from '../hooks/useAutoPlay';
 import { cn } from '../lib/utils';
 
-interface AudioButtonProps extends ButtonProps {
+interface AudioButtonProps extends Omit<React.ComponentProps<'button'>, 'size'>, Omit<VariantProps<typeof buttonVariants>, 'size'> {
   /**
    * Clé de l'audio à jouer au clic
    */
@@ -24,9 +25,9 @@ interface AudioButtonProps extends ButtonProps {
   iconOnly?: boolean;
   
   /**
-   * Taille du bouton
+   * Taille du bouton (xl est custom pour AudioButton)
    */
-  size?: 'default' | 'sm' | 'lg' | 'icon' | 'xl';
+  size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg' | 'xl';
 }
 
 /**
@@ -69,7 +70,7 @@ export function AudioButton({
 
   return (
     <Button
-      size={size}
+      size={size === 'xl' ? 'default' : size}
       className={cn(
         'relative',
         // Boutons extra larges pour tactile

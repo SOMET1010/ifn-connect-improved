@@ -59,6 +59,7 @@ export const merchants = mysqlTable("merchants", {
   merchantNumberIdx: index("merchant_number_idx").on(table.merchantNumber),
   locationIdx: index("location_idx").on(table.latitude, table.longitude),
   enrolledByIdx: index("enrolled_by_idx").on(table.enrolledBy),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
 }));
 
 export type Merchant = typeof merchants.$inferSelect;
@@ -431,6 +432,7 @@ export const actors = mysqlTable("actors", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   actorKeyIdx: index("actor_key_idx").on(table.actorKey),
+  marketIdIdx: index("actor_market_id_idx").on(table.marketId),
   marketNameIdx: index("actor_market_name_idx").on(table.marketName),
   identifierIdx: index("actor_identifier_idx").on(table.identifierCode),
   phoneIdx: index("actor_phone_idx").on(table.phone),

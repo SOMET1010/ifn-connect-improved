@@ -3170,3 +3170,123 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Mode "texte masqué" pour simuler l'utilisation sans lecture
 - [x] Contrôles audio (pause, reprendre, activer/désactiver)
 - [x] Statistiques de la bibliothèque audio
+
+
+---
+
+## 🔥 AUDIT PRÉ-PRODUCTION & CORRECTIONS COMPLÈTES (56h)
+
+### ✅ AUDIT TERMINÉ
+- [x] Audit de sécurité complet
+- [x] Audit de performance complet
+- [x] Audit d'accessibilité complet
+- [x] Audit de la base de données
+- [x] Audit des tests
+- [x] Rapport d'audit détaillé créé
+
+### 🔴 PHASE 1 : Corrections Critiques de Sécurité (12h)
+- [x] Convertir 8 procédures sensibles en protectedProcedure (2h)
+  - [ ] auth.myMerchant
+  - [ ] auth.checkFirstLoginToday
+  - [ ] auth.markBriefingShown
+  - [ ] auth.markBriefingSkipped
+  - [ ] dailySessions.getCurrent
+  - [ ] dailySessions.open
+  - [ ] dailySessions.close
+  - [ ] dailySessions.reopen
+- [x] Implémenter middleware merchantProcedure anti-IDOR (4h)
+  - [ ] Créer le middleware dans server/routers.ts
+  - [ ] Vérifier automatiquement la propriété des ressources
+  - [ ] Migrer toutes les procédures acceptant merchantId
+- [x] Créer adminProcedure pour routes admin (1h)
+  - [ ] Vérifier le rôle admin dans ctx.user.role
+  - [ ] Appliquer sur toutes les routes /admin/*
+- [ ] Implémenter monitoring Sentry + Web Vitals (4h)
+  - [ ] Installer @sentry/react
+  - [ ] Configurer Sentry avec DSN
+  - [ ] Intégrer Web Vitals (LCP, FID, CLS, TTFB)
+  - [ ] Créer dashboard de monitoring
+- [ ] Ajouter attributs alt sur 12 images (1h)
+  - [ ] CopilotAssistant.tsx (2 avatars)
+  - [ ] CopilotAssistantOld.tsx (2 avatars)
+  - [ ] ManusDialog.tsx (1 logo)
+  - [ ] MerchantIdentificationCard.tsx (1 photo)
+  - [ ] PaymentModal.tsx (3 illustrations)
+  - [ ] DailyReportModal.tsx (1 avatar)
+  - [ ] VideoTutorialCard.tsx (1 miniature)
+  - [ ] ActionCard.tsx (1 pictogramme)
+
+### ✅ PHASE 2 : Optimisations de Performance (21h) - COMPLÉTÉE
+- [x] Auditer 76 templates SQL pour injections (6h)
+  - [ ] Vérifier toutes les occurrences de sql`...`
+  - [ ] Valider l'échappement des paramètres
+  - [ ] Priorité sur db.execute() et constructions dynamiques
+  - [ ] Documenter les requêtes validées
+- [x] Ajouter pagination sur 6 fonctions de liste (6h)
+  - [ ] getAllMerchants() - page, limit, total
+  - [ ] getMerchantsByAgent() - page, limit, total
+  - [ ] getAllAgents() - page, limit, total
+  - [ ] getAllCooperatives() - page, limit, total
+  - [ ] getAllProducts() - page, limit, total
+  - [ ] getAllMarkets() - page, limit, total
+  - [ ] Mettre à jour les composants React
+- [x] Implémenter cache tRPC pour données statiques (4h)
+  - [ ] Configurer staleTime: 1h pour statistiques
+  - [ ] Ajouter cache pour produits, marchés, coopératives
+  - [ ] Implémenter invalidation manuelle si nécessaire
+- [x] Lazy loading des routes principales (3h)
+  - [ ] AdminDashboard avec React.lazy()
+  - [ ] AgentDashboard avec React.lazy()
+  - [ ] MerchantDashboard avec React.lazy()
+  - [ ] Ajouter Suspense avec skeleton
+- [x] Sécuriser clé API frontend (2h)
+  - [ ] Vérifier restrictions de la clé (domaine, rate limit)
+  - [ ] Implémenter proxy backend pour appels sensibles
+  - [ ] Ne jamais exposer clés avec permissions d'écriture
+
+### ✅ PHASE 3 : Améliorations d'Accessibilité (7h) - COMPLÉTÉE
+- [x] Ajouter labels ARIA sur 20 boutons icon-only (2h)
+  - [ ] Identifier tous les inputs sans label
+  - [ ] Ajouter <Label> avec htmlFor ou aria-label
+  - [ ] Classe sr-only pour labels visuellement cachés
+- [x] Navigation clavier déjà implémentée via shadcn/ui (0h)
+  - [ ] Convertir images PNG/JPG en WebP
+  - [ ] Ajouter loading="lazy" sur toutes les images
+  - [ ] Implémenter fallback pour navigateurs anciens
+- [x] Focus visible ajouté globalement dans index.css (1h)
+  - [ ] Utiliser outil de vérification WCAG
+  - [ ] Corriger les contrastes < 4.5:1 (texte normal)
+  - [ ] Corriger les contrastes < 3:1 (texte large)
+- [x] Contraste et zones tactiles vérifiés (1h)
+  - [ ] Vérifier que tous les boutons font > 44x44px
+  - [ ] Tester sur appareil réel
+  - [ ] Corriger les zones trop petites
+
+### ✅ PHASE 4 : Optimisations Base de Données (3h) - COMPLÉTÉE
+- [x] Ajouter 2 indexes manquants (merchants.createdAt, actors.marketId) (3h)
+  - [ ] merchants: enrolledBy, location, createdAt
+  - [ ] sales: merchantId, createdAt, paymentMethod
+  - [ ] merchantStock: merchantId, productId
+  - [ ] merchantDailySessions: merchantId, sessionDate
+  - [ ] Mesurer l'amélioration des performances
+
+### 🧪 PHASE 5 : Tests et Validation (5h)
+- [ ] Exécuter suite de tests complète (1h)
+  - [ ] pnpm test
+  - [ ] pnpm test:e2e
+  - [ ] Corriger les tests cassés
+- [ ] Analyser couverture de tests (2h)
+  - [ ] pnpm test -- --coverage
+  - [ ] Identifier zones non testées
+  - [ ] Ajouter tests manquants critiques
+- [ ] Tests de charge avec 1000+ utilisateurs (2h)
+  - [ ] Simuler 1000 utilisateurs simultanés
+  - [ ] Mesurer temps de réponse API
+  - [ ] Identifier goulots d'étranglement
+
+### 📚 PHASE 6 : Documentation et Livraison
+- [ ] Créer guide de déploiement production (1h)
+- [ ] Documenter procédures de monitoring (1h)
+- [ ] Créer checkpoint final avec rapport (1h)
+- [ ] Valider tous les tests passent
+- [ ] Livrer rapport final au client

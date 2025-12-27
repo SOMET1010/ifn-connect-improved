@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { protectedProcedure, router } from "../_core/trpc";
 import { getMerchantByUserId } from "../db-merchant";
 import {
   getTodaySession,
@@ -22,11 +22,7 @@ export const dailySessionsRouter = router({
   /**
    * Récupérer la session du jour pour le marchand connecté
    */
-  getCurrent: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.user) {
-      throw new Error("Utilisateur non authentifié");
-    }
-
+  getCurrent: protectedProcedure.query(async ({ ctx }) => {
     const merchant = await getMerchantByUserId(ctx.user.id);
     if (!merchant) {
       throw new Error("Marchand non trouvé");
@@ -39,17 +35,13 @@ export const dailySessionsRouter = router({
   /**
    * Ouvrir la journée du marchand
    */
-  open: publicProcedure
+  open: protectedProcedure
     .input(
       z.object({
         notes: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.user) {
-        throw new Error("Utilisateur non authentifié");
-      }
-
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) {
         throw new Error("Marchand non trouvé");
@@ -66,17 +58,13 @@ export const dailySessionsRouter = router({
   /**
    * Fermer la journée du marchand
    */
-  close: publicProcedure
+  close: protectedProcedure
     .input(
       z.object({
         notes: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.user) {
-        throw new Error("Utilisateur non authentifié");
-      }
-
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) {
         throw new Error("Marchand non trouvé");
@@ -93,11 +81,7 @@ export const dailySessionsRouter = router({
   /**
    * Rouvrir une journée déjà fermée
    */
-  reopen: publicProcedure.mutation(async ({ ctx }) => {
-    if (!ctx.user) {
-      throw new Error("Utilisateur non authentifié");
-    }
-
+  reopen: protectedProcedure.mutation(async ({ ctx }) => {
     const merchant = await getMerchantByUserId(ctx.user.id);
     if (!merchant) {
       throw new Error("Marchand non trouvé");

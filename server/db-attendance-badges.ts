@@ -20,7 +20,7 @@ export async function getAttendanceStats(merchantId: number) {
     .where(
       and(
         eq(merchantDailySessions.merchantId, merchantId),
-        gte(merchantDailySessions.date, thirtyDaysAgo)
+        gte(merchantDailySessions.sessionDate, thirtyDaysAgo)
       )
     );
 
@@ -31,7 +31,7 @@ export async function getAttendanceStats(merchantId: number) {
     .where(
       and(
         eq(merchantDailySessions.merchantId, merchantId),
-        gte(merchantDailySessions.date, sevenDaysAgo)
+        gte(merchantDailySessions.sessionDate, sevenDaysAgo)
       )
     );
 
@@ -49,7 +49,7 @@ export async function getAttendanceStats(merchantId: number) {
     .where(
       and(
         eq(merchantDailySessions.merchantId, merchantId),
-        gte(merchantDailySessions.date, startOfMonth)
+        gte(merchantDailySessions.sessionDate, startOfMonth)
       )
     );
 
@@ -60,7 +60,7 @@ export async function getAttendanceStats(merchantId: number) {
     .where(
       and(
         eq(merchantDailySessions.merchantId, merchantId),
-        gte(merchantDailySessions.date, thirtyDaysAgo),
+        gte(merchantDailySessions.sessionDate, thirtyDaysAgo),
         sql`TIME(${merchantDailySessions.openedAt}) < '10:00:00'`
       )
     );
@@ -86,7 +86,7 @@ async function calculateCurrentStreak(merchantId: number): Promise<number> {
     .select()
     .from(merchantDailySessions)
     .where(eq(merchantDailySessions.merchantId, merchantId))
-    .orderBy(sql`${merchantDailySessions.date} DESC`)
+    .orderBy(sql`${merchantDailySessions.sessionDate} DESC`)
     .limit(100);
 
   if (sessions.length === 0) return 0;
@@ -96,7 +96,7 @@ async function calculateCurrentStreak(merchantId: number): Promise<number> {
   today.setHours(0, 0, 0, 0);
 
   for (let i = 0; i < sessions.length; i++) {
-    const sessionDate = new Date(sessions[i].date);
+    const sessionDate = new Date(sessions[i].sessionDate);
     sessionDate.setHours(0, 0, 0, 0);
 
     const expectedDate = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
@@ -123,7 +123,7 @@ async function calculateLongestStreak(merchantId: number): Promise<number> {
     .select()
     .from(merchantDailySessions)
     .where(eq(merchantDailySessions.merchantId, merchantId))
-    .orderBy(sql`${merchantDailySessions.date} ASC`);
+    .orderBy(sql`${merchantDailySessions.sessionDate} ASC`);
 
   if (sessions.length === 0) return 0;
 
@@ -131,8 +131,8 @@ async function calculateLongestStreak(merchantId: number): Promise<number> {
   let currentStreak = 1;
 
   for (let i = 1; i < sessions.length; i++) {
-    const prevDate = new Date(sessions[i - 1].date);
-    const currDate = new Date(sessions[i].date);
+    const prevDate = new Date(sessions[i - 1].sessionDate);
+    const currDate = new Date(sessions[i].sessionDate);
 
     const diffDays = Math.floor(
       (currDate.getTime() - prevDate.getTime()) / (24 * 60 * 60 * 1000)

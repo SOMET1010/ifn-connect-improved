@@ -166,7 +166,7 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
         style={tooltipPosition}
       >
         {/* Bouton fermer */}
-        <button
+        <button aria-label="Fermer l'onboarding"
           onClick={onSkip}
           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
         >
@@ -216,7 +216,7 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
 
         {/* Bouton Passer */}
         {!isLastStep && (
-          <button
+          <button aria-label="Passer l'onboarding"
             onClick={onSkip}
             className="w-full mt-4 text-sm text-muted-foreground hover:text-foreground"
           >

@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, sql, gte, lte, count } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users,
@@ -152,18 +152,56 @@ export async function getMerchantByNumber(merchantNumber: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getAllMerchants() {
+export async function getAllMerchants(page: number = 1, limit: number = 50) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { merchants: [], total: 0, page, limit, totalPages: 0 };
 
-  return await db.select().from(merchants).orderBy(desc(merchants.createdAt));
+  // Compter le total
+  const [{ count: total }] = await db.select({ count: count() }).from(merchants);
+  
+  // Récupérer les marchands paginés
+  const merchantsList = await db
+    .select()
+    .from(merchants)
+    .orderBy(desc(merchants.createdAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    merchants: merchantsList,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
-export async function getMerchantsByAgent(agentId: number) {
+export async function getMerchantsByAgent(agentId: number, page: number = 1, limit: number = 50) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { merchants: [], total: 0, page, limit, totalPages: 0 };
 
-  return await db.select().from(merchants).where(eq(merchants.enrolledBy, agentId)).orderBy(desc(merchants.enrolledAt));
+  // Compter le total
+  const [{ count: total }] = await db
+    .select({ count: count() })
+    .from(merchants)
+    .where(eq(merchants.enrolledBy, agentId));
+  
+  // Récupérer les marchands paginés
+  const merchantsList = await db
+    .select()
+    .from(merchants)
+    .where(eq(merchants.enrolledBy, agentId))
+    .orderBy(desc(merchants.enrolledAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    merchants: merchantsList,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export async function updateMerchant(id: number, data: Partial<InsertMerchant>) {
@@ -192,11 +230,28 @@ export async function getAgentByUserId(userId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getAllAgents() {
+export async function getAllAgents(page: number = 1, limit: number = 50) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { agents: [], total: 0, page, limit, totalPages: 0 };
 
-  return await db.select().from(agents).orderBy(desc(agents.createdAt));
+  // Compter le total
+  const [{ count: total }] = await db.select({ count: count() }).from(agents);
+  
+  // Récupérer les agents paginés
+  const agentsList = await db
+    .select()
+    .from(agents)
+    .orderBy(desc(agents.createdAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    agents: agentsList,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export async function incrementAgentEnrollments(agentId: number) {
@@ -227,11 +282,28 @@ export async function getCooperativeByUserId(userId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getAllCooperatives() {
+export async function getAllCooperatives(page: number = 1, limit: number = 50) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { cooperatives: [], total: 0, page, limit, totalPages: 0 };
 
-  return await db.select().from(cooperatives).orderBy(desc(cooperatives.createdAt));
+  // Compter le total
+  const [{ count: total }] = await db.select({ count: count() }).from(cooperatives);
+  
+  // Récupérer les coopératives paginées
+  const cooperativesList = await db
+    .select()
+    .from(cooperatives)
+    .orderBy(desc(cooperatives.createdAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    cooperatives: cooperativesList,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 // ============================================================================
@@ -245,11 +317,31 @@ export async function createProduct(product: InsertProduct) {
   return await db.insert(products).values(product);
 }
 
-export async function getAllProducts() {
+export async function getAllProducts(page: number = 1, limit: number = 50) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { products: [], total: 0, page, limit, totalPages: 0 };
 
-  return await db.select().from(products).where(eq(products.isActive, true));
+  // Compter le total
+  const [{ count: total }] = await db
+    .select({ count: count() })
+    .from(products)
+    .where(eq(products.isActive, true));
+  
+  // Récupérer les produits paginés
+  const productsList = await db
+    .select()
+    .from(products)
+    .where(eq(products.isActive, true))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    products: productsList,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export async function getProductById(id: number) {

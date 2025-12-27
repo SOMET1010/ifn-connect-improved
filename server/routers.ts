@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { getMerchantByUserId } from "./db-merchant";
 import { recordDailyLogin, markBriefingShown, markBriefingSkipped, hasBriefingBeenShown } from "./db-daily-logins";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { salesRouter } from "./routers/sales";
 import { productsRouter, stockRouter } from "./routers/products";
 import { marketsRouter } from './routers/markets';
@@ -83,15 +83,12 @@ export const appRouter = router({
       } as const;
     }),
     // Récupérer le marchand lié à l'utilisateur connecté
-    myMerchant: publicProcedure.query(async ({ ctx }) => {
-      if (!ctx.user) return null;
+    myMerchant: protectedProcedure.query(async ({ ctx }) => {
       const merchant = await getMerchantByUserId(ctx.user.id);
       return merchant;
     }),
     // Détecter si c'est le premier login du jour
-    checkFirstLoginToday: publicProcedure.query(async ({ ctx }) => {
-      if (!ctx.user) return { isFirstLogin: false, shouldShowBriefing: false };
-      
+    checkFirstLoginToday: protectedProcedure.query(async ({ ctx }) => {
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) return { isFirstLogin: false, shouldShowBriefing: false };
       
@@ -104,9 +101,7 @@ export const appRouter = router({
       };
     }),
     // Marquer le briefing comme affiché
-    markBriefingShown: publicProcedure.mutation(async ({ ctx }) => {
-      if (!ctx.user) return { success: false };
-      
+    markBriefingShown: protectedProcedure.mutation(async ({ ctx }) => {
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) return { success: false };
       
@@ -114,9 +109,7 @@ export const appRouter = router({
       return { success: true };
     }),
     // Marquer le briefing comme ignoré
-    markBriefingSkipped: publicProcedure.mutation(async ({ ctx }) => {
-      if (!ctx.user) return { success: false };
-      
+    markBriefingSkipped: protectedProcedure.mutation(async ({ ctx }) => {
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) return { success: false };
       

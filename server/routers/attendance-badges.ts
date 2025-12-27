@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { merchantProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getAttendanceStats, getUnlockedBadges } from "../db-attendance-badges";
 
 export const attendanceBadgesRouter = router({
   /**
    * Récupère les statistiques d'assiduité d'un marchand
    */
-  getStats: protectedProcedure
+  getStats: merchantProcedure
     .input(z.object({ merchantId: z.number() }))
     .query(async ({ input }) => {
       return await getAttendanceStats(input.merchantId);
@@ -15,7 +15,7 @@ export const attendanceBadgesRouter = router({
   /**
    * Récupère les badges débloqués par un marchand
    */
-  getUnlockedBadges: protectedProcedure
+  getUnlockedBadges: merchantProcedure
     .input(z.object({ merchantId: z.number() }))
     .query(async ({ input }) => {
       return await getUnlockedBadges(input.merchantId);

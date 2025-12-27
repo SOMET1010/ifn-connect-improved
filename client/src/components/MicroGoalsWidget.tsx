@@ -146,7 +146,7 @@ export function MicroGoalsWidget({ merchantId }: MicroGoalsWidgetProps) {
           >
             <CardContent className="p-4">
               {/* Bouton de fermeture */}
-              <button
+              <button aria-label="Fermer cette suggestion"
                 onClick={() => handleDismiss(goal.id)}
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
               >

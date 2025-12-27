@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<Props, State> {
               </pre>
             </div>
 
-            <button
+            <button aria-label="Recharger la page"
               onClick={() => window.location.reload()}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg",

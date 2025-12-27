@@ -94,7 +94,7 @@ export function VideoTutorialCard({ tutorial, isWatched = false, onWatched }: Vi
                 <Play className="w-16 h-16 text-white opacity-50" />
               </div>
             )}
-            <button
+            <button aria-label="Lire la vidéo"
               onClick={handlePlay}
               className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors group"
             >

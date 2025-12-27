@@ -55,7 +55,7 @@ export function SessionStatusBadge() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="focus:outline-none">
+        <button aria-label="Gérer la session du jour" className="focus:outline-none">
           {status === 'NOT_OPENED' && (
             <Badge variant="secondary" className="gap-2 cursor-pointer hover:bg-secondary/80">
               <Moon className="h-4 w-4" />

@@ -15,7 +15,7 @@ export default function SessionsHistory() {
   const merchantId = merchant?.id;
 
   const { data: historyData, isLoading } = trpc.dailySessions.getHistory.useQuery(
-    { merchantId: merchantId!, limit: 30 },
+    { limit: 30 },
     { enabled: !!merchantId }
   );
 

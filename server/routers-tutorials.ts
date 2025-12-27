@@ -18,6 +18,7 @@ export const tutorialsRouter = router({
     }).optional())
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
       let query = db
         .select()
         .from(videoTutorials)
@@ -25,7 +26,7 @@ export const tutorialsRouter = router({
         .orderBy(videoTutorials.category, videoTutorials.order);
 
       if (input?.category) {
-        query = db
+        query = db!
           .select()
           .from(videoTutorials)
           .where(
@@ -60,6 +61,7 @@ export const tutorialsRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
       return await db
         .select()
         .from(videoTutorials)
@@ -82,6 +84,7 @@ export const tutorialsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.user.id;
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
 
       // Vérifier si déjà marqué comme regardé
       const [existing] = await db
@@ -124,6 +127,7 @@ export const tutorialsRouter = router({
   getProgress: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
     const db = await getDb();
+    if (!db) throw new Error('Database not available');
 
     const progress = await db
       .select()
@@ -159,6 +163,7 @@ export const tutorialsRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not available');
       const [tutorial] = await db
         .select()
         .from(videoTutorials)
