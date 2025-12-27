@@ -1,4 +1,4 @@
-import { eq, like, and, isNotNull, sql, count } from "drizzle-orm";
+import { eq, like, and, isNotNull, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { markets, actors, type Market, type Actor, type InsertMarket, type InsertActor } from "../drizzle/schema";
 
@@ -10,28 +10,11 @@ import { markets, actors, type Market, type Actor, type InsertMarket, type Inser
 // MARKETS
 // ============================================================================
 
-export async function getAllMarkets(page: number = 1, limit: number = 50) {
+export async function getAllMarkets() {
   const db = await getDb();
-  if (!db) return { markets: [], total: 0, page, limit, totalPages: 0 };
+  if (!db) return [];
   
-  // Compter le total
-  const [{ count: total }] = await db.select({ count: count() }).from(markets);
-  
-  // Récupérer les marchés paginés
-  const marketsList = await db
-    .select()
-    .from(markets)
-    .orderBy(markets.name)
-    .limit(limit)
-    .offset((page - 1) * limit);
-  
-  return {
-    markets: marketsList,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit),
-  };
+  return await db.select().from(markets).orderBy(markets.name);
 }
 
 export async function getMarketById(id: number) {

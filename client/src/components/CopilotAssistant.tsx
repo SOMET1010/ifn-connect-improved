@@ -227,7 +227,7 @@ function CopilotAssistantContent() {
     <>
       {/* Bouton flottant pour ouvrir SUTA */}
       {!isOpen && (
-        <button aria-label="Ouvrir l'assistant SUTA"
+        <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 group"
         >
@@ -337,7 +337,7 @@ function CopilotAssistantContent() {
             {messages.length > 1 && (
               <div className="flex items-center justify-center gap-2">
                 {messages.map((_, index) => (
-                  <button aria-label="Naviguer vers le message"
+                  <button
                     key={index}
                     onClick={() => setCurrentMessageIndex(index)}
                     className={`w-2 h-2 rounded-full transition-all ${
@@ -399,7 +399,7 @@ function CopilotAssistantContent() {
                   disabled={isLoadingChat}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
                 />
-                <button aria-label="Envoyer le message"
+                <button
                   onClick={handleSendMessage}
                   disabled={!chatInput.trim() || isLoadingChat}
                   className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

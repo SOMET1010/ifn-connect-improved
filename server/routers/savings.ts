@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { merchantProcedure, protectedProcedure, router } from '../_core/trpc';
+import { protectedProcedure, router } from '../_core/trpc';
 import {
   createSavingsGoal,
   getMerchantSavingsGoals,
@@ -21,7 +21,7 @@ export const savingsRouter = router({
   /**
    * Créer un nouvel objectif d'épargne
    */
-  createGoal: merchantProcedure
+  createGoal: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       name: z.string().min(1),
@@ -41,7 +41,7 @@ export const savingsRouter = router({
   /**
    * Récupérer les objectifs d'épargne d'un marchand
    */
-  getGoals: merchantProcedure
+  getGoals: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -65,7 +65,7 @@ export const savingsRouter = router({
   /**
    * Ajouter un dépôt
    */
-  addDeposit: merchantProcedure
+  addDeposit: protectedProcedure
     .input(z.object({
       savingsGoalId: z.number(),
       merchantId: z.number(),
@@ -81,7 +81,7 @@ export const savingsRouter = router({
   /**
    * Retirer de l'épargne
    */
-  withdraw: merchantProcedure
+  withdraw: protectedProcedure
     .input(z.object({
       savingsGoalId: z.number(),
       merchantId: z.number(),
@@ -109,7 +109,7 @@ export const savingsRouter = router({
   /**
    * Récupérer toutes les transactions d'un marchand
    */
-  getMerchantTransactions: merchantProcedure
+  getMerchantTransactions: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       limit: z.number().optional().default(100),
@@ -122,7 +122,7 @@ export const savingsRouter = router({
   /**
    * Calculer le total épargné
    */
-  getTotalSavings: merchantProcedure
+  getTotalSavings: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -165,7 +165,7 @@ export const savingsRouter = router({
   /**
    * Obtenir les statistiques d'épargne
    */
-  getStats: merchantProcedure
+  getStats: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))

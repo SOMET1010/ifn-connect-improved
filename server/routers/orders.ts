@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { merchantProcedure, protectedProcedure, router } from '../_core/trpc';
+import { protectedProcedure, router } from '../_core/trpc';
 import { 
   createOrder,
   getOrdersByMerchant,
@@ -21,7 +21,7 @@ export const ordersRouter = router({
   /**
    * Créer une nouvelle commande
    */
-  create: merchantProcedure
+  create: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       productId: z.number(),
@@ -38,7 +38,7 @@ export const ordersRouter = router({
   /**
    * Liste des commandes d'un marchand
    */
-  listByMerchant: merchantProcedure
+  listByMerchant: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       limit: z.number().optional().default(50),
@@ -69,7 +69,7 @@ export const ordersRouter = router({
   /**
    * Statistiques des commandes d'un marchand
    */
-  stats: merchantProcedure
+  stats: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))

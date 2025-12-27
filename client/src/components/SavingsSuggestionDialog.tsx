@@ -114,7 +114,7 @@ export function SavingsSuggestionDialog({
                   const progress = (current / target) * 100;
 
                   return (
-                    <button aria-label="Sélectionner cet objectif d'épargne"
+                    <button
                       key={goal.id}
                       onClick={() => setSelectedGoalId(goal.id)}
                       className={`p-4 rounded-lg border-2 transition-all text-left ${
@@ -175,7 +175,7 @@ export function SavingsSuggestionDialog({
                 </Label>
                 <div className="grid grid-cols-3 gap-3">
                   {suggestedAmounts.map((suggested) => (
-                    <button aria-label="Épargner ce montant"
+                    <button
                       key={suggested.percentage}
                       onClick={() => handleSave(suggested.amount)}
                       disabled={!selectedGoalId || depositMutation.isPending}

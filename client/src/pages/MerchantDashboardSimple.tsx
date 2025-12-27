@@ -23,7 +23,6 @@ import { MicroGoalsWidget } from '@/components/MicroGoalsWidget';
 import { SalesChart } from '@/components/SalesChart';
 import { GroupedOrderOpportunityCard } from '@/components/GroupedOrderOpportunityCard';
 import { OpenDayButton } from '@/components/OpenDayButton';
-import { VoiceGuidedTour } from '@/components/VoiceGuidedTour';
 
 /**
  * Widget d'opportunités de commandes groupées
@@ -81,7 +80,7 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
   const { data: lowStockCount } = trpc.sales.lowStockCount.useQuery({ merchantId });
   
   // Vérifier le statut de la session du jour
-  const { data: currentSession } = trpc.dailySessions.getCurrent.useQuery();
+  const { data: currentSession } = trpc.dailySessions.getCurrent.useQuery({ merchantId });
 
   const todayAmount = todayStats?.totalAmount || 0;
   const balance = totalBalance || 0;
@@ -257,7 +256,7 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         {/* BOUTON OUVERTURE DE JOURNÉE (si journée non ouverte) */}
         {currentSession && currentSession.status === 'NOT_OPENED' && (
           <div className="mb-8">
-            <OpenDayButton />
+            <OpenDayButton merchantId={merchantId} />
           </div>
         )}
 
@@ -406,9 +405,6 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         open={showDailyReport}
         onClose={() => setShowDailyReport(false)}
       />
-      
-      {/* Tour guidé vocal pour les nouveaux utilisateurs */}
-      <VoiceGuidedTour />
     </div>
   );
 }

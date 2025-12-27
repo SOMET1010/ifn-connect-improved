@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { getMerchantByUserId } from "./db-merchant";
 import { recordDailyLogin, markBriefingShown, markBriefingSkipped, hasBriefingBeenShown } from "./db-daily-logins";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, router } from "./_core/trpc";
 import { salesRouter } from "./routers/sales";
 import { productsRouter, stockRouter } from "./routers/products";
 import { marketsRouter } from './routers/markets';
@@ -29,13 +29,6 @@ import { inAppNotificationsRouter } from './routers/in-app-notifications';
 import { cooperativeDashboardRouter } from './routers/cooperative-dashboard';
 import { groupedOrdersRouter } from './routers/grouped-orders';
 import { merchantSettingsRouter } from './routers/merchant-settings';
-import { dailySessionsRouter } from './routers/daily-sessions';
-import { attendanceBadgesRouter } from './routers/attendance-badges';
-import { tutorialsRouter } from './routers-tutorials';
-import { firstTimeUserRouter } from './routers/first-time-user';
-import { voiceRecordingsRouter } from './routers/voice-recordings';
-import { lafricamobileRouter } from './routers/lafricamobile';
-import { audioLibraryRouter } from './routers/audio-library';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -66,13 +59,6 @@ export const appRouter = router({
   cooperativeDashboard: cooperativeDashboardRouter,
   groupedOrders: groupedOrdersRouter,
   merchantSettings: merchantSettingsRouter,
-  dailySessions: dailySessionsRouter,
-  attendanceBadges: attendanceBadgesRouter,
-  tutorials: tutorialsRouter,
-  firstTimeUser: firstTimeUserRouter,
-  voiceRecordings: voiceRecordingsRouter,
-  lafricamobile: lafricamobileRouter,
-  audioLibrary: audioLibraryRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -83,12 +69,15 @@ export const appRouter = router({
       } as const;
     }),
     // Récupérer le marchand lié à l'utilisateur connecté
-    myMerchant: protectedProcedure.query(async ({ ctx }) => {
+    myMerchant: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) return null;
       const merchant = await getMerchantByUserId(ctx.user.id);
       return merchant;
     }),
     // Détecter si c'est le premier login du jour
-    checkFirstLoginToday: protectedProcedure.query(async ({ ctx }) => {
+    checkFirstLoginToday: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) return { isFirstLogin: false, shouldShowBriefing: false };
+      
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) return { isFirstLogin: false, shouldShowBriefing: false };
       
@@ -101,7 +90,9 @@ export const appRouter = router({
       };
     }),
     // Marquer le briefing comme affiché
-    markBriefingShown: protectedProcedure.mutation(async ({ ctx }) => {
+    markBriefingShown: publicProcedure.mutation(async ({ ctx }) => {
+      if (!ctx.user) return { success: false };
+      
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) return { success: false };
       
@@ -109,7 +100,9 @@ export const appRouter = router({
       return { success: true };
     }),
     // Marquer le briefing comme ignoré
-    markBriefingSkipped: protectedProcedure.mutation(async ({ ctx }) => {
+    markBriefingSkipped: publicProcedure.mutation(async ({ ctx }) => {
+      if (!ctx.user) return { success: false };
+      
       const merchant = await getMerchantByUserId(ctx.user.id);
       if (!merchant) return { success: false };
       

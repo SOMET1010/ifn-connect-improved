@@ -105,7 +105,7 @@ export default function OpenDayBriefing() {
   }
 
   const { yesterday, dayBefore, comparison: comp } = comparison;
-  const TrendIcon = comp.trend === 'up' ? TrendingUp : comp.trend === 'down' ? TrendingDown : Minus;
+  const trendIcon = comp.trend === 'up' ? TrendingUp : comp.trend === 'down' ? TrendingDown : Minus;
   const trendColor = comp.trend === 'up' ? 'text-green-600' : comp.trend === 'down' ? 'text-red-600' : 'text-gray-600';
 
   return (
@@ -153,7 +153,7 @@ export default function OpenDayBriefing() {
 
               {comp.totalDifference !== 0 && (
                 <div className={`flex items-center justify-center gap-2 p-4 rounded-lg ${trendColor} bg-opacity-10`}>
-                  {TrendIcon && <TrendIcon className={`h-8 w-8 ${trendColor}`} />}
+                  {trendIcon && <trendIcon className={`h-8 w-8 ${trendColor}`} />}
                   <div className="text-center">
                     <p className="text-2xl font-bold">{Math.abs(comp.totalPercentChange)}%</p>
                     <p className="text-sm">

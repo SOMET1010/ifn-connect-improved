@@ -242,7 +242,7 @@ export function CopilotAssistant() {
     <>
       {/* Bouton flottant pour ouvrir SUTA */}
       {!isOpen && (
-        <button aria-label="Ouvrir l'assistant SUTA"
+        <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 group"
         >
@@ -352,7 +352,7 @@ export function CopilotAssistant() {
             {messages.length > 1 && (
               <div className="flex items-center justify-center gap-2">
                 {messages.map((_, index) => (
-                  <button aria-label="Naviguer vers le message"
+                  <button
                     key={index}
                     onClick={() => setCurrentMessageIndex(index)}
                     className={`w-2 h-2 rounded-full transition-all ${

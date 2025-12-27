@@ -163,7 +163,7 @@ export function SavingsGoals() {
                 <Label>Choisir un type</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {PREDEFINED_GOALS.map((goal) => (
-                    <button aria-label="Sélectionner cet objectif prédéfini"
+                    <button
                       key={goal.name}
                       onClick={() => setNewGoal({ ...newGoal, name: goal.name })}
                       className={`p-4 rounded-lg border-2 transition-all ${

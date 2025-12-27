@@ -160,7 +160,7 @@ export function PaymentModal({ open, onClose, amount, orderId, onSuccess }: Paym
                 </h3>
                 <div className="grid grid-cols-2 gap-6">
                   {providers.map((provider) => (
-                    <button aria-label="Sélectionner ce moyen de paiement"
+                    <button
                       key={provider.value}
                       onClick={() => setSelectedProvider(provider.value)}
                       className={`

@@ -1,68 +1,51 @@
 import { Toaster } from "@/components/ui/sonner";
-import { lazy, Suspense } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-
-// Eager load: Page d'accueil (chargée immédiatement)
 import Home from "./pages/Home";
-import NotFound from "@/pages/NotFound";
-
-// Lazy load: Toutes les autres pages (chargées à la demande)
-const MerchantDashboard = lazy(() => import("./pages/merchant/Dashboard"));
-const MerchantDashboardNew = lazy(() => import("./pages/MerchantDashboard"));
-const MerchantDashboardSimple = lazy(() => import("./pages/MerchantDashboardSimple"));
-const CashRegister = lazy(() => import('./pages/merchant/CashRegister'));
-const CashRegisterSimple = lazy(() => import('./pages/merchant/CashRegisterSimple'));
-const MerchantProfile = lazy(() => import('./pages/merchant/Profile'));
-const SocialCoverage = lazy(() => import('./pages/merchant/SocialCoverage'));
-const SocialProtection = lazy(() => import('./pages/merchant/SocialProtection'));
-const Badges = lazy(() => import('./pages/merchant/Badges'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const VirtualMarket = lazy(() => import('./pages/merchant/VirtualMarket'));
-const OrderHistory = lazy(() => import('./pages/merchant/OrderHistory'));
-const Savings = lazy(() => import("./pages/merchant/Savings"));
-const Events = lazy(() => import("./pages/merchant/Events"));
-const Stock = lazy(() => import("./pages/merchant/Stock"));
-const MerchantWeather = lazy(() => import("./pages/merchant/Weather").then(m => ({ default: m.MerchantWeather })));
-const MarketsPage = lazy(() => import("./pages/admin/Markets"));
-const MapViewPage = lazy(() => import("./pages/admin/MapView"));
-const EnrollmentWizard = lazy(() => import("./pages/agent/EnrollmentWizard"));
-const AgentDashboard = lazy(() => import("./pages/agent/AgentDashboard"));
-const AgentTasks = lazy(() => import("./pages/agent/AgentTasks"));
-const MerchantsAdmin = lazy(() => import("./pages/MerchantsAdmin"));
-const MerchantJourney = lazy(() => import("./pages/merchant/MerchantJourney"));
-const CooperativeJourney = lazy(() => import("./pages/cooperative/CooperativeJourney"));
-const RenewalsAdmin = lazy(() => import("./pages/admin/RenewalsAdmin"));
-const Learning = lazy(() => import("./pages/Learning"));
-const CourseDetail = lazy(() => import("./pages/CourseDetail"));
-const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
-const MyBadges = lazy(() => import("./pages/MyBadges"));
-const Leaderboard = lazy(() => import('./pages/Leaderboard'));
-const Challenges = lazy(() => import('./pages/Challenges'));
-const AdminUsers = lazy(() => import("./pages/admin/Users"));
-const Notifications = lazy(() => import("./pages/Notifications"));
-const OrderTracking = lazy(() => import("./pages/OrderTracking"));
-const CooperativeDashboard = lazy(() => import("./pages/cooperative/Dashboard"));
-const GroupedOrders = lazy(() => import("./pages/cooperative/GroupedOrders"));
-const MerchantSettings = lazy(() => import("./pages/merchant/Settings"));
-const MorningBriefing = lazy(() => import("./pages/merchant/MorningBriefing"));
-const OpenDayBriefing = lazy(() => import("./pages/merchant/OpenDayBriefing"));
-const CloseDaySummary = lazy(() => import("./pages/merchant/CloseDaySummary"));
-const SessionsHistory = lazy(() => import("./pages/merchant/SessionsHistory"));
-const AttendanceBadgesPage = lazy(() => import("./pages/merchant/AttendanceBadgesPage"));
-const Tutorials = lazy(() => import("./pages/merchant/Tutorials"));
-const VoiceRecordingsAdmin = lazy(() => import("./pages/admin/VoiceRecordings"));
-const LafricamobileTest = lazy(() => import("./pages/admin/LafricamobileTest"));
-const VoiceInterfaceDemo = lazy(() => import("./pages/VoiceInterfaceDemo"));
-
-// Composant de fallback pour le chargement
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-  </div>
-);
+import MerchantDashboard from "./pages/merchant/Dashboard";
+import MerchantDashboardNew from "./pages/MerchantDashboard";
+import MerchantDashboardSimple from "./pages/MerchantDashboardSimple";
+import CashRegister from './pages/merchant/CashRegister';
+import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
+import MerchantProfile from './pages/merchant/Profile';
+import SocialCoverage from './pages/merchant/SocialCoverage';
+import SocialProtection from './pages/merchant/SocialProtection';
+import Badges from './pages/merchant/Badges';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import VirtualMarket from './pages/merchant/VirtualMarket';
+import OrderHistory from './pages/merchant/OrderHistory';
+import Savings from "./pages/merchant/Savings";
+import Events from "./pages/merchant/Events";
+import Stock from "./pages/merchant/Stock";
+import { MerchantWeather } from "./pages/merchant/Weather";
+import MarketsPage from "./pages/admin/Markets";
+import MapViewPage from "./pages/admin/MapView";
+import EnrollmentWizard from "./pages/agent/EnrollmentWizard";
+import AgentDashboard from "./pages/agent/AgentDashboard";
+import AgentTasks from "./pages/agent/AgentTasks";
+import MerchantsAdmin from "./pages/MerchantsAdmin";
+import MerchantJourney from "./pages/merchant/MerchantJourney";
+import CooperativeJourney from "./pages/cooperative/CooperativeJourney";
+import RenewalsAdmin from "./pages/admin/RenewalsAdmin";
+import Learning from "./pages/Learning";
+import CourseDetail from "./pages/CourseDetail";
+import AuditLogs from "./pages/admin/AuditLogs";
+import MyBadges from "./pages/MyBadges";
+import Leaderboard from './pages/Leaderboard';
+import Challenges from './pages/Challenges';
+import AdminUsers from "./pages/admin/Users";
+import Notifications from "./pages/Notifications";
+import OrderTracking from "./pages/OrderTracking";
+import CooperativeDashboard from "./pages/cooperative/Dashboard";
+import GroupedOrders from "./pages/cooperative/GroupedOrders";
+import MerchantSettings from "./pages/merchant/Settings";
+import MorningBriefing from "./pages/merchant/MorningBriefing";
+import OpenDayBriefing from "./pages/merchant/OpenDayBriefing";
+import CloseDaySummary from "./pages/merchant/CloseDaySummary";
+import SessionsHistory from "./pages/merchant/SessionsHistory";
 
 function Router() {
   return (
@@ -72,7 +55,6 @@ function Router() {
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
-      <Route path="/merchant/attendance-badges" component={AttendanceBadgesPage} />
       <Route path="/merchant/cash-register" component={CashRegisterSimple} />
       <Route path="/merchant/profile" component={MerchantProfile} />
       <Route path="/merchant/social-coverage" component={SocialCoverage} />
@@ -85,7 +67,6 @@ function Router() {
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
       <Route path="/merchant/settings" component={MerchantSettings} />
-      <Route path="/merchant/tutorials" component={Tutorials} />
          {/* Merchant Routes */}
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />
@@ -101,9 +82,6 @@ function Router() {
       <Route path="/admin/renewals" component={RenewalsAdmin} />
       <Route path="/admin/audit-logs" component={AuditLogs} />
       <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/voice-recordings" component={VoiceRecordingsAdmin} />
-      <Route path="/admin/lafricamobile-test" component={LafricamobileTest} />
-      <Route path="/voice-demo" component={VoiceInterfaceDemo} />
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={CooperativeDashboard} />
@@ -134,9 +112,7 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <Suspense fallback={<PageLoader />}>
-            <Router />
-          </Suspense>
+          <Router />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

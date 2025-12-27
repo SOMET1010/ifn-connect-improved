@@ -189,7 +189,7 @@ function DashboardLayoutContent({
                   {/* Badge notifications desktop */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button aria-label="Notifications" className="relative h-8 w-8 flex items-center justify-center rounded-lg hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0">
+                      <button className="relative h-8 w-8 flex items-center justify-center rounded-lg hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0">
                         <Bell className="h-4 w-4 text-muted-foreground" />
                         {unreadCount && unreadCount > 0 && (
                           <Badge className="absolute -top-1 -right-1 h-4 min-w-4 flex items-center justify-center p-0 text-xs bg-red-500 hover:bg-red-600 border-2 border-background">
@@ -277,7 +277,7 @@ function DashboardLayoutContent({
           <SidebarFooter className="p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button aria-label="Menu utilisateur" className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-9 w-9 border shrink-0">
                     <AvatarFallback className="text-xs font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
@@ -332,7 +332,7 @@ function DashboardLayoutContent({
             {/* Badge notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button aria-label="Voir les notifications" className="relative h-9 w-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button className="relative h-9 w-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Bell className="h-5 w-5 text-muted-foreground" />
                   {unreadCount && unreadCount > 0 && (
                     <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-xs bg-red-500 hover:bg-red-600 border-2 border-background">

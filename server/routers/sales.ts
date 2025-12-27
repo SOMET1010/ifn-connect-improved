@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { merchantProcedure, router } from '../_core/trpc';
+import { protectedProcedure, router } from '../_core/trpc';
 import { 
   createSale, 
   getSalesByMerchant, 
@@ -15,7 +15,7 @@ export const salesRouter = router({
   /**
    * Créer une nouvelle vente
    */
-  create: merchantProcedure
+  create: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       productId: z.number(),
@@ -38,7 +38,7 @@ export const salesRouter = router({
   /**
    * Liste des ventes d'un marchand
    */
-  listByMerchant: merchantProcedure
+  listByMerchant: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       limit: z.number().optional().default(50),
@@ -56,7 +56,7 @@ export const salesRouter = router({
   /**
    * Statistiques d'hier pour comparaison
    */
-  yesterdayStats: merchantProcedure
+  yesterdayStats: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -86,7 +86,7 @@ export const salesRouter = router({
   /**
    * Statistiques du jour pour un marchand
    */
-  todayStats: merchantProcedure
+  todayStats: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -98,7 +98,7 @@ export const salesRouter = router({
   /**
    * Historique des ventes avec filtres
    */
-  history: merchantProcedure
+  history: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       startDate: z.date().optional(),
@@ -115,7 +115,7 @@ export const salesRouter = router({
   /**
    * Ventes des 7 derniers jours (pour graphique)
    */
-  last7Days: merchantProcedure
+  last7Days: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -127,7 +127,7 @@ export const salesRouter = router({
   /**
    * Top 5 des produits les plus vendus
    */
-  topProducts: merchantProcedure
+  topProducts: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       limit: z.number().optional().default(5),
@@ -140,7 +140,7 @@ export const salesRouter = router({
   /**
    * Solde total du marchand
    */
-  totalBalance: merchantProcedure
+  totalBalance: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -152,7 +152,7 @@ export const salesRouter = router({
   /**
    * Nombre de produits en stock bas
    */
-  lowStockCount: merchantProcedure
+  lowStockCount: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       threshold: z.number().optional().default(10),
@@ -165,7 +165,7 @@ export const salesRouter = router({
   /**
    * Comparaison des ventes d'hier vs avant-hier (pour briefing matinal)
    */
-  yesterdayComparison: merchantProcedure
+  yesterdayComparison: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))

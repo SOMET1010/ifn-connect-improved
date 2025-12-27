@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { merchantProcedure, protectedProcedure, router } from '../_core/trpc';
+import { protectedProcedure, router } from '../_core/trpc';
 import {
   getMerchantSettings,
   updateMerchantSettings,
@@ -12,7 +12,7 @@ export const merchantSettingsRouter = router({
   /**
    * Récupérer les paramètres d'un marchand
    */
-  get: merchantProcedure
+  get: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -24,7 +24,7 @@ export const merchantSettingsRouter = router({
   /**
    * Mettre à jour les paramètres
    */
-  update: merchantProcedure
+  update: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       savingsProposalEnabled: z.boolean().optional(),

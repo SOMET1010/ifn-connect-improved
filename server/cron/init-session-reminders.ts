@@ -1,52 +1,54 @@
 /**
  * Initialisation du cron job pour les rappels d'ouverture/fermeture de journée
  * 
- * NOUVEAU SYSTÈME INTELLIGENT :
- * - S'exécute toutes les heures (de 6h à 22h)
- * - Vérifie les paramètres personnalisés de chaque marchand
- * - Envoie les rappels à l'heure configurée par le marchand
+ * S'exécute deux fois par jour :
+ * - 9h00 : Rappel d'ouverture pour les marchands qui n'ont pas ouvert leur journée
+ * - 20h00 : Rappel de fermeture pour les marchands qui n'ont pas fermé leur journée
  * 
  * Fuseau horaire : GMT+0 (Côte d'Ivoire)
  */
 
 import cron from 'node-cron';
-import { checkMissingOpeningsAtTime, checkMissingClosingsAtTime } from './session-reminders';
+import { checkMissingOpenings, checkMissingClosings } from './session-reminders';
 
 export function initSessionRemindersCron() {
-  console.log('[Session Reminders] Initializing intelligent cron jobs...');
+  console.log('[Session Reminders] Initializing cron jobs...');
 
-  // Cron job qui s'exécute toutes les heures de 6h à 22h
-  // Vérifie les paramètres de chaque marchand et envoie les rappels à l'heure configurée
-  cron.schedule('0 6-22 * * *', async () => {
-    const currentHour = new Date().getHours();
-    const currentTime = `${String(currentHour).padStart(2, '0')}:00`;
-    
-    console.log(`[Session Reminders] Running intelligent reminders job at ${currentTime}...`);
-    
+  // Cron job pour les rappels d'ouverture à 9h00 (GMT+0 = heure de Côte d'Ivoire)
+  cron.schedule('0 9 * * *', async () => {
+    console.log('[Session Reminders] Running opening reminders job at 9 AM...');
     try {
-      // Vérifier les rappels d'ouverture pour les marchands ayant configuré cette heure
-      const openingResult = await checkMissingOpeningsAtTime(currentTime);
-      if (openingResult.success) {
-        console.log(`[Session Reminders] Opening reminders completed. ${openingResult.notificationsCreated} notifications created for ${currentTime}.`);
+      const result = await checkMissingOpenings();
+      if (result.success) {
+        console.log(`[Session Reminders] Opening reminders job completed successfully. ${result.notificationsCreated} notifications created.`);
       } else {
-        console.error('[Session Reminders] Opening reminders failed:', openingResult.error);
-      }
-
-      // Vérifier les rappels de fermeture pour les marchands ayant configuré cette heure
-      const closingResult = await checkMissingClosingsAtTime(currentTime);
-      if (closingResult.success) {
-        console.log(`[Session Reminders] Closing reminders completed. ${closingResult.notificationsCreated} notifications created for ${currentTime}.`);
-      } else {
-        console.error('[Session Reminders] Closing reminders failed:', closingResult.error);
+        console.error('[Session Reminders] Opening reminders job failed:', result.error);
       }
     } catch (error) {
-      console.error('[Session Reminders] Error in intelligent reminders job:', error);
+      console.error('[Session Reminders] Error in opening reminders job:', error);
     }
   }, {
     timezone: 'Africa/Abidjan' // Fuseau horaire de la Côte d'Ivoire (GMT+0)
   });
 
-  console.log('[Session Reminders] Intelligent cron jobs initialized successfully');
-  console.log('[Session Reminders] - Runs every hour from 6 AM to 10 PM (Africa/Abidjan)');
-  console.log('[Session Reminders] - Checks each merchant\'s personalized reminder times');
+  // Cron job pour les rappels de fermeture à 20h00 (GMT+0 = heure de Côte d'Ivoire)
+  cron.schedule('0 20 * * *', async () => {
+    console.log('[Session Reminders] Running closing reminders job at 8 PM...');
+    try {
+      const result = await checkMissingClosings();
+      if (result.success) {
+        console.log(`[Session Reminders] Closing reminders job completed successfully. ${result.notificationsCreated} notifications created.`);
+      } else {
+        console.error('[Session Reminders] Closing reminders job failed:', result.error);
+      }
+    } catch (error) {
+      console.error('[Session Reminders] Error in closing reminders job:', error);
+    }
+  }, {
+    timezone: 'Africa/Abidjan' // Fuseau horaire de la Côte d'Ivoire (GMT+0)
+  });
+
+  console.log('[Session Reminders] Cron jobs initialized successfully');
+  console.log('[Session Reminders] - Opening reminders: Every day at 9:00 AM (Africa/Abidjan)');
+  console.log('[Session Reminders] - Closing reminders: Every day at 8:00 PM (Africa/Abidjan)');
 }

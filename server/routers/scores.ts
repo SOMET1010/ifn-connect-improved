@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { merchantProcedure, protectedProcedure, router } from '../_core/trpc';
+import { protectedProcedure, router } from '../_core/trpc';
 import { calculateMerchantScore, getMerchantScore, getScoreHistory } from '../db-scores';
 
 /**
@@ -9,7 +9,7 @@ export const scoresRouter = router({
   /**
    * Récupérer le score actuel d'un marchand
    */
-  getScore: merchantProcedure
+  getScore: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -21,7 +21,7 @@ export const scoresRouter = router({
   /**
    * Calculer/recalculer le score d'un marchand
    */
-  calculateScore: merchantProcedure
+  calculateScore: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
     }))
@@ -33,7 +33,7 @@ export const scoresRouter = router({
   /**
    * Récupérer l'historique des scores
    */
-  getHistory: merchantProcedure
+  getHistory: protectedProcedure
     .input(z.object({
       merchantId: z.number(),
       limit: z.number().optional().default(30),
