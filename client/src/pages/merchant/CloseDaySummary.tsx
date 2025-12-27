@@ -31,7 +31,7 @@ export default function CloseDaySummary() {
   );
 
   // Récupérer le score SUTA
-  const { data: score } = trpc.scores.getMerchantScore.useQuery(
+  const { data: score } = trpc.scores.getScore.useQuery(
     { merchantId: merchant?.id || 0 },
     { enabled: !!merchant?.id }
   );
@@ -84,7 +84,7 @@ export default function CloseDaySummary() {
 
   const handleCloseDay = async () => {
     try {
-      await closeDay.mutateAsync({ notes: notes || undefined });
+      await closeDay.mutateAsync({ closingNotes: notes || undefined });
     } catch (error) {
       console.error('Erreur lors de la fermeture de la journée:', error);
     }
@@ -166,7 +166,10 @@ export default function CloseDaySummary() {
 
               {comp.totalDifference !== 0 && (
                 <div className={`flex items-center justify-center gap-2 p-4 rounded-lg ${trendColor} bg-white`}>
-                  {trendIcon && <trendIcon className={`h-8 w-8 ${trendColor}`} />}
+                  {(() => {
+                    const Icon = trendIcon;
+                    return Icon ? <Icon className={`h-8 w-8 ${trendColor}`} /> : null;
+                  })()}
                   <div className="text-center">
                     <p className="text-2xl font-bold">{Math.abs(comp.totalPercentChange)}%</p>
                     <p className="text-sm">

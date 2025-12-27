@@ -10,6 +10,7 @@
 
 import { getDb } from '../db';
 import { merchants, merchantDailySessions, inAppNotifications } from '../../drizzle/schema';
+import { getSessionStatus } from '../db-daily-sessions';
 import { eq, and, sql } from 'drizzle-orm';
 
 /**
@@ -45,13 +46,14 @@ export async function checkMissingOpenings() {
         .where(
           and(
             eq(merchantDailySessions.merchantId, merchant.id),
-            sql`DATE(${merchantDailySessions.date}) = DATE(${today})`
+            sql`DATE(${merchantDailySessions.sessionDate}) = DATE(${today})`
           )
         )
         .limit(1);
 
       // Si pas de session ou session NOT_OPENED, créer une notification
-      if (todaySession.length === 0 || todaySession[0].status === 'NOT_OPENED') {
+      const sessionStatus = todaySession.length === 0 ? 'NOT_OPENED' : getSessionStatus(todaySession[0]);
+      if (sessionStatus === 'NOT_OPENED') {
         // Vérifier qu'on n'a pas déjà créé une notification aujourd'hui
         const existingNotification = await db.select()
           .from(inAppNotifications)
@@ -122,8 +124,7 @@ export async function checkMissingClosings() {
         .where(
           and(
             eq(merchantDailySessions.merchantId, merchant.id),
-            sql`DATE(${merchantDailySessions.date}) = DATE(${today})`,
-            eq(merchantDailySessions.status, 'OPENED')
+            sql`DATE(${merchantDailySessions.sessionDate}) = DATE(${today})`
           )
         )
         .limit(1);

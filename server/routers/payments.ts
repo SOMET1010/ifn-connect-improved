@@ -1,6 +1,6 @@
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { getDb } from "../db";
+import { getDb, getMerchantByUserId } from "../db";
 import { transactions, marketplaceOrders, merchants, products } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -64,7 +64,9 @@ export const paymentsRouter = router({
         });
       }
 
-      if (order.buyerId !== ctx.user.id) {
+      // Vérifier que l'utilisateur est le propriétaire de la commande
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant || order.buyerId !== merchant.id) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Cette commande ne vous appartient pas",
@@ -84,7 +86,7 @@ export const paymentsRouter = router({
       const [transaction] = await db
         .insert(transactions)
         .values({
-          merchantId: ctx.user.id!,
+          merchantId: merchant.id,
           orderId: order.id,
           amount: order.totalAmount.toString(),
           currency: "XOF",
@@ -427,6 +429,14 @@ export const paymentsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Marchand non trouvé",
+        });
+      }
+
       const transactionsList = await db
         .select({
           id: transactions.id,
@@ -440,7 +450,7 @@ export const paymentsRouter = router({
           orderId: transactions.orderId,
         })
         .from(transactions)
-        .where(eq(transactions.merchantId, ctx.user.id!))
+        .where(eq(transactions.merchantId, merchant.id))
         .orderBy(desc(transactions.createdAt))
         .limit(input.limit);
 

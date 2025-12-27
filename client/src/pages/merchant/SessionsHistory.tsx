@@ -14,8 +14,8 @@ export default function SessionsHistory() {
   const { merchant } = useAuth();
   const merchantId = merchant?.id;
 
-  const { data: historyData, isLoading } = trpc.dailySessions.getHistory.useQuery(
-    { merchantId: merchantId!, limit: 30 },
+  const { data: historyData, isLoading } = trpc.dailySessions.history.useQuery(
+    { limit: 30 },
     { enabled: !!merchantId }
   );
 
@@ -57,15 +57,20 @@ export default function SessionsHistory() {
     );
   }
 
-  const sessions = historyData?.sessions || [];
-  const stats = historyData?.stats || {
-    totalDaysWorked: 0,
-    averageDuration: 0,
-    longestDay: null,
+  const sessions = historyData || [];
+  // Calculer les stats à partir des sessions
+  const stats = {
+    totalDaysWorked: sessions.length,
+    averageDuration: sessions.length > 0 
+      ? sessions.reduce((sum: number, s: any) => sum + (s.duration || 0), 0) / sessions.length 
+      : 0,
+    longestDay: sessions.length > 0
+      ? sessions.reduce((max: any, s: any) => (!max || (s.duration || 0) > (max.duration || 0)) ? s : max, null)
+      : null,
   };
 
   // Grouper les sessions par mois
-  const sessionsByMonth = sessions.reduce((acc: Record<string, typeof sessions>, session) => {
+  const sessionsByMonth = sessions.reduce((acc: Record<string, typeof sessions>, session: any) => {
     const date = new Date(session.sessionDate);
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     if (!acc[monthKey]) {
@@ -194,9 +199,9 @@ export default function SessionsHistory() {
           />
         )}
 
-        {/* Comparaisons semaine et mois */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {weekComparison && (
+        {/* Comparaisons semaine et mois - À implémenter */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {weekComparison && weekComparison.thisWeek && weekComparison.lastWeek && (
             <ComparisonCard
               title="Comparaison hebdomadaire"
               currentValue={weekComparison.thisWeek.totalHours}
@@ -206,7 +211,7 @@ export default function SessionsHistory() {
             />
           )}
 
-          {monthComparison && (
+          {monthComparison && monthComparison.thisMonth && monthComparison.lastMonth && (
             <ComparisonCard
               title="Comparaison mensuelle"
               currentValue={monthComparison.thisMonth.totalHours}
@@ -215,7 +220,7 @@ export default function SessionsHistory() {
               previousLabel="Mois dernier"
             />
           )}
-        </div>
+        </div> */}
 
         {/* Calendrier des sessions */}
         <Card>
@@ -252,8 +257,8 @@ export default function SessionsHistory() {
                         </h3>
                         <div className="space-y-3">
                           {monthSessions
-                            .sort((a, b) => new Date(b.sessionDate).getTime() - new Date(a.sessionDate).getTime())
-                            .map((session) => {
+                            .sort((a: any, b: any) => new Date(b.sessionDate).getTime() - new Date(a.sessionDate).getTime())
+                            .map((session: any) => {
                               const date = new Date(session.sessionDate);
                               const dayName = date.toLocaleDateString('fr-FR', { weekday: 'long' });
                               const dayNumber = date.getDate();

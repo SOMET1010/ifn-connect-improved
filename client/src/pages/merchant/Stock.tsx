@@ -53,7 +53,6 @@ export default function Stock() {
   const handleAdd = (productId: number, currentQuantity: string, amount: number) => {
     const newQuantity = parseFloat(currentQuantity || '0') + amount;
     updateStock.mutate({
-      merchantId,
       productId,
       quantity: newQuantity,
     });
@@ -64,7 +63,6 @@ export default function Stock() {
     const current = parseFloat(currentQuantity || '0');
     const newQuantity = Math.max(0, current - amount);
     updateStock.mutate({
-      merchantId,
       productId,
       quantity: newQuantity,
     });

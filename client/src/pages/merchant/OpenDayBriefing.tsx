@@ -74,7 +74,7 @@ export default function OpenDayBriefing() {
 
   const handleOpenDay = async () => {
     try {
-      await openDay.mutateAsync({ notes: notes || undefined });
+      await openDay.mutateAsync({ openingNotes: notes || undefined });
     } catch (error) {
       console.error('Erreur lors de l\'ouverture de la journée:', error);
     }
@@ -153,7 +153,10 @@ export default function OpenDayBriefing() {
 
               {comp.totalDifference !== 0 && (
                 <div className={`flex items-center justify-center gap-2 p-4 rounded-lg ${trendColor} bg-opacity-10`}>
-                  {trendIcon && <trendIcon className={`h-8 w-8 ${trendColor}`} />}
+                  {(() => {
+                    const Icon = trendIcon;
+                    return Icon ? <Icon className={`h-8 w-8 ${trendColor}`} /> : null;
+                  })()}
                   <div className="text-center">
                     <p className="text-2xl font-bold">{Math.abs(comp.totalPercentChange)}%</p>
                     <p className="text-sm">

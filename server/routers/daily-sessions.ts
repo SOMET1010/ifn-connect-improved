@@ -173,4 +173,28 @@ export const dailySessionsRouter = router({
       session: unclosedYesterday,
     };
   }),
+
+  /**
+   * Statistiques des 30 derniers jours (placeholder)
+   */
+  getLast30DaysStats: protectedProcedure.query(async ({ ctx }) => {
+    // Retourner un tableau vide pour l'instant
+    return [];
+  }),
+
+  /**
+   * Comparaison hebdomadaire (placeholder)
+   */
+  compareWeeks: protectedProcedure.query(async ({ ctx }) => {
+    // Retourner des données vides pour l'instant
+    return null;
+  }),
+
+  /**
+   * Comparaison mensuelle (placeholder)
+   */
+  compareMonths: protectedProcedure.query(async ({ ctx }) => {
+    // Retourner des données vides pour l'instant
+    return null;
+  }),
 });

@@ -54,10 +54,10 @@ describe('Daily Sessions Management', () => {
     await db.delete(users).where(eq(users.id, testUserId));
   });
 
-  it('should return undefined for a non-existent session', async () => {
+  it('should return null for a non-existent session', async () => {
     const session = await getTodaySession(testMerchantId);
     
-    expect(session).toBeUndefined();
+    expect(session).toBeNull();
     expect(getSessionStatus(session)).toBe('NOT_OPENED');
   });
 

@@ -6,9 +6,9 @@ import { eq, and, sql, desc } from "drizzle-orm";
 /**
  * Récupérer la session du jour pour un marchand
  */
-export async function getTodaySession(merchantId: number): Promise<MerchantDailySession | undefined> {
+export async function getTodaySession(merchantId: number): Promise<MerchantDailySession | null> {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Reset time to midnight
@@ -24,7 +24,7 @@ export async function getTodaySession(merchantId: number): Promise<MerchantDaily
     )
     .limit(1);
   
-  return session;
+  return session || null;
 }
 
 /**
@@ -193,7 +193,7 @@ export function calculateSessionDuration(session: MerchantDailySession): number 
 /**
  * Obtenir le statut de la session du jour
  */
-export function getSessionStatus(session: MerchantDailySession | undefined): "NOT_OPENED" | "OPENED" | "CLOSED" {
+export function getSessionStatus(session: MerchantDailySession | null): "NOT_OPENED" | "OPENED" | "CLOSED" {
   if (!session) {
     return "NOT_OPENED";
   }
