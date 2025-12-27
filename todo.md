@@ -2906,3 +2906,28 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Restauré App.tsx avec l'import correct
 - [x] Vérifié que la navigation fonctionne correctement
 - [x] Testé le parcours complet depuis la page d'accueil vers l'espace marchand
+
+
+## 🔧 Améliorations Post-Correction Bug Navigation (27 décembre 2024)
+
+### Phase 1 : Réactiver Sessions Quotidiennes
+- [x] Recréer la table merchantDailySessions dans schema.ts
+- [x] Recréer server/db-daily-sessions.ts avec les bonnes fonctions
+- [x] Recréer server/routers/daily-sessions.ts avec les procédures tRPC
+- [x] Intégrer dailySessionsRouter dans server/routers.ts
+- [x] Tester l'ouverture/fermeture de journée
+
+### Phase 2 : Tests Unitaires
+- [x] Vérifier que le test auth.logout fonctionne (1/1 passed)
+- [x] Vérifier que le test daily-sessions fonctionne (9/9 passed)
+- [ ] Créer tests pour sales.create
+- [ ] Créer tests pour stock.update
+- [ ] Créer tests pour payments.initiatePayment
+
+### Phase 3 : Monitoring Sentry
+- [x] Documenter comment obtenir un DSN Sentry (docs/SENTRY_SETUP.md)
+- [x] Installer @sentry/react dans le projet
+- [x] Configurer Sentry dans client/src/main.tsx
+- [x] Ajouter ErrorBoundary pour capturer les erreurs React
+- [x] Créer un guide pour ajouter VITE_SENTRY_DSN dans Settings → Secrets
+- [ ] L'utilisateur doit ajouter son DSN Sentry dans Settings → Secrets

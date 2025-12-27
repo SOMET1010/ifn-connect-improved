@@ -7,6 +7,29 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
+import * as Sentry from "@sentry/react";
+
+// Initialiser Sentry si le DSN est configuré
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: 1.0, // 100% des transactions en développement
+    // Session Replay
+    replaysSessionSampleRate: 0.1, // 10% des sessions normales
+    replaysOnErrorSampleRate: 1.0, // 100% des sessions avec erreur
+    // Environnement
+    environment: import.meta.env.MODE,
+  });
+  console.log("[Sentry] Monitoring activé");
+}
 
 const queryClient = new QueryClient();
 
@@ -53,9 +76,11 @@ const trpcClient = trpc.createClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
+  <Sentry.ErrorBoundary fallback={<div>Une erreur est survenue. Veuillez rafraîchir la page.</div>}>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </trpc.Provider>
+  </Sentry.ErrorBoundary>
 );
