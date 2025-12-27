@@ -2994,3 +2994,28 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Refondre les tests payments (payments.test.ts - 6/6 tests passent)
 - [x] Ajouter des index de performance sur merchantId, sessionDate, status, createdAt
 - [x] Valider les performances après ajout des index
+
+
+## 🔧 CORRECTIONS ET AMÉLIORATIONS (27 DÉC 2025)
+
+### Corrections TypeScript
+- [x] Corriger l'erreur `currentSession` dans MerchantDashboardSimple.tsx (utiliser `sessionData`)
+- [x] Corriger l'erreur `totalAmount` dans CashRegister.tsx (calculé automatiquement côté backend)
+- [x] Corriger les affichages de montant dans les dialogues de paiement
+
+### Statistiques Avancées
+- [x] Implémenter l'endpoint `getLast30DaysStats` dans le router daily-sessions
+- [x] Implémenter l'endpoint `compareWeeks` dans le router daily-sessions
+- [x] Implémenter l'endpoint `compareMonths` dans le router daily-sessions
+- [x] Créer le composant `SessionStatsChart` avec graphiques de tendances
+- [x] Ajouter le graphique en barres des 30 derniers jours (heures travaillées)
+- [x] Ajouter la comparaison hebdomadaire avec indicateurs de tendance
+- [x] Ajouter la comparaison mensuelle avec indicateurs de tendance
+- [x] Intégrer le composant SessionStatsChart dans le dashboard marchand
+
+### Tests End-to-End (Playwright)
+- [x] Installer Playwright et les navigateurs
+- [x] Créer le test `merchant-daily-flow.spec.ts` (parcours complet journée)
+- [x] Créer le test `micro-goals.spec.ts` (système de micro-objectifs)
+- [x] Créer le test `savings-system.spec.ts` (système d'épargne)
+- [x] Configurer les scripts npm pour lancer les tests e2e

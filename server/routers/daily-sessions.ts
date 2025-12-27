@@ -10,6 +10,11 @@ import {
   getSessionStatus,
   calculateSessionDuration,
 } from "../db-daily-sessions";
+import {
+  getLast30DaysStats as getLast30DaysStatsDb,
+  compareWeeks as compareWeeksDb,
+  compareMonths as compareMonthsDb,
+} from "../db-daily-sessions-stats";
 import { getMerchantByUserId } from "../db";
 import { TRPCError } from "@trpc/server";
 
@@ -175,26 +180,47 @@ export const dailySessionsRouter = router({
   }),
 
   /**
-   * Statistiques des 30 derniers jours (placeholder)
+   * Statistiques des 30 derniers jours
    */
   getLast30DaysStats: protectedProcedure.query(async ({ ctx }) => {
-    // Retourner un tableau vide pour l'instant
-    return [];
+    const merchant = await getMerchantByUserId(ctx.user.id);
+    if (!merchant) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Marchand non trouvé",
+      });
+    }
+
+    return await getLast30DaysStatsDb(merchant.id);
   }),
 
   /**
-   * Comparaison hebdomadaire (placeholder)
+   * Comparaison hebdomadaire
    */
   compareWeeks: protectedProcedure.query(async ({ ctx }) => {
-    // Retourner des données vides pour l'instant
-    return null;
+    const merchant = await getMerchantByUserId(ctx.user.id);
+    if (!merchant) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Marchand non trouvé",
+      });
+    }
+
+    return await compareWeeksDb(merchant.id);
   }),
 
   /**
-   * Comparaison mensuelle (placeholder)
+   * Comparaison mensuelle
    */
   compareMonths: protectedProcedure.query(async ({ ctx }) => {
-    // Retourner des données vides pour l'instant
-    return null;
+    const merchant = await getMerchantByUserId(ctx.user.id);
+    if (!merchant) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Marchand non trouvé",
+      });
+    }
+
+    return await compareMonthsDb(merchant.id);
   }),
 });

@@ -53,12 +53,13 @@ export default function CashRegister() {
       audioManager.speak('Vente enregistrée avec succès');
       
       // Vérifier si la proposition d'épargne est activée et si le montant dépasse le seuil
+      const saleAmount = variables.quantity * variables.unitPrice;
       if (settings?.savingsProposalEnabled && 
-          variables.totalAmount >= parseFloat(settings.savingsProposalThreshold || '20000')) {
+          saleAmount >= parseFloat(settings.savingsProposalThreshold || '20000')) {
         const percentage = parseFloat(settings.savingsProposalPercentage || '2') / 100;
-        const suggestedAmount = Math.floor(variables.totalAmount * percentage);
+        const suggestedAmount = Math.floor(saleAmount * percentage);
         setSavingsProposalData({
-          saleAmount: variables.totalAmount,
+          saleAmount,
           suggestedAmount,
         });
         
@@ -112,11 +113,9 @@ export default function CashRegister() {
 
     // Stocker les données de la vente en attente
     setPendingSaleData({
-      merchantId,
-      productId: selectedProduct,
+      productId: product.id,
       quantity: qty,
       unitPrice,
-      totalAmount,
     });
 
     // Ouvrir le dialogue de sélection du mode de paiement
@@ -409,7 +408,7 @@ export default function CashRegister() {
           <DialogHeader>
             <DialogTitle>Mode de paiement</DialogTitle>
             <DialogDescription>
-              Montant : <span className="font-bold text-lg">{pendingSaleData?.totalAmount.toLocaleString()} FCFA</span>
+              Montant : <span className="font-bold text-lg">{pendingSaleData ? (pendingSaleData.quantity * pendingSaleData.unitPrice).toLocaleString() : 0} FCFA</span>
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
@@ -448,7 +447,7 @@ export default function CashRegister() {
           setShowMobileMoneyDialog(false);
           setPendingSaleData(null);
         }}
-        amount={pendingSaleData?.totalAmount || 0}
+        amount={pendingSaleData ? (pendingSaleData.quantity * pendingSaleData.unitPrice) : 0}
         onSuccess={handleMobileMoneySuccess}
         onError={handleMobileMoneyError}
       />

@@ -23,6 +23,7 @@ import { MicroGoalsWidget } from '@/components/MicroGoalsWidget';
 import { SalesChart } from '@/components/SalesChart';
 import { GroupedOrderOpportunityCard } from '@/components/GroupedOrderOpportunityCard';
 import { OpenDayButton } from '@/components/OpenDayButton';
+import { SessionStatsChart } from '@/components/SessionStatsChart';
 
 /**
  * Widget d'opportunités de commandes groupées
@@ -250,11 +251,16 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
           <SalesChart merchantId={merchantId} />
         </div>
 
+        {/* STATISTIQUES DE SESSIONS (30 JOURS) */}
+        <div className="mb-8">
+          <SessionStatsChart />
+        </div>
+
         {/* MICRO-OBJECTIFS DYNAMIQUES */}
         <MicroGoalsWidget merchantId={merchantId} />
         
         {/* BOUTON OUVERTURE DE JOURNÉE (si journée non ouverte) */}
-        {currentSession && currentSession.status === 'NOT_OPENED' && (
+        {sessionData && sessionData.status === 'NOT_OPENED' && (
           <div className="mb-8">
             <OpenDayButton />
           </div>
