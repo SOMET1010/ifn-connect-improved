@@ -1,0 +1,8 @@
+{
+  "query": "DELETE FROM merchants WHERE merchantNumber IN (\n  'M1766705995011',\n  'DJEDJE BAGNON::0000122B',\n  'MRC-TEST-PAY-1766740926263',\n  'MRC-NOPROT-1766744175082'\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute DELETE FROM merchants WHERE merchantNumber IN (\n  'M1766705995011',\n  'DJEDJE BAGNON::0000122B',\n  'MRC-TEST-PAY-1766740926263',\n  'MRC-NOPROT-1766744175082'\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`jq9dtc2z3yjfgvwoshtzg9`.`marketplace_orders`, CONSTRAINT `marketplace_orders_buyer_id_merchants_id_fk` FOREIGN KEY (`buyer_id`) REFERENCES `merchants` (`id`) ON DELETE NO ACTION ON UPDATE NO )"
+  ]
+}

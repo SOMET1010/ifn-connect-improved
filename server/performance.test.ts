@@ -3,7 +3,7 @@ import { getDb } from './db';
 import { users, merchants, sales, products, merchantStock } from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { getSalesByMerchant, getTodayStats, getLast7DaysSales, getTopProducts, getTotalBalance } from './db-sales';
-import { getStockByMerchant, getLowStockByMerchant } from './db-products';
+import { getMerchantStock, getLowStock } from './db-products';
 
 /**
  * Tests de performance pour les requêtes critiques
@@ -128,7 +128,7 @@ describe('Performance Tests', () => {
   it('should load sales history with pagination quickly (< 1s)', async () => {
     const startTime = Date.now();
 
-    const salesHistory = await getSalesByMerchant(testMerchantId, { page: 1, limit: 20 });
+    const salesHistory = await getSalesByMerchant(testMerchantId, 20, 0);
 
     const endTime = Date.now();
     const duration = endTime - startTime;
@@ -137,15 +137,15 @@ describe('Performance Tests', () => {
 
     expect(duration).toBeLessThan(PERFORMANCE_THRESHOLD_MS);
     expect(salesHistory).toBeDefined();
-    expect(salesHistory.sales).toBeDefined();
-    expect(salesHistory.sales.length).toBeGreaterThan(0);
-    expect(salesHistory.sales.length).toBeLessThanOrEqual(20);
+    expect(Array.isArray(salesHistory)).toBe(true);
+    expect(salesHistory.length).toBeGreaterThan(0);
+    expect(salesHistory.length).toBeLessThanOrEqual(20);
   }, 10000);
 
   it('should load merchant stock quickly (< 1s)', async () => {
     const startTime = Date.now();
 
-    const stockList = await getStockByMerchant(testMerchantId);
+    const stockList = await getMerchantStock(testMerchantId);
 
     const endTime = Date.now();
     const duration = endTime - startTime;
@@ -218,7 +218,7 @@ describe('Performance Tests', () => {
       getTodayStats(testMerchantId),
       getLast7DaysSales(testMerchantId),
       getTopProducts(testMerchantId),
-      getSalesByMerchant(testMerchantId, { page: 1, limit: 20 }),
+      getSalesByMerchant(testMerchantId, 20, 0),
       getTotalBalance(testMerchantId),
     ];
 
@@ -250,12 +250,13 @@ describe('Performance Tests', () => {
     await db.insert(merchantStock).values({
       merchantId: testMerchantId,
       productId: lowStockProduct.id,
-      quantity: 5, // Stock bas
+      quantity: '5', // Stock bas
+      minThreshold: '10', // Seuil supérieur pour déclencher l'alerte
     });
 
     const startTime = Date.now();
 
-    const lowStockItems = await getLowStockByMerchant(testMerchantId);
+    const lowStockItems = await getLowStock(testMerchantId);
 
     const endTime = Date.now();
     const duration = endTime - startTime;
