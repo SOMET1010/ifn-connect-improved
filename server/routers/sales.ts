@@ -10,6 +10,7 @@ import {
   getTotalBalance,
   getLowStockCount
 } from '../db-sales';
+import { getMerchantByUserId } from '../db-merchant';
 
 export const salesRouter = router({
   /**
@@ -17,21 +18,28 @@ export const salesRouter = router({
    */
   create: protectedProcedure
     .input(z.object({
-      merchantId: z.number(),
       productId: z.number(),
       quantity: z.number().positive(),
       unitPrice: z.number().positive(),
-      totalAmount: z.number().positive(),
       paymentMethod: z.enum(['cash', 'mobile_money', 'credit']).optional(),
+      paymentProvider: z.string().optional(),
       notes: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
-      // Vérifier que l'utilisateur est bien le marchand ou un admin
-      if (ctx.user.role !== 'admin') {
-        // TODO: Vérifier que ctx.user.id correspond au merchantId
+      // Récupérer le merchantId depuis le contexte utilisateur
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) {
+        throw new Error('Merchant not found');
       }
       
-      const result = await createSale(input);
+      // Calculer le montant total automatiquement
+      const totalAmount = input.quantity * input.unitPrice;
+      
+      const result = await createSale({
+        ...input,
+        merchantId: merchant.id,
+        totalAmount,
+      });
       return result;
     }),
 

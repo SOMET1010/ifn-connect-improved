@@ -2,12 +2,16 @@ import { describe, expect, it, beforeEach, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 import * as dbModule from "./db";
+import * as dbMerchantModule from "./db-merchant";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 // Mock de la base de données
 vi.mock("./db", () => ({
   getDb: vi.fn(),
+}));
+
+vi.mock("./db-merchant", () => ({
   getMerchantByUserId: vi.fn(),
 }));
 
@@ -46,7 +50,7 @@ describe("stock.update", () => {
     const caller = appRouter.createCaller(ctx);
 
     // Mock getMerchantByUserId
-    vi.mocked(dbModule.getMerchantByUserId).mockResolvedValue({
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
       id: 1,
       userId: 1,
       merchantNumber: "MRC-00001",
@@ -81,7 +85,7 @@ describe("stock.update", () => {
 
     const updateData = {
       productId: 1,
-      quantity: 20,
+      quantity: 0,
     };
 
     const result = await caller.stock.update(updateData);
@@ -95,7 +99,7 @@ describe("stock.update", () => {
     const caller = appRouter.createCaller(ctx);
 
     // Mock getMerchantByUserId
-    vi.mocked(dbModule.getMerchantByUserId).mockResolvedValue({
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
       id: 1,
       userId: 1,
       merchantNumber: "MRC-00001",
@@ -140,7 +144,7 @@ describe("stock.update", () => {
     const caller = appRouter.createCaller(ctx);
 
     // Mock getMerchantByUserId
-    vi.mocked(dbModule.getMerchantByUserId).mockResolvedValue({
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
       id: 1,
       userId: 1,
       merchantNumber: "MRC-00001",
@@ -191,7 +195,7 @@ describe("stock.update", () => {
     let capturedUpdateData: any;
 
     // Mock getMerchantByUserId
-    vi.mocked(dbModule.getMerchantByUserId).mockResolvedValue({
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
       id: 1,
       userId: 1,
       merchantNumber: "MRC-00001",
@@ -246,7 +250,7 @@ describe("stock.update", () => {
     let capturedUpdateData: any;
 
     // Mock getMerchantByUserId
-    vi.mocked(dbModule.getMerchantByUserId).mockResolvedValue({
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
       id: 1,
       userId: 1,
       merchantNumber: "MRC-00001",

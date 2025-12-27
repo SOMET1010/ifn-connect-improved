@@ -9,6 +9,7 @@ import {
   updateStock,
   getLowStock,
 } from '../db-products';
+import { getMerchantByUserId } from '../db-merchant';
 
 export const productsRouter = router({
   /**
@@ -93,13 +94,21 @@ export const stockRouter = router({
    */
   update: protectedProcedure
     .input(z.object({
-      merchantId: z.number(),
       productId: z.number(),
       quantity: z.number(),
       minThreshold: z.number().optional(),
     }))
-    .mutation(async ({ input }) => {
-      const result = await updateStock(input);
+    .mutation(async ({ input, ctx }) => {
+      // Récupérer le merchantId depuis le contexte utilisateur
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) {
+        throw new Error('Merchant not found');
+      }
+      
+      const result = await updateStock({
+        ...input,
+        merchantId: merchant.id,
+      });
       return result;
     }),
 

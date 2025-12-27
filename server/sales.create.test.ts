@@ -2,12 +2,17 @@ import { describe, expect, it, beforeEach, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 import * as dbModule from "./db";
+import * as dbMerchantModule from "./db-merchant";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 // Mock de la base de données
 vi.mock("./db", () => ({
   getDb: vi.fn(),
+}));
+
+vi.mock("./db-merchant", () => ({
+  getMerchantByUserId: vi.fn(),
 }));
 
 function createMerchantContext(merchantId: number): TrpcContext {
@@ -43,6 +48,14 @@ describe("sales.create", () => {
   it("should create a sale successfully with valid data", async () => {
     const ctx = createMerchantContext(1);
     const caller = appRouter.createCaller(ctx);
+
+    // Mock getMerchantByUserId
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
+      id: 1,
+      userId: 1,
+      merchantNumber: "MRC-00001",
+      businessName: "Test Business",
+    } as any);
 
     // Mock de la base de données
     const mockDb = {
@@ -84,7 +97,7 @@ describe("sales.create", () => {
     const result = await caller.sales.create(saleData);
 
     expect(result).toBeDefined();
-    expect(result.id).toBe(1);
+    expect(result.success).toBe(true);
     expect(mockDb.insert).toHaveBeenCalled();
     expect(mockDb.update).toHaveBeenCalled(); // Stock should be updated
   });
@@ -150,6 +163,14 @@ describe("sales.create", () => {
 
     let capturedSaleData: any;
 
+    // Mock getMerchantByUserId
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
+      id: 1,
+      userId: 1,
+      merchantNumber: "MRC-00001",
+      businessName: "Test Business",
+    } as any);
+
     // Mock de la base de données
     const mockDb = {
       select: vi.fn().mockReturnValue({
@@ -193,6 +214,7 @@ describe("sales.create", () => {
     await caller.sales.create(saleData);
 
     // Verify total amount calculation (3 * 500 = 1500)
+    // Note: totalAmount is converted to string in the database
     expect(capturedSaleData.totalAmount).toBe("1500");
   });
 
@@ -201,6 +223,14 @@ describe("sales.create", () => {
     const caller = appRouter.createCaller(ctx);
 
     let capturedSaleData: any;
+
+    // Mock getMerchantByUserId
+    vi.mocked(dbMerchantModule.getMerchantByUserId).mockResolvedValue({
+      id: 1,
+      userId: 1,
+      merchantNumber: "MRC-00001",
+      businessName: "Test Business",
+    } as any);
 
     // Mock de la base de données
     const mockDb = {

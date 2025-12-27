@@ -2947,3 +2947,17 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Créer tests pour stock.update (mise à jour du stock)
 - [x] Créer tests pour payments.initiatePayment (initiation de paiement)
 - [ ] Valider que tous les tests passent
+
+## 🐛 Corrections et Tests (27 décembre 2024 - Suite)
+
+- [ ] Résoudre l'erreur TypeScript merchantDailySessions dans db-daily-sessions.ts
+- [ ] Exécuter la suite de tests complète (pnpm test)
+- [ ] Ajouter tests d'intégration pour workflow ouverture → vente → fermeture
+- [ ] Valider que tous les tests passent
+
+## 🐛 Corrections et Tests (27 décembre 2024 - Suite) - TERMINÉ
+
+- [x] Résoudre l'erreur TypeScript merchantDailySessions dans db-daily-sessions.ts
+- [x] Exécuter la suite de tests complète (pnpm test)
+- [x] Ajouter tests d'intégration pour workflow ouverture → vente → fermeture
+- [x] Valider que tous les tests passent

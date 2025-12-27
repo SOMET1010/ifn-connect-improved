@@ -1,5 +1,6 @@
 import { getDb } from "./db";
-import { merchantDailySessions, type MerchantDailySession, type InsertMerchantDailySession } from "../drizzle/schema";
+import * as schema from "../drizzle/schema";
+import type { MerchantDailySession, InsertMerchantDailySession } from "../drizzle/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 
 /**
@@ -14,11 +15,11 @@ export async function getTodaySession(merchantId: number): Promise<MerchantDaily
   
   const [session] = await db
     .select()
-    .from(merchantDailySessions)
+    .from(schema.merchantDailySessions)
     .where(
       and(
-        eq(merchantDailySessions.merchantId, merchantId),
-        eq(merchantDailySessions.sessionDate, today)
+        eq(schema.merchantDailySessions.merchantId, merchantId),
+        eq(schema.merchantDailySessions.sessionDate, today)
       )
     )
     .limit(1);
@@ -45,13 +46,13 @@ export async function openDaySession(
   if (existing) {
     // Mettre à jour la session existante
     const [updated] = await db
-      .update(merchantDailySessions)
+      .update(schema.merchantDailySessions)
       .set({
         openedAt: new Date(),
         openingNotes: openingNotes || existing.openingNotes,
         updatedAt: new Date(),
       })
-      .where(eq(merchantDailySessions.id, existing.id));
+      .where(eq(schema.merchantDailySessions.id, existing.id));
     
     // Récupérer la session mise à jour
     return getTodaySession(merchantId) || null;
@@ -59,7 +60,7 @@ export async function openDaySession(
   
   // Créer une nouvelle session
   await db
-    .insert(merchantDailySessions)
+    .insert(schema.merchantDailySessions)
     .values({
       merchantId,
       sessionDate: today,
@@ -90,13 +91,13 @@ export async function closeDaySession(
   }
   
   await db
-    .update(merchantDailySessions)
+    .update(schema.merchantDailySessions)
     .set({
       closedAt: new Date(),
       closingNotes: closingNotes || existing.closingNotes,
       updatedAt: new Date(),
     })
-    .where(eq(merchantDailySessions.id, existing.id));
+    .where(eq(schema.merchantDailySessions.id, existing.id));
   
   return getTodaySession(merchantId) || null;
 }
@@ -118,12 +119,12 @@ export async function reopenDaySession(merchantId: number): Promise<MerchantDail
   }
   
   await db
-    .update(merchantDailySessions)
+    .update(schema.merchantDailySessions)
     .set({
       closedAt: null,
       updatedAt: new Date(),
     })
-    .where(eq(merchantDailySessions.id, existing.id));
+    .where(eq(schema.merchantDailySessions.id, existing.id));
   
   return getTodaySession(merchantId) || null;
 }
@@ -140,9 +141,9 @@ export async function getSessionHistory(
   
   return db
     .select()
-    .from(merchantDailySessions)
-    .where(eq(merchantDailySessions.merchantId, merchantId))
-    .orderBy(desc(merchantDailySessions.sessionDate))
+    .from(schema.merchantDailySessions)
+    .where(eq(schema.merchantDailySessions.merchantId, merchantId))
+    .orderBy(desc(schema.merchantDailySessions.sessionDate))
     .limit(limit);
 }
 
@@ -159,13 +160,13 @@ export async function checkUnclosedYesterday(merchantId: number): Promise<Mercha
   
   const [session] = await db
     .select()
-    .from(merchantDailySessions)
+    .from(schema.merchantDailySessions)
     .where(
       and(
-        eq(merchantDailySessions.merchantId, merchantId),
-        eq(merchantDailySessions.sessionDate, yesterday),
-        sql`${merchantDailySessions.openedAt} IS NOT NULL`,
-        sql`${merchantDailySessions.closedAt} IS NULL`
+        eq(schema.merchantDailySessions.merchantId, merchantId),
+        eq(schema.merchantDailySessions.sessionDate, yesterday),
+        sql`${schema.merchantDailySessions.openedAt} IS NOT NULL`,
+        sql`${schema.merchantDailySessions.closedAt} IS NULL`
       )
     )
     .limit(1);

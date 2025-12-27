@@ -12,6 +12,7 @@ export async function createSale(data: {
   unitPrice: number;
   totalAmount: number;
   paymentMethod?: 'cash' | 'mobile_money' | 'credit';
+  paymentProvider?: string;
   notes?: string;
 }) {
   const db = await getDb();
@@ -25,6 +26,7 @@ export async function createSale(data: {
     unitPrice: String(data.unitPrice),
     totalAmount: String(data.totalAmount),
     paymentMethod: data.paymentMethod || 'cash',
+    paymentProvider: data.paymentProvider,
     saleDate: new Date(),
   });
 
