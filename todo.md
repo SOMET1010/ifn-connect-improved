@@ -2784,3 +2784,28 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [ ] Bloquer certaines actions si journée fermée (optionnel)
 - [x] Statistiques durée moyenne d'ouverture par marchand (fonction getSessionHistory)
 - [x] Historique des sessions (calendrier avec jours travaillés) (fonction getSessionHistory)
+
+
+## INTÉGRATION SYSTÈME OUVERTURE/FERMETURE DE JOURNÉE
+
+### Phase 1 : Intégration dans le Dashboard
+- [x] Intégrer SessionStatusBadge dans InstitutionalHeader
+- [x] Intégrer OpenDayButton dans MerchantDashboardSimple
+- [x] Ajouter la logique de redirection conditionnelle (si journée non ouverte)
+
+### Phase 2 : Désactivation de l'ancien système
+- [x] Désactiver useFirstLoginDetection dans MerchantDashboardSimple
+- [x] Désactiver DailyReportModal automatique à 19h
+- [x] Conserver les composants pour usage manuel optionnel
+
+### Phase 3 : Page Historique des Sessions
+- [x] Créer la page /merchant/sessions-history
+- [x] Afficher un calendrier mensuel avec les sessions
+- [x] Afficher les statistiques (durée moyenne, jours travaillés, etc.)
+- [x] Permettre de consulter les détails de chaque session
+
+### Phase 4 : Tests et Validation
+- [ ] Tester le workflow complet (ouverture → ventes → fermeture)
+- [ ] Vérifier les redirections automatiques
+- [ ] Valider l'affichage du badge de statut
+- [ ] Tester la réouverture d'une journée fermée

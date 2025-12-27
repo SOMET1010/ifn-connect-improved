@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/accessibility/LanguageSelector';
 import { audioManager } from '@/lib/audioManager';
 import { useAuth, getLoginUrl } from '@/hooks/useAuth';
+import { SessionStatusBadge } from '@/components/SessionStatusBadge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 /**
@@ -162,6 +163,9 @@ export default function InstitutionalHeader() {
             >
               {audioEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
             </Button>
+
+            {/* Badge Statut de Journée (pour marchands uniquement) */}
+            {isAuthenticated && user?.role === 'merchant' && <SessionStatusBadge />}
 
             {/* Menu Utilisateur ou Connexion */}
             {isAuthenticated ? (

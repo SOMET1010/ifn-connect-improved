@@ -22,6 +22,7 @@ import { DailyReportModal } from '@/components/DailyReportModal';
 import { MicroGoalsWidget } from '@/components/MicroGoalsWidget';
 import { SalesChart } from '@/components/SalesChart';
 import { GroupedOrderOpportunityCard } from '@/components/GroupedOrderOpportunityCard';
+import { OpenDayButton } from '@/components/OpenDayButton';
 
 /**
  * Widget d'opportunités de commandes groupées
@@ -77,44 +78,49 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
   const { data: todayStats } = trpc.sales.todayStats.useQuery({ merchantId });
   const { data: totalBalance } = trpc.sales.totalBalance.useQuery({ merchantId });
   const { data: lowStockCount } = trpc.sales.lowStockCount.useQuery({ merchantId });
+  
+  // Vérifier le statut de la session du jour
+  const { data: currentSession } = trpc.dailySessions.getCurrent.useQuery({ merchantId });
 
   const todayAmount = todayStats?.totalAmount || 0;
   const balance = totalBalance || 0;
   const lowStock = lowStockCount || 0;
   
   // Vérifier si c'est le premier lancement
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem('ifn-onboarding-completed');
-    if (!hasSeenOnboarding) {
-      setTimeout(() => setShowOnboarding(true), 1000);
-    }
-  }, []);
+  // DÉSACTIVÉ : Remplacé par le système Ouverture/Fermeture de journée
+  // useEffect(() => {
+  //   const hasSeenOnboarding = localStorage.getItem('ifn-onboarding-completed');
+  //   if (!hasSeenOnboarding) {
+  //     setTimeout(() => setShowOnboarding(true), 1000);
+  //   }
+  // }, []);
 
   // Déclenchement automatique du bilan de journée à 19h00
-  useEffect(() => {
-    const checkDailyReport = () => {
-      const now = new Date();
-      const hour = now.getHours();
-      
-      // Vérifier si déjà affiché aujourd'hui
-      const lastShown = localStorage.getItem('lastDailyReport');
-      const today = new Date().toDateString();
-      
-      if (lastShown !== today && hour >= 19) {
-        // Afficher le modal après 2 secondes
-        setTimeout(() => {
-          setShowDailyReport(true);
-          localStorage.setItem('lastDailyReport', today);
-        }, 2000);
-      }
-    };
-    
-    // Vérifier toutes les minutes
-    const interval = setInterval(checkDailyReport, 60000);
-    checkDailyReport(); // Vérifier immédiatement
-    
-    return () => clearInterval(interval);
-  }, []);
+  // DÉSACTIVÉ : Remplacé par le bouton manuel "Fermer ma journée" dans SessionStatusBadge
+  // useEffect(() => {
+  //   const checkDailyReport = () => {
+  //     const now = new Date();
+  //     const hour = now.getHours();
+  //     
+  //     // Vérifier si déjà affiché aujourd'hui
+  //     const lastShown = localStorage.getItem('lastDailyReport');
+  //     const today = new Date().toDateString();
+  //     
+  //     if (lastShown !== today && hour >= 19) {
+  //       // Afficher le modal après 2 secondes
+  //       setTimeout(() => {
+  //         setShowDailyReport(true);
+  //         localStorage.setItem('lastDailyReport', today);
+  //       }, 2000);
+  //     }
+  //   };
+  //   
+  //   // Vérifier toutes les minutes
+  //   const interval = setInterval(checkDailyReport, 60000);
+  //   checkDailyReport(); // Vérifier immédiatement
+  //   
+  //   return () => clearInterval(interval);
+  // }, []);
   
   const handleOnboardingComplete = () => {
     localStorage.setItem('ifn-onboarding-completed', 'true');
@@ -246,6 +252,13 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
 
         {/* MICRO-OBJECTIFS DYNAMIQUES */}
         <MicroGoalsWidget merchantId={merchantId} />
+        
+        {/* BOUTON OUVERTURE DE JOURNÉE (si journée non ouverte) */}
+        {currentSession && currentSession.status === 'NOT_OPENED' && (
+          <div className="mb-8">
+            <OpenDayButton merchantId={merchantId} />
+          </div>
+        )}
 
         {/* OPPORTUNITÉS DE COMMANDES GROUPÉES */}
         {/* <GroupedOrderOpportunities merchantId={merchantId} /> */}
