@@ -1107,3 +1107,54 @@ export const VOICE_CONTEXTS = {
 } as const;
 
 export type VoiceContext = typeof VOICE_CONTEXTS[keyof typeof VOICE_CONTEXTS];
+
+
+// ============================================================================
+// AUDIO LIBRARY - Bibliothèque d'audios en Dioula pour interface 100% vocale
+// ============================================================================
+
+export const audioLibrary = mysqlTable('audio_library', {
+  id: int('id').primaryKey().autoincrement(),
+  
+  // Identification
+  key: varchar('key', { length: 255 }).notNull().unique(),
+  category: varchar('category', { length: 100 }).notNull(), // welcome, buttons, alerts, instructions, confirmations
+  
+  // Textes
+  textFr: text('text_fr').notNull(),
+  textDioula: text('text_dioula'),
+  
+  // Audio
+  audioUrl: varchar('audio_url', { length: 500 }), // URL S3 du fichier audio
+  audioDuration: int('audio_duration'), // Durée en secondes
+  
+  // Métadonnées
+  context: text('context'), // Contexte d'utilisation pour aider la génération
+  priority: int('priority').default(0), // Priorité de lecture (0 = normal, 1 = important, 2 = critique)
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  keyIdx: index('key_idx').on(table.key),
+  categoryIdx: index('category_idx').on(table.category),
+}));
+
+export type AudioLibrary = typeof audioLibrary.$inferSelect;
+export type InsertAudioLibrary = typeof audioLibrary.$inferInsert;
+
+/**
+ * Catégories d'audios
+ */
+export const AUDIO_CATEGORIES = {
+  WELCOME: 'welcome',           // Messages de bienvenue
+  BUTTONS: 'buttons',           // Labels de boutons
+  ALERTS: 'alerts',             // Alertes et avertissements
+  INSTRUCTIONS: 'instructions', // Instructions d'utilisation
+  CONFIRMATIONS: 'confirmations', // Messages de confirmation
+  ERRORS: 'errors',             // Messages d'erreur
+  SUCCESS: 'success',           // Messages de succès
+  NAVIGATION: 'navigation',     // Aide à la navigation
+} as const;
+
+export type AudioCategory = typeof AUDIO_CATEGORIES[keyof typeof AUDIO_CATEGORIES];

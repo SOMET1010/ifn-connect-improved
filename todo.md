@@ -3092,3 +3092,81 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Créer les procedures tRPC pour traduction et TTS
 - [x] Mettre à jour useNativeAudio pour supporter Lafricamobile
 - [x] Implémenter la logique hybride (natif > Lafricamobile > synthèse locale)
+
+## 🌍 SYSTÈME DE TRADUCTION AUTOMATIQUE COMPLET
+
+### Phase 1 : Structure de base de données
+- [ ] Créer table `translations` (key, fr, dioula, category, context)
+- [ ] Créer table `user_language_preferences` (userId, preferredLanguage)
+- [ ] Ajouter migration Drizzle
+
+### Phase 2 : Extraction des textes
+- [ ] Scanner tous les composants React pour extraire les textes
+- [ ] Identifier les catégories (buttons, labels, messages, errors, etc.)
+- [ ] Créer un fichier JSON avec tous les textes à traduire
+
+### Phase 3 : Traduction automatique
+- [ ] Créer script de traduction batch via Lafricamobile API
+- [ ] Gérer la limite de 512 caractères par requête
+- [ ] Implémenter retry logic et gestion d'erreurs
+- [ ] Stocker les traductions en base de données
+
+### Phase 4 : Système i18n Frontend
+- [ ] Créer hook `useTranslation()` pour récupérer les traductions
+- [ ] Créer composant `<T>` pour remplacer les textes statiques
+- [ ] Ajouter sélecteur de langue dans le header
+- [ ] Sauvegarder la préférence utilisateur
+
+### Phase 5 : Tests et validation
+- [ ] Tester le changement de langue en temps réel
+- [ ] Vérifier la cohérence des traductions
+- [ ] Valider l'accessibilité avec synthèse vocale
+- [ ] Documenter le système pour futures traductions
+
+## 🎤 INTERFACE 100% VOCALE SANS LECTURE (PRIORITÉ ABSOLUE)
+
+### Phase 1 : Bibliothèque d'audios en Dioula
+- [ ] Identifier tous les messages clés de l'application (50-100 messages)
+- [ ] Créer une table `audio_library` (key, text_fr, text_dioula, audio_url, category)
+- [ ] Organiser par catégories (welcome, buttons, alerts, instructions, confirmations)
+
+### Phase 2 : Génération automatique des audios
+- [ ] Créer script de génération batch via Lafricamobile TTS
+- [ ] Générer les audios pour tous les messages identifiés
+- [ ] Uploader les fichiers audio sur S3
+- [ ] Stocker les URLs dans la base de données
+- [ ] Créer un système de cache local pour mode offline
+
+### Phase 3 : Lecture automatique intelligente
+- [ ] Créer hook `useAutoPlay()` qui lit l'audio au chargement de la page
+- [ ] Implémenter file d'attente pour messages multiples
+- [ ] Ajouter contrôle utilisateur (pause, rejouer, vitesse)
+- [ ] Gérer les préférences utilisateur (activer/désactiver auto-play)
+
+### Phase 4 : Interface minimaliste avec pictogrammes
+- [ ] Réduire tous les textes au strict minimum (ou les supprimer)
+- [ ] Agrandir tous les pictogrammes (minimum 80x80px)
+- [ ] Ajouter des couleurs distinctives pour chaque action
+- [ ] Implémenter feedback haptique (vibrations) sur mobile
+- [ ] Créer des animations visuelles pour guider l'attention
+
+### Phase 5 : Navigation 100% vocale
+- [ ] Améliorer les commandes vocales existantes
+- [ ] Ajouter commandes de navigation ("aller à la caisse", "voir mon stock")
+- [ ] Implémenter confirmation vocale avant actions critiques
+- [ ] Créer tutoriel vocal interactif pour nouveaux utilisateurs
+- [ ] Tester avec des utilisateurs réels non-alphabétisés
+
+## ✅ TÂCHES COMPLÉTÉES - INTERFACE VOCALE
+
+- [x] Table `audio_library` créée en base de données
+- [x] 40+ messages traduits en Dioula et insérés
+- [x] tRPC procedures pour accéder aux audios (getByKey, getByKeys, getByCategory, getAll, getStats)
+- [x] Hook `useAutoPlay()` pour lecture automatique
+- [x] Hook `useAudioClick()` pour boutons
+- [x] Composant `<AudioButton>` avec feedback audio
+- [x] Page de démonstration `/voice-demo` créée
+- [x] Interface avec pictogrammes XXL (80x80px)
+- [x] Mode "texte masqué" pour simuler l'utilisation sans lecture
+- [x] Contrôles audio (pause, reprendre, activer/désactiver)
+- [x] Statistiques de la bibliothèque audio

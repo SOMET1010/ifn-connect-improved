@@ -50,6 +50,7 @@ import AttendanceBadgesPage from "./pages/merchant/AttendanceBadgesPage";
 import Tutorials from "./pages/merchant/Tutorials";
 import VoiceRecordingsAdmin from "./pages/admin/VoiceRecordings";
 import LafricamobileTest from "./pages/admin/LafricamobileTest";
+import VoiceInterfaceDemo from "./pages/VoiceInterfaceDemo";
 
 function Router() {
   return (
@@ -90,6 +91,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/voice-recordings" component={VoiceRecordingsAdmin} />
       <Route path="/admin/lafricamobile-test" component={LafricamobileTest} />
+      <Route path="/voice-demo" component={VoiceInterfaceDemo} />
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={CooperativeDashboard} />

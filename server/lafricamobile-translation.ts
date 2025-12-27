@@ -40,6 +40,7 @@ export async function translateText(text: string, toLang: string): Promise<Trans
       },
       body: JSON.stringify({
         text,
+        from_lang: "french",
         to_lang: toLang,
       }),
     });

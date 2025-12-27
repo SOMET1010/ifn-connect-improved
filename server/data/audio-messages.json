@@ -1,0 +1,277 @@
+{
+  "welcome": [
+    {
+      "key": "welcome.home",
+      "textFr": "Bienvenue sur la plateforme IFN Connect",
+      "category": "welcome",
+      "context": "Message de bienvenue sur la page d'accueil",
+      "priority": 1
+    },
+    {
+      "key": "welcome.morning",
+      "textFr": "Bonjour ! Prêt à commencer votre journée ?",
+      "category": "welcome",
+      "context": "Salutation matinale",
+      "priority": 1
+    },
+    {
+      "key": "welcome.back",
+      "textFr": "Content de vous revoir !",
+      "category": "welcome",
+      "context": "Message de retour pour utilisateur connu",
+      "priority": 0
+    }
+  ],
+  
+  "buttons": [
+    {
+      "key": "button.open_day",
+      "textFr": "Ouvrir ma journée",
+      "category": "buttons",
+      "context": "Bouton pour démarrer la journée de travail",
+      "priority": 2
+    },
+    {
+      "key": "button.close_day",
+      "textFr": "Fermer ma journée",
+      "category": "buttons",
+      "context": "Bouton pour terminer la journée de travail",
+      "priority": 2
+    },
+    {
+      "key": "button.sell",
+      "textFr": "Vendre",
+      "category": "buttons",
+      "context": "Bouton pour enregistrer une vente",
+      "priority": 2
+    },
+    {
+      "key": "button.stock",
+      "textFr": "Mon stock",
+      "category": "buttons",
+      "context": "Bouton pour voir le stock",
+      "priority": 1
+    },
+    {
+      "key": "button.order",
+      "textFr": "Commander",
+      "category": "buttons",
+      "context": "Bouton pour passer une commande",
+      "priority": 1
+    },
+    {
+      "key": "button.money",
+      "textFr": "Mon argent",
+      "category": "buttons",
+      "context": "Bouton pour voir les finances",
+      "priority": 1
+    },
+    {
+      "key": "button.save",
+      "textFr": "Enregistrer",
+      "category": "buttons",
+      "context": "Bouton pour sauvegarder",
+      "priority": 0
+    },
+    {
+      "key": "button.cancel",
+      "textFr": "Annuler",
+      "category": "buttons",
+      "context": "Bouton pour annuler",
+      "priority": 0
+    },
+    {
+      "key": "button.validate",
+      "textFr": "Valider",
+      "category": "buttons",
+      "context": "Bouton pour valider",
+      "priority": 1
+    },
+    {
+      "key": "button.back",
+      "textFr": "Retour",
+      "category": "buttons",
+      "context": "Bouton pour revenir en arrière",
+      "priority": 0
+    }
+  ],
+  
+  "instructions": [
+    {
+      "key": "instruction.cash_register",
+      "textFr": "Tapez le montant de la vente avec les chiffres",
+      "category": "instructions",
+      "context": "Instruction pour utiliser la caisse",
+      "priority": 1
+    },
+    {
+      "key": "instruction.voice_command",
+      "textFr": "Appuyez sur le microphone et dites votre commande",
+      "category": "instructions",
+      "context": "Instruction pour utiliser les commandes vocales",
+      "priority": 1
+    },
+    {
+      "key": "instruction.select_product",
+      "textFr": "Choisissez le produit vendu",
+      "category": "instructions",
+      "context": "Instruction pour sélectionner un produit",
+      "priority": 1
+    },
+    {
+      "key": "instruction.enter_quantity",
+      "textFr": "Entrez la quantité",
+      "category": "instructions",
+      "context": "Instruction pour saisir une quantité",
+      "priority": 1
+    }
+  ],
+  
+  "alerts": [
+    {
+      "key": "alert.stock_low",
+      "textFr": "Attention ! Votre stock est faible, pensez à commander",
+      "category": "alerts",
+      "context": "Alerte de stock bas",
+      "priority": 2
+    },
+    {
+      "key": "alert.stock_critical",
+      "textFr": "Urgent ! Vous n'avez presque plus de stock",
+      "category": "alerts",
+      "context": "Alerte de stock critique",
+      "priority": 2
+    },
+    {
+      "key": "alert.cnps_expiring",
+      "textFr": "Votre CNPS expire bientôt, pensez à renouveler",
+      "category": "alerts",
+      "context": "Alerte d'expiration CNPS",
+      "priority": 2
+    },
+    {
+      "key": "alert.cmu_expiring",
+      "textFr": "Votre CMU expire bientôt, pensez à renouveler",
+      "category": "alerts",
+      "context": "Alerte d'expiration CMU",
+      "priority": 2
+    }
+  ],
+  
+  "confirmations": [
+    {
+      "key": "confirm.sale_recorded",
+      "textFr": "Vente enregistrée avec succès !",
+      "category": "confirmations",
+      "context": "Confirmation d'enregistrement de vente",
+      "priority": 2
+    },
+    {
+      "key": "confirm.payment_success",
+      "textFr": "Paiement réussi !",
+      "category": "confirmations",
+      "context": "Confirmation de paiement réussi",
+      "priority": 2
+    },
+    {
+      "key": "confirm.order_placed",
+      "textFr": "Votre commande a été envoyée",
+      "category": "confirmations",
+      "context": "Confirmation de commande passée",
+      "priority": 1
+    },
+    {
+      "key": "confirm.day_opened",
+      "textFr": "Bonne journée de travail !",
+      "category": "confirmations",
+      "context": "Confirmation d'ouverture de journée",
+      "priority": 1
+    },
+    {
+      "key": "confirm.day_closed",
+      "textFr": "Bonne soirée ! À demain",
+      "category": "confirmations",
+      "context": "Confirmation de fermeture de journée",
+      "priority": 1
+    }
+  ],
+  
+  "errors": [
+    {
+      "key": "error.generic",
+      "textFr": "Une erreur s'est produite, réessayez",
+      "category": "errors",
+      "context": "Message d'erreur générique",
+      "priority": 1
+    },
+    {
+      "key": "error.no_connection",
+      "textFr": "Pas de connexion internet, les données seront synchronisées plus tard",
+      "category": "errors",
+      "context": "Erreur de connexion",
+      "priority": 1
+    },
+    {
+      "key": "error.invalid_amount",
+      "textFr": "Le montant n'est pas valide",
+      "category": "errors",
+      "context": "Erreur de montant invalide",
+      "priority": 1
+    }
+  ],
+  
+  "navigation": [
+    {
+      "key": "nav.go_to_cash_register",
+      "textFr": "Aller à la caisse",
+      "category": "navigation",
+      "context": "Navigation vers la caisse",
+      "priority": 0
+    },
+    {
+      "key": "nav.go_to_stock",
+      "textFr": "Aller au stock",
+      "category": "navigation",
+      "context": "Navigation vers le stock",
+      "priority": 0
+    },
+    {
+      "key": "nav.go_to_market",
+      "textFr": "Aller au marché",
+      "category": "navigation",
+      "context": "Navigation vers le marché virtuel",
+      "priority": 0
+    },
+    {
+      "key": "nav.go_to_profile",
+      "textFr": "Aller au profil",
+      "category": "navigation",
+      "context": "Navigation vers le profil",
+      "priority": 0
+    }
+  ],
+  
+  "success": [
+    {
+      "key": "success.congratulations",
+      "textFr": "Félicitations pour votre journée productive !",
+      "category": "success",
+      "context": "Message de félicitations",
+      "priority": 1
+    },
+    {
+      "key": "success.good_sales",
+      "textFr": "Très bien ! Vous avez fait de bonnes ventes aujourd'hui",
+      "category": "success",
+      "context": "Encouragement pour bonnes ventes",
+      "priority": 1
+    },
+    {
+      "key": "success.keep_going",
+      "textFr": "Continuez comme ça !",
+      "category": "success",
+      "context": "Encouragement général",
+      "priority": 0
+    }
+  ]
+}

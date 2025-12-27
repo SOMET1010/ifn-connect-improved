@@ -35,6 +35,7 @@ import { tutorialsRouter } from './routers-tutorials';
 import { firstTimeUserRouter } from './routers/first-time-user';
 import { voiceRecordingsRouter } from './routers/voice-recordings';
 import { lafricamobileRouter } from './routers/lafricamobile';
+import { audioLibraryRouter } from './routers/audio-library';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -71,6 +72,7 @@ export const appRouter = router({
   firstTimeUser: firstTimeUserRouter,
   voiceRecordings: voiceRecordingsRouter,
   lafricamobile: lafricamobileRouter,
+  audioLibrary: audioLibraryRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
