@@ -3000,3 +3000,25 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [ ] Vérification de l'accessibilité (ARIA, contraste, taille)
 - [ ] Documentation utilisateur mise à jour
 - [ ] Checkpoint final avec les 3 améliorations
+
+## Mode Première Utilisation (Onboarding)
+- [x] Table de suivi de progression (first_time_user_progress)
+- [x] Router tRPC pour gérer le tour guidé (firstTimeUser)
+- [x] Hook useFirstTimeUser pour détecter les nouveaux utilisateurs
+- [x] Composant VoiceGuidedTour avec 5 étapes guidées
+- [x] Support bilingue (Français/Dioula) pour le tour
+- [x] Lecture vocale automatique des instructions
+- [x] Étape 1: Ouvrir/Fermer ma journée
+- [x] Étape 2: Enregistrer une vente
+- [x] Étape 3: Utiliser les commandes vocales
+- [x] Étape 4: Commander des produits
+- [x] Étape 5: Vérifier ma protection sociale
+- [x] Barre de progression visuelle
+- [x] Bouton pour changer de langue (FR/Dioula)
+- [x] Bouton pour activer/désactiver l'audio
+- [x] Bouton pour réécouter l'instruction
+- [x] Bouton pour passer le tour
+- [x] Tests unitaires pour le router firstTimeUser (8 tests)
+- [x] Intégration dans le dashboard marchand
+- [ ] Désactivation automatique après 3 jours d'utilisation
+- [ ] Notification de rappel si le tour n'est pas complété après 24h

@@ -23,6 +23,7 @@ import { MicroGoalsWidget } from '@/components/MicroGoalsWidget';
 import { SalesChart } from '@/components/SalesChart';
 import { GroupedOrderOpportunityCard } from '@/components/GroupedOrderOpportunityCard';
 import { OpenDayButton } from '@/components/OpenDayButton';
+import { VoiceGuidedTour } from '@/components/VoiceGuidedTour';
 
 /**
  * Widget d'opportunités de commandes groupées
@@ -405,6 +406,9 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         open={showDailyReport}
         onClose={() => setShowDailyReport(false)}
       />
+      
+      {/* Tour guidé vocal pour les nouveaux utilisateurs */}
+      <VoiceGuidedTour />
     </div>
   );
 }
