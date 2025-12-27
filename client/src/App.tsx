@@ -48,6 +48,8 @@ import CloseDaySummary from "./pages/merchant/CloseDaySummary";
 import SessionsHistory from "./pages/merchant/SessionsHistory";
 import AttendanceBadgesPage from "./pages/merchant/AttendanceBadgesPage";
 import Tutorials from "./pages/merchant/Tutorials";
+import VoiceRecordingsAdmin from "./pages/admin/VoiceRecordings";
+import LafricamobileTest from "./pages/admin/LafricamobileTest";
 
 function Router() {
   return (
@@ -86,6 +88,8 @@ function Router() {
       <Route path="/admin/renewals" component={RenewalsAdmin} />
       <Route path="/admin/audit-logs" component={AuditLogs} />
       <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/voice-recordings" component={VoiceRecordingsAdmin} />
+      <Route path="/admin/lafricamobile-test" component={LafricamobileTest} />
       
       {/* Cooperative Routes */}
       <Route path={"/cooperative"} component={CooperativeDashboard} />

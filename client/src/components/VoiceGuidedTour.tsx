@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { useFirstTimeUser } from "@/hooks/useFirstTimeUser";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useNativeAudio } from "@/hooks/useNativeAudio";
 
 /**
  * Composant VoiceGuidedTour
@@ -75,22 +76,26 @@ export function VoiceGuidedTour() {
   const { speak, stop, isEnabled, toggle: toggleSpeech } = useSpeech();
   const [language, setLanguage] = useState<"fr" | "dioula">("fr");
 
-  // Récupérer l'étape actuelle
+  // Hook pour l'audio natif
   const step = TOUR_STEPS.find((s) => s.id === currentStep) || TOUR_STEPS[0];
+  const contextKey = `tour_step_${currentStep}`;
+  const fallbackText = language === "dioula" ? step.voiceTextDioula : step.voiceText;
+  const nativeAudio = useNativeAudio(contextKey, language, fallbackText);
 
-  // Lire automatiquement le texte vocal quand l'étape change
+  // L'étape est déjà définie plus haut pour useNativeAudio
+
+  // Lire automatiquement l'audio natif quand l'étape change
   useEffect(() => {
     if (showTour && step && isEnabled) {
-      const textToSpeak = language === "dioula" ? step.voiceTextDioula : step.voiceText;
       // Délai de 500ms pour laisser le temps au composant de s'afficher
       setTimeout(() => {
-        speak(textToSpeak, { lang: language === "dioula" ? "dyu" : "fr-FR" });
+        nativeAudio.play();
       }, 500);
     }
 
     // Arrêter la lecture quand le composant se démonte
     return () => {
-      stop();
+      nativeAudio.stop();
     };
   }, [currentStep, showTour, language, isEnabled]);
 
@@ -100,18 +105,17 @@ export function VoiceGuidedTour() {
   }
 
   const handleNext = async () => {
-    stop(); // Arrêter la lecture vocale avant de passer à l'étape suivante
+    nativeAudio.stop(); // Arrêter la lecture vocale avant de passer à l'étape suivante
     await nextStep();
   };
 
   const handleSkip = async () => {
-    stop();
+    nativeAudio.stop();
     await skip();
   };
 
   const handleReplay = () => {
-    const textToSpeak = language === "dioula" ? step.voiceTextDioula : step.voiceText;
-    speak(textToSpeak, { lang: language === "dioula" ? "dyu" : "fr-FR" });
+    nativeAudio.play();
   };
 
   return (

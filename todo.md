@@ -3022,3 +3022,73 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Intégration dans le dashboard marchand
 - [ ] Désactivation automatique après 3 jours d'utilisation
 - [ ] Notification de rappel si le tour n'est pas complété après 24h
+
+## 🎤 Système d'Enregistrements Vocaux Natifs
+- [ ] Conception de l'architecture du système audio
+- [ ] Table voice_recordings pour stocker les métadonnées des fichiers audio
+- [ ] Upload des fichiers audio vers S3 avec compression automatique
+- [ ] Router tRPC pour gérer les enregistrements (CRUD)
+- [ ] Interface d'administration pour uploader les fichiers audio
+- [ ] Formulaire d'upload avec sélection de langue (Dioula, Baoulé, Bété, etc.)
+- [ ] Formulaire d'upload avec sélection du contexte (tour guidé, briefing, alertes, etc.)
+- [ ] Prévisualisation audio avant upload
+- [ ] Liste des enregistrements existants avec lecture
+- [ ] Modification et suppression des enregistrements
+- [ ] Hook useNativeAudio pour remplacer useSpeech
+- [ ] Intégration dans VoiceGuidedTour (5 étapes)
+- [ ] Intégration dans MorningBriefing
+- [ ] Intégration dans DailyReportModal
+- [ ] Intégration dans les alertes de stock
+- [ ] Intégration dans les alertes de protection sociale
+- [ ] Fallback vers synthèse vocale si enregistrement manquant
+- [ ] Tests de lecture audio sur mobile (iOS/Android)
+- [ ] Documentation du processus d'enregistrement pour les traducteurs
+
+## 🎤 Système d'Enregistrements Vocaux Natifs - Mise à jour
+- [x] Conception de l'architecture du système audio
+- [x] Table voice_recordings pour stocker les métadonnées des fichiers audio
+- [x] Upload des fichiers audio vers S3 avec compression automatique
+- [x] Router tRPC pour gérer les enregistrements (CRUD)
+- [x] Interface d'administration pour uploader les fichiers audio
+- [x] Formulaire d'upload avec sélection de langue (Dioula, Baoulé, Bété, etc.)
+- [x] Formulaire d'upload avec sélection du contexte (tour guidé, briefing, alertes, etc.)
+- [x] Prévisualisation audio avant upload
+- [x] Liste des enregistrements existants avec lecture
+- [x] Modification et suppression des enregistrements
+- [x] Hook useNativeAudio pour remplacer useSpeech
+- [x] Intégration dans VoiceGuidedTour (5 étapes)
+- [ ] Intégration dans MorningBriefing
+- [ ] Intégration dans DailyReportModal
+- [ ] Intégration dans les alertes de stock
+- [ ] Intégration dans les alertes de protection sociale
+- [x] Fallback vers synthèse vocale si enregistrement manquant
+- [ ] Tests de lecture audio sur mobile (iOS/Android)
+- [ ] Documentation du processus d'enregistrement pour les traducteurs
+
+## 🌍 Intégration API Lafricamobile
+- [ ] Rechercher la documentation de l'API Lafricamobile
+- [ ] Identifier les endpoints de traduction (FR → Dioula)
+- [ ] Identifier les endpoints de synthèse vocale (TTS Dioula)
+- [ ] Configurer les clés API Lafricamobile
+- [ ] Créer le service de traduction server/lafricamobile-translation.ts
+- [ ] Créer le service de synthèse vocale server/lafricamobile-tts.ts
+- [ ] Créer les procedures tRPC pour traduction et TTS
+- [ ] Mettre à jour useNativeAudio pour supporter Lafricamobile
+- [ ] Implémenter la logique hybride (natif > Lafricamobile > synthèse locale)
+- [ ] Tester la traduction FR → Dioula
+- [ ] Tester la synthèse vocale en Dioula
+- [ ] Optimiser le cache des traductions
+- [ ] Gérer les erreurs et fallbacks
+- [ ] Documentation pour les développeurs
+
+## ✅ Tâches complétées - Intégration Lafricamobile
+- [x] Rechercher la documentation de l'API Lafricamobile
+- [x] Identifier les endpoints de traduction (FR → Dioula)
+- [x] Identifier les endpoints de synthèse vocale (TTS Dioula)
+- [x] Configurer les clés API Lafricamobile
+- [x] Créer le service d'authentification server/lafricamobile-auth.ts
+- [x] Créer le service de traduction server/lafricamobile-translation.ts
+- [x] Créer le service de synthèse vocale server/lafricamobile-tts.ts
+- [x] Créer les procedures tRPC pour traduction et TTS
+- [x] Mettre à jour useNativeAudio pour supporter Lafricamobile
+- [x] Implémenter la logique hybride (natif > Lafricamobile > synthèse locale)
