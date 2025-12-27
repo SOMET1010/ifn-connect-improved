@@ -2,19 +2,84 @@ import { trpc } from '../lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Share2, Download, Trophy, Calendar, Award } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 
 export default function MyBadges() {
   const { data: badges, isLoading } = trpc.achievements.getMyBadges.useQuery();
-  const generateBadgeImage = trpc.achievements.generateBadgeImage.useMutation();
 
   const [generatingBadgeId, setGeneratingBadgeId] = useState<number | null>(null);
+  const badgeCanvasRef = useRef<HTMLDivElement>(null);
 
-  const handleShareWhatsApp = async (badgeId: number, badgeName: string) => {
-    setGeneratingBadgeId(badgeId);
+  const generateBadgeImageFromHTML = async (badge: any, userName: string) => {
+    // Créer un élément temporaire pour le badge
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.width = '800px';
+    tempDiv.style.height = '600px';
+    
+    tempDiv.innerHTML = `
+      <div style="
+        width: 800px;
+        height: 600px;
+        background: linear-gradient(135deg, #FF6B35 0%, #D84315 100%);
+        border: 10px solid white;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        color: white;
+        text-align: center;
+        padding: 40px;
+        box-sizing: border-box;
+      ">
+        <div style="font-size: 120px; margin-bottom: 20px;">${badge.badgeIcon || '🏆'}</div>
+        <div style="font-size: 48px; font-weight: bold; margin-bottom: 20px;">${badge.badgeName}</div>
+        <div style="font-size: 36px; color: #FFF9C4; margin-bottom: 20px;">${userName}</div>
+        <div style="font-size: 32px; font-weight: bold; margin-bottom: 20px;">Score : ${badge.scoreObtained}%</div>
+        ${badge.courseTitle ? `<div style="font-size: 24px; color: #FFE0B2; margin-bottom: 20px;">${badge.courseTitle}</div>` : ''}
+        <div style="font-size: 20px; color: #FFE0B2; margin-bottom: 30px;">
+          Obtenu le ${new Date(badge.earnedAt).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </div>
+        <div style="font-size: 18px; font-weight: bold; margin-top: auto;">
+          IFN Connect - Plateforme d'Inclusion Numérique
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(tempDiv);
+    
     try {
-      const result = await generateBadgeImage.mutateAsync({ badgeId });
+      const canvas = await html2canvas(tempDiv, {
+        backgroundColor: null,
+        scale: 2,
+      });
+      
+      const dataUrl = canvas.toDataURL('image/png');
+      document.body.removeChild(tempDiv);
+      
+      return {
+        image: dataUrl,
+        filename: `badge-${badge.badgeName.replace(/\s+/g, '-').toLowerCase()}.png`,
+      };
+    } catch (error) {
+      document.body.removeChild(tempDiv);
+      throw error;
+    }
+  };
+
+  const handleShareWhatsApp = async (badge: any) => {
+    setGeneratingBadgeId(badge.id);
+    try {
+      const result = await generateBadgeImageFromHTML(badge, 'Marchand');
       
       // Télécharger l'image
       const link = document.createElement('a');
@@ -24,7 +89,7 @@ export default function MyBadges() {
 
       // Ouvrir WhatsApp avec un message
       const message = encodeURIComponent(
-        `🎉 Je viens d'obtenir le badge "${badgeName}" sur IFN Connect ! 🏆\n\nRejoignez la plateforme d'inclusion financière numérique pour les marchands de Côte d'Ivoire.`
+        `🎉 Je viens d'obtenir le badge "${badge.badgeName}" sur IFN Connect ! 🏆\n\nRejoignez la plateforme d'inclusion financière numérique pour les marchands de Côte d'Ivoire.`
       );
       window.open(`https://wa.me/?text=${message}`, '_blank');
 
@@ -37,10 +102,10 @@ export default function MyBadges() {
     }
   };
 
-  const handleDownload = async (badgeId: number) => {
-    setGeneratingBadgeId(badgeId);
+  const handleDownload = async (badge: any) => {
+    setGeneratingBadgeId(badge.id);
     try {
-      const result = await generateBadgeImage.mutateAsync({ badgeId });
+      const result = await generateBadgeImageFromHTML(badge, 'Marchand');
       
       const link = document.createElement('a');
       link.href = result.image;
@@ -197,7 +262,7 @@ export default function MyBadges() {
                       variant="outline"
                       size="sm"
                       className="flex-1"
-                      onClick={() => handleShareWhatsApp(badge.id, badge.badgeName)}
+                      onClick={() => handleShareWhatsApp(badge)}
                       disabled={generatingBadgeId === badge.id}
                     >
                       <Share2 className="h-4 w-4 mr-2" />
@@ -207,7 +272,7 @@ export default function MyBadges() {
                       variant="outline"
                       size="sm"
                       className="flex-1"
-                      onClick={() => handleDownload(badge.id)}
+                      onClick={() => handleDownload(badge)}
                       disabled={generatingBadgeId === badge.id}
                     >
                       <Download className="h-4 w-4 mr-2" />
@@ -246,6 +311,9 @@ export default function MyBadges() {
           </CardContent>
         </Card>
       )}
+      
+      {/* Élément caché pour la génération de badges */}
+      <div ref={badgeCanvasRef} style={{ position: 'absolute', left: '-9999px' }} />
     </div>
   );
 }
