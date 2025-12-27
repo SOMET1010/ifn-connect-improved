@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/sensoryToast';
 
 interface ExportButtonProps {
   onExport: () => Promise<{ filename: string; data: string; count?: number }>;

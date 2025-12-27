@@ -12,6 +12,7 @@ import MerchantDashboardUltraSimple from './pages/MerchantDashboardUltraSimple';
 import MerchantDashboardMGX from './pages/MerchantDashboardMGX';
 import CashRegister from './pages/merchant/CashRegister';
 import CashRegisterSimple from './pages/merchant/CashRegisterSimple';
+import CashRegisterMGX from './pages/merchant/CashRegisterMGX';
 import MerchantProfile from './pages/merchant/Profile';
 import SocialCoverage from './pages/merchant/SocialCoverage';
 import SocialProtection from './pages/merchant/SocialProtection';
@@ -57,7 +58,7 @@ function Router() {
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
-      <Route path="/merchant/cash-register" component={CashRegisterSimple} />
+      <Route path="/merchant/cash-register" component={CashRegisterMGX} />
       <Route path="/merchant/profile" component={MerchantProfile} />
       <Route path="/merchant/social-coverage" component={SocialCoverage} />
       <Route path="/merchant/social-protection" component={SocialProtection} />

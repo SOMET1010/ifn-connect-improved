@@ -3157,3 +3157,27 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Créer le wrapper sensoryToast pour feedback automatique
 - [x] Intégrer feedback sur tous les toasts success/error
 - [x] Tester le feedback sur navigateurs modernes
+
+
+## 🎯 PHASE MGX 3/3 - FINALISATION (27 décembre 2024) ✅
+
+### Activation CashRegisterMGX ✅
+- [x] Remplacer CashRegisterSimple par CashRegisterMGX dans App.tsx
+- [x] Vérifier que la route /merchant/cash-register utilise la nouvelle interface
+- [x] Tester l'accès à la caisse depuis le dashboard
+
+### Généralisation sensoryToast ✅
+- [x] Remplacer import { toast } from 'sonner' par import { toast } from '@/lib/sensoryToast' dans ExportButton.tsx
+- [x] Remplacer import { toast } from 'sonner' par import { toast } from '@/lib/sensoryToast' dans MerchantCreateModal.tsx
+- [x] Remplacer import { toast } from 'sonner' par import { toast } from '@/lib/sensoryToast' dans PaymentModal.tsx
+- [x] Remplacer import { toast } from 'sonner' par import { toast } from '@/lib/sensoryToast' dans SavingsProposalModal.tsx
+- [x] Remplacer import { toast } from 'sonner' par import { toast } from '@/lib/sensoryToast' dans MobileMoneyPayment.tsx
+- [x] Remplacer import { toast } from 'sonner' par import { toast } from '@/lib/sensoryToast' dans CashRegisterMGX.tsx
+
+### Toggle FR/Dioula ✅
+- [x] Ajouter le hook useLanguage() dans CashRegisterMGX
+- [x] Créer le bouton toggle FR/Dioula dans le header de la caisse
+- [x] Positionner le bouton à côté du bouton microphone
+- [x] Appliquer le style pill arrondi avec bordure blanche
+- [x] Afficher 🇫🇷 FR ou 🇨🇮 Dioula selon la langue active
+- [x] Tester le basculement de langue

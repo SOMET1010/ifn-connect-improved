@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { Loader2, CheckCircle, XCircle, Smartphone } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/sensoryToast";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface PaymentModalProps {

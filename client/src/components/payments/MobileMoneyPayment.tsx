@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle2, XCircle, Smartphone, Wallet } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
-import { toast } from 'sonner';
+import { toast } from '@/lib/sensoryToast';
 
 /**
  * Composant de paiement Mobile Money

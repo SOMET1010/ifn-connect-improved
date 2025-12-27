@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { PiggyBank, Sparkles } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
-import { toast } from 'sonner';
+import { toast } from '@/lib/sensoryToast';
 import { motion } from 'framer-motion';
 
 interface SavingsProposalModalProps {

@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { audioManager } from '@/lib/audioManager';
-import { toast } from 'sonner';
+import { toast } from '@/lib/sensoryToast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { parseVoiceCommand } from '@/utils/voiceCommandParser';
 import MobileMoneyPayment from '@/components/payments/MobileMoneyPayment';
@@ -48,6 +49,7 @@ type CartItem = {
 export default function CashRegisterMGX() {
   const [, setLocation] = useLocation();
   const { triggerSuccess, triggerError } = useSensoryFeedback();
+  const { language, setLanguage } = useLanguage();
   
   // État du panier
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -359,14 +361,26 @@ export default function CashRegisterMGX() {
             <p className="text-sm opacity-90 font-medium">Vendre comme un pro</p>
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleVoiceRecord}
-            className={`text-white hover:bg-white/20 rounded-2xl ${voiceState === 'listening' ? 'animate-pulse bg-red-500' : ''}`}
-          >
-            <Mic size={28} />
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Toggle FR/Nouchi */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLanguage(language === 'fr' ? 'dioula' : 'fr')}
+              className="text-white hover:bg-white/20 rounded-full px-3 py-1 text-xs font-bold border border-white/30"
+            >
+              {language === 'fr' ? '🇫🇷 FR' : '🇨🇮 Dioula'}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleVoiceRecord}
+              className={`text-white hover:bg-white/20 rounded-2xl ${voiceState === 'listening' ? 'animate-pulse bg-red-500' : ''}`}
+            >
+              <Mic size={28} />
+            </Button>
+          </div>
         </div>
       </div>
 
