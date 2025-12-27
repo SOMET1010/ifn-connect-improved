@@ -9,6 +9,11 @@ import {
   getSessionHistory,
   checkUnclosedYesterday,
 } from "../db-daily-sessions";
+import {
+  getLast30DaysStats,
+  compareWeeks,
+  compareMonths,
+} from "../db-daily-sessions-stats";
 
 /**
  * Router tRPC pour la gestion des sessions quotidiennes (Ouverture/Fermeture de journée)
@@ -144,5 +149,56 @@ export const dailySessionsRouter = router({
 
     const result = await checkUnclosedYesterday(merchant.id);
     return result;
+  }),
+
+  /**
+   * Récupérer les statistiques des 30 derniers jours
+   */
+  getLast30DaysStats: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.user) {
+      throw new Error("Utilisateur non authentifié");
+    }
+
+    const merchant = await getMerchantByUserId(ctx.user.id);
+    if (!merchant) {
+      throw new Error("Marchand non trouvé");
+    }
+
+    const stats = await getLast30DaysStats(merchant.id);
+    return stats;
+  }),
+
+  /**
+   * Comparer la semaine en cours avec la semaine dernière
+   */
+  compareWeeks: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.user) {
+      throw new Error("Utilisateur non authentifié");
+    }
+
+    const merchant = await getMerchantByUserId(ctx.user.id);
+    if (!merchant) {
+      throw new Error("Marchand non trouvé");
+    }
+
+    const comparison = await compareWeeks(merchant.id);
+    return comparison;
+  }),
+
+  /**
+   * Comparer le mois en cours avec le mois dernier
+   */
+  compareMonths: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.user) {
+      throw new Error("Utilisateur non authentifié");
+    }
+
+    const merchant = await getMerchantByUserId(ctx.user.id);
+    if (!merchant) {
+      throw new Error("Marchand non trouvé");
+    }
+
+    const comparison = await compareMonths(merchant.id);
+    return comparison;
   }),
 });

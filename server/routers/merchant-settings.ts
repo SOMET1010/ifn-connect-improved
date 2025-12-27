@@ -33,6 +33,8 @@ export const merchantSettingsRouter = router({
       groupedOrderNotificationsEnabled: z.boolean().optional(),
       morningBriefingEnabled: z.boolean().optional(),
       morningBriefingTime: z.string().optional(),
+      reminderOpeningTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // Format HH:MM
+      reminderClosingTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // Format HH:MM
     }))
     .mutation(async ({ input }) => {
       const { merchantId, ...updates } = input;

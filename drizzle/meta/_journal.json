@@ -155,6 +155,20 @@
       "when": 1766789238647,
       "tag": "0021_superb_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1766830778196,
+      "tag": "0022_naive_jack_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1766831309080,
+      "tag": "0023_hot_the_twelve",
+      "breakpoints": true
     }
   ]
 }

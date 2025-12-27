@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, PiggyBank, Bell, Sun } from 'lucide-react';
+import { ArrowLeft, Save, PiggyBank, Bell, Sun, Clock } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import MobileNavigation from '@/components/accessibility/MobileNavigation';
@@ -27,6 +27,8 @@ export default function MerchantSettings() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(settings?.groupedOrderNotificationsEnabled ?? true);
   const [briefingEnabled, setBriefingEnabled] = useState(settings?.morningBriefingEnabled ?? true);
   const [briefingTime, setBriefingTime] = useState(settings?.morningBriefingTime ?? '08:00');
+  const [reminderOpeningTime, setReminderOpeningTime] = useState(settings?.reminderOpeningTime ?? '09:00');
+  const [reminderClosingTime, setReminderClosingTime] = useState(settings?.reminderClosingTime ?? '20:00');
 
   // Mettre à jour les états quand les settings sont chargés
   useState(() => {
@@ -37,6 +39,8 @@ export default function MerchantSettings() {
       setNotificationsEnabled(settings.groupedOrderNotificationsEnabled);
       setBriefingEnabled(settings.morningBriefingEnabled);
       setBriefingTime(settings.morningBriefingTime || '08:00');
+      setReminderOpeningTime(settings.reminderOpeningTime || '09:00');
+      setReminderClosingTime(settings.reminderClosingTime || '20:00');
     }
   });
 
@@ -60,6 +64,8 @@ export default function MerchantSettings() {
       groupedOrderNotificationsEnabled: notificationsEnabled,
       morningBriefingEnabled: briefingEnabled,
       morningBriefingTime: briefingTime,
+      reminderOpeningTime,
+      reminderClosingTime,
     });
   };
 
@@ -235,6 +241,59 @@ export default function MerchantSettings() {
                 />
               </div>
             )}
+          </div>
+        </Card>
+
+        {/* Paramètres de rappels d'ouverture/fermeture */}
+        <Card className="p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <Clock className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">Rappels de Journée</h2>
+              <p className="text-sm text-gray-600">Ouverture et fermeture</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reminder-opening" className="text-base font-semibold">
+                Rappel d'ouverture
+              </Label>
+              <p className="text-sm text-gray-600 mb-2">
+                SUTA te rappellera d'ouvrir ta journée à cette heure
+              </p>
+              <Input
+                id="reminder-opening"
+                type="time"
+                value={reminderOpeningTime}
+                onChange={(e) => setReminderOpeningTime(e.target.value)}
+                className="text-lg h-14"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="reminder-closing" className="text-base font-semibold">
+                Rappel de fermeture
+              </Label>
+              <p className="text-sm text-gray-600 mb-2">
+                SUTA te rappellera de fermer ta journée à cette heure
+              </p>
+              <Input
+                id="reminder-closing"
+                type="time"
+                value={reminderClosingTime}
+                onChange={(e) => setReminderClosingTime(e.target.value)}
+                className="text-lg h-14"
+              />
+            </div>
+
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <p className="text-sm text-purple-800">
+                <strong>🔔 Astuce :</strong> Les rappels sont envoyés uniquement si tu n'as pas encore ouvert/fermé ta journée. Choisis des heures adaptées à ton rythme de travail !
+              </p>
+            </div>
           </div>
         </Card>
 

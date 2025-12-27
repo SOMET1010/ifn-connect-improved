@@ -1,6 +1,6 @@
 import { getDb } from "./db";
-import { merchantDailySessions } from "../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
+import { merchantDailySessions } from "../drizzle/schema";
 
 /**
  * Fonctions de gestion des sessions quotidiennes des marchands

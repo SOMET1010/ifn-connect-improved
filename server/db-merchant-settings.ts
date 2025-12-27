@@ -20,6 +20,10 @@ export const merchantSettings = mysqlTable("merchant_settings", {
   morningBriefingEnabled: boolean("morningBriefingEnabled").default(true).notNull(),
   morningBriefingTime: varchar("morningBriefingTime", { length: 5 }).default("08:00"),
   
+  // Paramètres de rappels d'ouverture/fermeture de journée
+  reminderOpeningTime: varchar("reminderOpeningTime", { length: 5 }).default("09:00"),
+  reminderClosingTime: varchar("reminderClosingTime", { length: 5 }).default("20:00"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -66,6 +70,8 @@ export async function createDefaultSettings(merchantId: number): Promise<Merchan
       groupedOrderNotificationsEnabled: true,
       morningBriefingEnabled: true,
       morningBriefingTime: "08:00",
+      reminderOpeningTime: "09:00",
+      reminderClosingTime: "20:00",
     })
     .$returningId();
 
@@ -84,6 +90,8 @@ export async function updateMerchantSettings(
     groupedOrderNotificationsEnabled: boolean;
     morningBriefingEnabled: boolean;
     morningBriefingTime: string;
+    reminderOpeningTime: string;
+    reminderClosingTime: string;
   }>
 ) {
   const db = await getDb();

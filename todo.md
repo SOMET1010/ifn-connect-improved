@@ -4,9 +4,9 @@
 - [x] Schéma de base de données complet (marchands, agents, coopératives, ventes, stocks, produits)
 - [ ] Système d'authentification multi-niveaux (numéro marchand, OTP SMS, PIN)
 - [ ] Row Level Security (RLS) dans la base de données
-- [ ] Configuration du Service Worker pour PWA
-- [ ] Configuration IndexedDB pour stockage offline
-- [ ] Queue de synchronisation avec retry automatique
+- [x] Configuration du Service Worker pour PWA
+- [x] Configuration IndexedDB pour stockage offline
+- [x] Queue de synchronisation avec retry automatique
 
 ## Système de Design Accessible
 - [x] Bibliothèque de pictogrammes SVG pour actions principales
@@ -28,32 +28,32 @@
 
 ## Module Marchand (80% utilisateurs)
 - [x] Dashboard marchand avec KPIs (ventes du jour, stock bas, cotisations)
-- [ ] Interface de caisse tactile simplifiée
-- [ ] Enregistrement rapide de ventes avec vocal
-- [ ] Gestion de stock avec alertes visuelles et vocales
-- [ ] Visualisation simple CNPS (retraite)
-- [ ] Visualisation simple CMU (santé)
-- [ ] Marché virtuel d'approvisionnement
-- [ ] Liste des produits disponibles
-- [ ] Panier d'achat et commande
-- [ ] Intégration paiements Mobile Money (InTouch)
-- [ ] Intégration Orange Money
-- [ ] Intégration MTN Mobile Money
-- [ ] Historique des transactions
-- [ ] Profil marchand avec numéro unique
+- [x] Interface de caisse tactile simplifiée
+- [x] Enregistrement rapide de ventes avec vocal
+- [x] Gestion de stock avec alertes visuelles et vocales
+- [x] Visualisation simple CNPS (retraite)
+- [x] Visualisation simple CMU (santé)
+- [x] Marché virtuel d'approvisionnement
+- [x] Liste des produits disponibles
+- [x] Panier d'achat et commande
+- [x] Intégration paiements Mobile Money (InTouch)
+- [x] Intégration Orange Money
+- [x] Intégration MTN Mobile Money
+- [x] Historique des transactions
+- [x] Profil marchand avec numéro unique
 
 ## Module Agent Terrain (15% utilisateurs)
-- [ ] Dashboard agent avec statistiques d'enrôlement
-- [ ] Wizard d'enrôlement en 5 étapes
-- [ ] Capture photo des pièces justificatives
-- [ ] Compression automatique des photos
-- [ ] Géolocalisation GPS automatique
-- [ ] Validation des données en temps réel
-- [ ] Liste des marchands enrôlés avec filtres
-- [ ] Carte des marchands avec clustering
-- [ ] Mode offline complet pour enrôlement
-- [ ] Queue d'enrôlements en attente de sync
-- [ ] Support N1 avec FAQ
+- [x] Dashboard agent avec statistiques d'enrôlement
+- [x] Wizard d'enrôlement en 5 étapes
+- [x] Capture photo des pièces justificatives
+- [x] Compression automatique des photos
+- [x] Géolocalisation GPS automatique
+- [x] Validation des données en temps réel
+- [x] Liste des marchands enrôlés avec filtres
+- [x] Carte des marchands avec clustering
+- [x] Mode offline complet pour enrôlement
+- [x] Queue d'enrôlements en attente de sync
+- [x] Support N1 avec FAQ
 - [ ] Calcul d'itinéraires optimisés
 
 ## Module Coopérative (5% utilisateurs)
@@ -2809,3 +2809,90 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [ ] Vérifier les redirections automatiques
 - [ ] Valider l'affichage du badge de statut
 - [ ] Tester la réouverture d'une journée fermée
+
+
+---
+
+## 🔔 AMÉLIORATION 1 : Rappels Intelligents
+
+### Backend
+- [ ] Créer un cron job qui s'exécute à 9h00 et 20h00 (fuseau horaire CI)
+- [ ] Détecter les marchands qui n'ont pas ouvert leur journée à 9h
+- [ ] Détecter les marchands qui n'ont pas fermé leur journée à 20h
+- [ ] Créer des notifications in-app pour ces rappels
+- [ ] Ajouter un type de notification 'session_reminder'
+
+### Frontend
+- [ ] Afficher les notifications de rappel dans le badge de notifications
+- [ ] Ajouter un lien direct vers l'action (ouvrir/fermer) dans la notification
+
+---
+
+## 📊 AMÉLIORATION 2 : Graphiques d'Évolution
+
+### Backend
+- [ ] Créer une procédure tRPC pour récupérer les statistiques hebdomadaires
+- [ ] Créer une procédure tRPC pour récupérer les statistiques mensuelles
+- [ ] Calculer les moyennes par jour de la semaine
+
+### Frontend
+- [ ] Ajouter un graphique LineChart des heures travaillées (30 derniers jours)
+- [ ] Ajouter un graphique BarChart des heures par jour de la semaine
+- [ ] Ajouter une comparaison semaine en cours vs semaine dernière
+- [ ] Ajouter une comparaison mois en cours vs mois dernier
+
+---
+
+## 🏆 AMÉLIORATION 3 : Badges d'Assiduité
+
+### Backend
+- [ ] Créer 5 nouveaux badges d'assiduité dans la table badges
+- [ ] Badge "Régulier" : 7 jours consécutifs
+- [ ] Badge "Assidu" : 15 jours consécutifs
+- [ ] Badge "Champion" : 30 jours consécutifs
+- [ ] Badge "Mois Parfait" : 30 jours dans le même mois
+- [ ] Badge "Matinal" : Ouvrir avant 8h pendant 7 jours
+- [ ] Créer une fonction de vérification automatique des badges d'assiduité
+- [ ] Intégrer la vérification dans le cron job de déblocage des badges
+
+### Frontend
+- [ ] Afficher les badges d'assiduité dans la page /merchant/badges
+- [ ] Ajouter une section dédiée "Assiduité" dans la page badges
+- [ ] Afficher la progression vers le prochain badge d'assiduité
+
+## Phase 2 : Améliorations Système Ouverture/Fermeture de Journée
+
+### Rappels Intelligents Paramétrables
+- [ ] Ajouter champs reminderOpeningTime et reminderClosingTime dans merchant_settings
+- [ ] Migration base de données pour les nouveaux champs
+- [ ] Créer procédure tRPC pour mettre à jour les heures de rappel
+- [ ] Ajouter section "Rappels" dans la page /merchant/settings
+- [ ] Modifier le cron job pour utiliser les heures personnalisées
+- [ ] Tester les rappels avec différentes heures
+
+### Graphiques d'Évolution (Page Historique)
+- [ ] Ajouter graphique courbe des heures travaillées (7 derniers jours)
+- [ ] Ajouter graphique comparaison semaine vs semaine précédente
+- [ ] Ajouter graphique comparaison mois vs mois précédent
+- [ ] Afficher la tendance (hausse/baisse) avec indicateur visuel
+- [ ] Intégrer Chart.js ou Recharts pour les visualisations
+
+### Badges d'Assiduité (Gamification)
+- [ ] Créer table session_badges (id, merchantId, badgeCode, unlockedAt)
+- [ ] Définir 5 badges : 7_days_streak, 30_days_month, early_bird, night_owl, consistent_worker
+- [ ] Créer procédure tRPC pour vérifier et débloquer les badges
+- [ ] Ajouter cron job quotidien pour vérifier les badges automatiquement
+- [ ] Créer composant BadgeDisplay pour afficher les badges obtenus
+- [ ] Ajouter section "Mes Badges" dans la page d'historique
+- [ ] Créer notifications pour déblocage de badges
+- [ ] Ajouter partage social des badges (WhatsApp)
+
+- [x] Ajouter champs reminderOpeningTime et reminderClosingTime dans merchant_settings
+- [x] Migration base de données pour les nouveaux champs
+- [x] Créer procédure tRPC pour mettre à jour les heures de rappel
+- [x] Ajouter section "Rappels" dans la page /merchant/settings
+- [x] Ajouter graphique courbe des heures travaillées (7 derniers jours)
+- [x] Ajouter graphique comparaison semaine vs semaine précédente
+- [x] Ajouter graphique comparaison mois vs mois précédent
+- [x] Afficher la tendance (hausse/baisse) avec indicateur visuel
+- [x] Intégrer Recharts pour les visualisations

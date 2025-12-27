@@ -4,6 +4,7 @@ import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { Calendar, Clock, TrendingUp, Award } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import SessionsChart, { ComparisonCard } from '@/components/SessionsChart';
 
 /**
  * Page Historique des Sessions
@@ -15,6 +16,22 @@ export default function SessionsHistory() {
 
   const { data: historyData, isLoading } = trpc.dailySessions.getHistory.useQuery(
     { merchantId: merchantId!, limit: 30 },
+    { enabled: !!merchantId }
+  );
+
+  // Charger les statistiques d'évolution
+  const { data: last30DaysStats } = trpc.dailySessions.getLast30DaysStats.useQuery(
+    undefined,
+    { enabled: !!merchantId }
+  );
+
+  const { data: weekComparison } = trpc.dailySessions.compareWeeks.useQuery(
+    undefined,
+    { enabled: !!merchantId }
+  );
+
+  const { data: monthComparison } = trpc.dailySessions.compareMonths.useQuery(
+    undefined,
     { enabled: !!merchantId }
   );
 
@@ -166,6 +183,38 @@ export default function SessionsHistory() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Graphique d'évolution */}
+        {last30DaysStats && last30DaysStats.length > 0 && (
+          <SessionsChart 
+            data={last30DaysStats}
+            title="Évolution des heures travaillées"
+            description="Vos 7 derniers jours de travail"
+          />
+        )}
+
+        {/* Comparaisons semaine et mois */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {weekComparison && (
+            <ComparisonCard
+              title="Comparaison hebdomadaire"
+              currentValue={weekComparison.thisWeek.totalHours}
+              previousValue={weekComparison.lastWeek.totalHours}
+              currentLabel="Cette semaine"
+              previousLabel="Semaine dernière"
+            />
+          )}
+
+          {monthComparison && (
+            <ComparisonCard
+              title="Comparaison mensuelle"
+              currentValue={monthComparison.thisMonth.totalHours}
+              previousValue={monthComparison.lastMonth.totalHours}
+              currentLabel="Ce mois"
+              previousLabel="Mois dernier"
+            />
+          )}
         </div>
 
         {/* Calendrier des sessions */}

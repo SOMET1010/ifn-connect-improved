@@ -901,6 +901,7 @@ export const inAppNotifications = mysqlTable("in_app_notifications", {
     "stock_alert",
     "order_status",
     "group_order_created",
+    "session_reminder",
     "system",
   ]).notNull(),
   title: text("title").notNull(),
@@ -989,6 +990,10 @@ export const merchantSettings = mysqlTable("merchant_settings", {
   // Paramètres de briefing matinal
   morningBriefingEnabled: boolean("morningBriefingEnabled").default(true).notNull(),
   morningBriefingTime: varchar("morningBriefingTime", { length: 5 }).default("08:00"), // Format HH:MM
+  
+  // Paramètres de rappels d'ouverture/fermeture de journée
+  reminderOpeningTime: varchar("reminderOpeningTime", { length: 5 }).default("09:00"), // Format HH:MM
+  reminderClosingTime: varchar("reminderClosingTime", { length: 5 }).default("20:00"), // Format HH:MM
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
