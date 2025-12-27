@@ -193,6 +193,8 @@ export const sales = mysqlTable("sales", {
 }, (table) => ({
   merchantDateIdx: index("merchant_date_idx").on(table.merchantId, table.saleDate),
   syncIdx: index("sync_idx").on(table.isSynced),
+  paymentMethodIdx: index("payment_method_idx").on(table.paymentMethod),
+  merchantPaymentIdx: index("merchant_payment_idx").on(table.merchantId, table.paymentMethod),
 }));
 
 export type Sale = typeof sales.$inferSelect;

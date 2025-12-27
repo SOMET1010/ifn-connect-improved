@@ -206,13 +206,21 @@ export const paymentsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Marchand non trouvé",
+        });
+      }
+
       const [transaction] = await db
         .select()
         .from(transactions)
         .where(
           and(
             eq(transactions.id, input.transactionId),
-            eq(transactions.merchantId, ctx.user.id!)
+            eq(transactions.merchantId, merchant.id)
           )
         )
         .limit(1);
@@ -353,6 +361,14 @@ export const paymentsRouter = router({
       }
 
       // Seul le vendeur peut rembourser
+      const merchant = await getMerchantByUserId(ctx.user.id);
+      if (!merchant) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Marchand non trouvé",
+        });
+      }
+
       if (transaction.orderId) {
         const [order] = await db
           .select()
@@ -360,7 +376,7 @@ export const paymentsRouter = router({
           .where(eq(marketplaceOrders.id, transaction.orderId))
           .limit(1);
 
-        if (order && order.sellerId !== ctx.user.id) {
+        if (order && order.sellerId !== merchant.id) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Vous n'êtes pas autorisé à rembourser cette transaction",

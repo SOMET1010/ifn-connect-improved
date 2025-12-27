@@ -2988,3 +2988,9 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 ### Phase 6 : Livraison finale
 - [x] Livrer le rapport final avec toutes les validations
 - [ ] Créer un checkpoint final
+
+## 🔧 Optimisations et Corrections Post-Stabilisation
+
+- [x] Refondre les tests payments (payments.test.ts - 6/6 tests passent)
+- [x] Ajouter des index de performance sur merchantId, sessionDate, status, createdAt
+- [x] Valider les performances après ajout des index

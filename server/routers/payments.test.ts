@@ -10,7 +10,7 @@ import type { TrpcContext } from '../_core/context';
  * Teste le flux de paiement Mobile Money en mode simulation
  */
 
-describe.skip('Payments Router - Mobile Money (Simulation)', () => {
+describe('Payments Router - Mobile Money (Simulation)', () => {
   let testUserId: number;
   let testMerchantId: number;
   let testOrderId: number;
@@ -88,9 +88,9 @@ describe.skip('Payments Router - Mobile Money (Simulation)', () => {
     if (!db) return;
 
     // Nettoyer les données de test (ordre important pour les contraintes FK)
-    await db.delete(transactions).where(eq(transactions.merchantId, testUserId));
-    await db.delete(marketplaceOrders).where(eq(marketplaceOrders.buyerId, testUserId));
-    await db.delete(marketplaceOrders).where(eq(marketplaceOrders.sellerId, testUserId));
+    await db.delete(transactions).where(eq(transactions.merchantId, testMerchantId));
+    await db.delete(marketplaceOrders).where(eq(marketplaceOrders.buyerId, testMerchantId));
+    await db.delete(marketplaceOrders).where(eq(marketplaceOrders.sellerId, testMerchantId));
     await db.delete(merchants).where(eq(merchants.id, testMerchantId));
     await db.delete(users).where(eq(users.id, testUserId));
   });
@@ -179,9 +179,25 @@ describe.skip('Payments Router - Mobile Money (Simulation)', () => {
   });
 
   it('devrait rembourser une transaction réussie (simulation)', async () => {
+    // Créer une nouvelle commande pour ce test
+    const db = await getDb();
+    if (!db) throw new Error('Database unavailable');
+
+    const [newOrder] = await db
+      .insert(marketplaceOrders)
+      .values({
+        buyerId: testMerchantId,
+        sellerId: testMerchantId,
+        productId: 1,
+        quantity: 10,
+        totalAmount: '5000.00',
+        status: 'pending_payment',
+      })
+      .$returningId();
+
     // Créer une transaction réussie
     const payment = await caller.payments.initiatePayment({
-      orderId: testOrderId,
+      orderId: newOrder.id,
       provider: 'orange_money',
       phoneNumber: '+2250707070700',
     });

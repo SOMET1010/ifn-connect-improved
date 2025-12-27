@@ -23,6 +23,8 @@ export const transactions = mysqlTable("transactions", {
   transactionIdIdx: index("transaction_id_idx").on(table.transactionId),
   merchantIdIdx: index("merchant_id_idx").on(table.merchantId),
   statusIdx: index("status_idx").on(table.status),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+  merchantStatusIdx: index("merchant_status_idx").on(table.merchantId, table.status),
 }));
 
 export type Transaction = typeof transactions.$inferSelect;
@@ -48,6 +50,8 @@ export const marketplaceOrders = mysqlTable("marketplace_orders", {
   buyerIdIdx: index("buyer_id_idx").on(table.buyerId),
   sellerIdIdx: index("seller_id_idx").on(table.sellerId),
   statusIdx: index("status_idx").on(table.status),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+  buyerStatusIdx: index("buyer_status_idx").on(table.buyerId, table.status),
 }));
 
 export type MarketplaceOrder = typeof marketplaceOrders.$inferSelect;
