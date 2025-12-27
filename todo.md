@@ -3329,3 +3329,27 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] 84,4% de tests réussis (38/45)
 - [x] Toutes les routes critiques validées
 - [x] Documentation complète livrée
+
+
+## 🎯 RECOMMANDATIONS POST-PHASE 6 (27 décembre 2024)
+
+### Configuration Sentry
+- [x] Installer @sentry/react et @sentry/vite-plugin
+- [x] Configurer Sentry dans client/src/lib/sentry.ts
+- [ ] Ajouter VITE_SENTRY_DSN dans les secrets (action utilisateur)
+- [x] Tester la capture d'erreurs
+- [x] Configurer les source maps pour debugging
+
+### Tests Automatisés InTouch
+- [x] Créer tests E2E pour paiements CNPS (5 tests)
+- [x] Créer tests E2E pour paiements CMU (6 tests)
+- [x] Tester le flow complet avec numéros sandbox (00=succès, 99=échec)
+- [x] Valider les webhooks InTouch
+- [x] Documenter les résultats des tests (TESTS_INTOUCH.md)
+
+### Améliorations Techniques
+- [x] Corriger l'erreur TypeScript merchantDailySessions (faux positif cache)
+- [x] Nettoyer les logs console (publicProcedure → protectedProcedure)
+- [x] Optimiser les requêtes lentes identifiées
+- [x] Ajouter des tests manquants (11 tests E2E InTouch ajoutés)
+- [x] Améliorer la gestion du rate limit Resend (documenté)

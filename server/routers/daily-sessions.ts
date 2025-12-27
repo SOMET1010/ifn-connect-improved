@@ -121,7 +121,7 @@ export const dailySessionsRouter = router({
   /**
    * Vérifier si le marchand a oublié de fermer sa journée hier
    */
-  checkUnclosedYesterday: publicProcedure.query(async ({ ctx }) => {
+  checkUnclosedYesterday: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
       return { hasUnclosed: false, yesterdaySession: null };
     }
@@ -138,7 +138,7 @@ export const dailySessionsRouter = router({
   /**
    * Récupérer les statistiques des 30 derniers jours
    */
-  getLast30DaysStats: publicProcedure.query(async ({ ctx }) => {
+  getLast30DaysStats: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
       throw new Error("Utilisateur non authentifié");
     }
@@ -155,7 +155,7 @@ export const dailySessionsRouter = router({
   /**
    * Comparer la semaine en cours avec la semaine dernière
    */
-  compareWeeks: publicProcedure.query(async ({ ctx }) => {
+  compareWeeks: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
       throw new Error("Utilisateur non authentifié");
     }
@@ -172,7 +172,7 @@ export const dailySessionsRouter = router({
   /**
    * Comparer le mois en cours avec le mois dernier
    */
-  compareMonths: publicProcedure.query(async ({ ctx }) => {
+  compareMonths: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
       throw new Error("Utilisateur non authentifié");
     }
