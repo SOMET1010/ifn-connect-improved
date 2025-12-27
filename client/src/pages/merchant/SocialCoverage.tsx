@@ -9,6 +9,8 @@ import InstitutionalHeader from '@/components/InstitutionalHeader';
 import SpeechToggle from '@/components/SpeechToggle';
 import LanguageSelector from '@/components/LanguageSelector';
 import { toast } from 'sonner';
+import { useNouchi } from '@/hooks/useNouchi';
+import { useSensoryFeedback } from '@/hooks/useSensoryFeedback';
 
 /**
  * Dashboard de Couverture Sociale CNPS/CMU
@@ -20,6 +22,8 @@ export default function SocialCoverage() {
   const { speakAlert, isEnabled: speechEnabled } = useSpeech();
   const { getExpirationMessage } = useLanguage();
   const [hasSpokenAlert, setHasSpokenAlert] = useState(false);
+  const { t } = useNouchi();
+  const { triggerSuccess } = useSensoryFeedback();
 
   if (!merchant) {
     return (
@@ -69,11 +73,13 @@ export default function SocialCoverage() {
   }, [cnpsNeedsRenewal, cmuNeedsRenewal, cnpsDaysLeft, cmuDaysLeft, speechEnabled, hasSpokenAlert, speakAlert, getExpirationMessage]);
 
   const handleDownloadAttestation = (type: 'cnps' | 'cmu') => {
+    triggerSuccess();
     toast.info(`📄 Téléchargement de l'attestation ${type.toUpperCase()} bientôt disponible !`);
   };
 
   const handleRenew = (type: 'cnps' | 'cmu') => {
-    toast.info(`🔄 Renouvellement ${type.toUpperCase()} : Contactez votre agent terrain !`);
+    triggerSuccess();
+    toast.info(`🔄 Renouvellement ${type.toUpperCase()} : ${t.contact}`);
   };
 
   return (

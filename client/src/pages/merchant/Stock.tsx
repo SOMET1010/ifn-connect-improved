@@ -8,6 +8,8 @@ import { trpc } from '@/lib/trpc';
 import { audioManager } from '@/lib/audioManager';
 import { toast } from 'sonner';
 import MobileNavigation from '@/components/accessibility/MobileNavigation';
+import { useNouchi } from '@/hooks/useNouchi';
+import { useSensoryFeedback } from '@/hooks/useSensoryFeedback';
 
 /**
  * Interface de gestion de stock pour les marchands
@@ -16,6 +18,8 @@ import MobileNavigation from '@/components/accessibility/MobileNavigation';
 export default function Stock() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useNouchi();
+  const { triggerSuccess, triggerError } = useSensoryFeedback();
 
   // Mock merchantId - À remplacer par l'ID réel de l'utilisateur connecté
   const merchantId = 1;
@@ -33,12 +37,14 @@ export default function Stock() {
   // Mutation pour mettre à jour le stock
   const updateStock = trpc.stock.update.useMutation({
     onSuccess: () => {
-      toast.success('Stock mis à jour !');
-      audioManager.speak('Stock mis à jour');
+      triggerSuccess();
+      toast.success(t.stockUpdated);
+      audioManager.speak(t.stockUpdated);
       refetch();
     },
     onError: (error) => {
-      toast.error('Erreur lors de la mise à jour');
+      triggerError();
+      toast.error(t.updateError);
       console.error(error);
     },
   });

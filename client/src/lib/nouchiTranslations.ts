@@ -74,6 +74,38 @@ export interface Translations {
   // Montants (Franc CFA)
   fcfa: string;
   amount: string;
+  
+  // Marché Virtuel
+  virtualMarket: string;
+  orderNow: string;
+  myOrders: string;
+  placeOrder: string;
+  
+  // Protection Sociale
+  socialCoverage: string;
+  cnps: string;
+  cmu: string;
+  retirement: string;
+  health: string;
+  
+  // Aide et Support
+  faq: string;
+  contact: string;
+  tutorial: string;
+  
+  // Messages de toast génériques
+  itemAdded: string;
+  itemRemoved: string;
+  updateSuccess: string;
+  updateError: string;
+  deleteSuccess: string;
+  deleteError: string;
+  
+  // Recherche et filtres
+  search: string;
+  filter: string;
+  all: string;
+  category: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -146,6 +178,38 @@ export const translations: Record<Language, Translations> = {
     // Montants
     fcfa: 'FCFA',
     amount: 'Montant',
+    
+    // Marché Virtuel
+    virtualMarket: 'Marché Virtuel',
+    orderNow: 'Commander',
+    myOrders: 'Mes commandes',
+    placeOrder: 'Passer commande',
+    
+    // Protection Sociale
+    socialCoverage: 'Protection Sociale',
+    cnps: 'CNPS',
+    cmu: 'CMU',
+    retirement: 'Retraite',
+    health: 'Santé',
+    
+    // Aide et Support
+    faq: 'Questions fréquentes',
+    contact: 'Contact',
+    tutorial: 'Tutoriel',
+    
+    // Messages de toast génériques
+    itemAdded: 'Article ajouté',
+    itemRemoved: 'Article retiré',
+    updateSuccess: 'Mise à jour réussie',
+    updateError: 'Erreur lors de la mise à jour',
+    deleteSuccess: 'Suppression réussie',
+    deleteError: 'Erreur lors de la suppression',
+    
+    // Recherche et filtres
+    search: 'Rechercher',
+    filter: 'Filtrer',
+    all: 'Tout',
+    category: 'Catégorie',
   },
   
   nouchi: {
@@ -217,6 +281,38 @@ export const translations: Record<Language, Translations> = {
     // Montants
     fcfa: 'Francs',
     amount: 'Combien',
+    
+    // Marché Virtuel
+    virtualMarket: 'Le Grand Marché',
+    orderNow: 'Go prendre',
+    myOrders: 'Mes Go',
+    placeOrder: 'Lancer le Go',
+    
+    // Protection Sociale
+    socialCoverage: 'La Couverture',
+    cnps: 'Retraite',
+    cmu: 'Santé',
+    retirement: 'Quand tu seras vieux',
+    health: 'Pour te soigner',
+    
+    // Aide et Support
+    faq: 'Les Questions',
+    contact: 'Appeler',
+    tutorial: 'Comment faire',
+    
+    // Messages de toast génériques
+    itemAdded: 'C\'est dedans !',
+    itemRemoved: 'C\'est sorti !',
+    updateSuccess: 'C\'est à jour, frérot',
+    updateError: 'Y\'a un blé, re-essaie',
+    deleteSuccess: 'C\'est dégagé !',
+    deleteError: 'Aïe, ça n\'a pas marché',
+    
+    // Recherche et filtres
+    search: 'Chercher',
+    filter: 'Trier',
+    all: 'Tout',
+    category: 'Type',
   },
 };
 

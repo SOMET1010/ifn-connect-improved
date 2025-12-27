@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { toast as showToast } from 'sonner';
 import { PaymentModal } from '@/components/PaymentModal';
+import { useNouchi } from '@/hooks/useNouchi';
+import { useSensoryFeedback } from '@/hooks/useSensoryFeedback';
 
 interface CartItem {
   productId: number;
@@ -28,6 +30,8 @@ interface CartItem {
 
 export default function VirtualMarket() {
   const { merchant } = useAuth();
+  const { t } = useNouchi();
+  const { triggerSuccess, triggerError } = useSensoryFeedback();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -47,11 +51,13 @@ export default function VirtualMarket() {
   // Mutation pour créer une commande
   const createOrderMutation = trpc.orders.create.useMutation({
     onSuccess: (data) => {
+      triggerSuccess();
       // Ne pas vider le panier tout de suite, attendre le paiement
-      showToast.success("Commande créée ! Procédez au paiement.");
+      showToast.success(t.updateSuccess);
     },
     onError: (error) => {
-      showToast.error(`Erreur: ${error.message}`);
+      triggerError();
+      showToast.error(`${t.error}: ${error.message}`);
     },
   });
 
