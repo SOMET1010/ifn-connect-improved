@@ -9,14 +9,15 @@ import { useLocation } from 'wouter';
  */
 export function OpenDayButton() {
   const [, setLocation] = useLocation();
-  const { data: session, isLoading } = trpc.dailySessions.getCurrent.useQuery();
+  const { data, isLoading } = trpc.dailySessions.getToday.useQuery();
+  const status = data?.status;
 
-  if (isLoading || !session) {
+  if (isLoading) {
     return null;
   }
 
   // N'afficher le bouton que si la journée n'est pas ouverte
-  if (session.status !== 'NOT_OPENED') {
+  if (status !== 'NOT_OPENED') {
     return null;
   }
 

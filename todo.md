@@ -2920,9 +2920,9 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 ### Phase 2 : Tests Unitaires
 - [x] Vérifier que le test auth.logout fonctionne (1/1 passed)
 - [x] Vérifier que le test daily-sessions fonctionne (9/9 passed)
-- [ ] Créer tests pour sales.create
-- [ ] Créer tests pour stock.update
-- [ ] Créer tests pour payments.initiatePayment
+- [x] Créer tests pour sales.create
+- [x] Créer tests pour stock.update
+- [x] Créer tests pour payments.initiatePayment
 
 ### Phase 3 : Monitoring Sentry
 - [x] Documenter comment obtenir un DSN Sentry (docs/SENTRY_SETUP.md)
@@ -2931,3 +2931,19 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Ajouter ErrorBoundary pour capturer les erreurs React
 - [x] Créer un guide pour ajouter VITE_SENTRY_DSN dans Settings → Secrets
 - [ ] L'utilisateur doit ajouter son DSN Sentry dans Settings → Secrets
+
+## 🎯 Nouvelles Tâches - 27 Décembre 2024
+
+### Interface Sessions Quotidiennes
+- [x] Créer composant SessionStatusBadge pour afficher le statut dans le header
+- [x] Créer composant OpenDayButton pour le dashboard marchand
+- [x] Créer page OpenDayBriefing pour le briefing matinal
+- [x] Créer page CloseDaySummary pour le bilan de journée
+- [x] Créer page SessionsHistory pour l'historique des sessions
+- [x] Intégrer les composants dans le dashboard marchand
+
+### Tests Unitaires Routes Critiques
+- [x] Créer tests pour sales.create (création de vente)
+- [x] Créer tests pour stock.update (mise à jour du stock)
+- [x] Créer tests pour payments.initiatePayment (initiation de paiement)
+- [ ] Valider que tous les tests passent

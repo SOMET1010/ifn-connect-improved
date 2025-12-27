@@ -80,7 +80,7 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
   const { data: lowStockCount } = trpc.sales.lowStockCount.useQuery({ merchantId });
   
   // Vérifier le statut de la session du jour
-  const { data: currentSession } = trpc.dailySessions.getCurrent.useQuery({ merchantId });
+  const { data: sessionData } = trpc.dailySessions.getToday.useQuery();
 
   const todayAmount = todayStats?.totalAmount || 0;
   const balance = totalBalance || 0;
@@ -256,7 +256,7 @@ function DashboardContent({ merchantId, businessName, merchantNumber }: {
         {/* BOUTON OUVERTURE DE JOURNÉE (si journée non ouverte) */}
         {currentSession && currentSession.status === 'NOT_OPENED' && (
           <div className="mb-8">
-            <OpenDayButton merchantId={merchantId} />
+            <OpenDayButton />
           </div>
         )}
 

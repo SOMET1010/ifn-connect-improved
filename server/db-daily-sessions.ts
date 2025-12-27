@@ -9,7 +9,8 @@ export async function getTodaySession(merchantId: number): Promise<MerchantDaily
   const db = await getDb();
   if (!db) return undefined;
   
-  const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to midnight
   
   const [session] = await db
     .select()
@@ -35,7 +36,8 @@ export async function openDaySession(
   const db = await getDb();
   if (!db) return null;
   
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
   // Vérifier si une session existe déjà
   const existing = await getTodaySession(merchantId);
@@ -78,7 +80,8 @@ export async function closeDaySession(
   const db = await getDb();
   if (!db) return null;
   
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
   const existing = await getTodaySession(merchantId);
   
@@ -105,7 +108,8 @@ export async function reopenDaySession(merchantId: number): Promise<MerchantDail
   const db = await getDb();
   if (!db) return null;
   
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
   const existing = await getTodaySession(merchantId);
   
@@ -151,7 +155,7 @@ export async function checkUnclosedYesterday(merchantId: number): Promise<Mercha
   
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  yesterday.setHours(0, 0, 0, 0);
   
   const [session] = await db
     .select()
@@ -159,7 +163,7 @@ export async function checkUnclosedYesterday(merchantId: number): Promise<Mercha
     .where(
       and(
         eq(merchantDailySessions.merchantId, merchantId),
-        eq(merchantDailySessions.sessionDate, yesterdayStr),
+        eq(merchantDailySessions.sessionDate, yesterday),
         sql`${merchantDailySessions.openedAt} IS NOT NULL`,
         sql`${merchantDailySessions.closedAt} IS NULL`
       )

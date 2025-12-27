@@ -14,7 +14,9 @@ import {
  * Permet d'ouvrir/fermer/rouvrir la journée via un menu dropdown
  */
 export function SessionStatusBadge() {
-  const { data: session, isLoading } = trpc.dailySessions.getCurrent.useQuery();
+  const { data, isLoading } = trpc.dailySessions.getToday.useQuery();
+  const session = data?.session;
+  const status = data?.status || 'NOT_OPENED';
   const utils = trpc.useUtils();
 
   const handleOpenDay = () => {
@@ -30,7 +32,7 @@ export function SessionStatusBadge() {
   const handleReopenDay = async () => {
     try {
       await utils.client.dailySessions.reopen.mutate();
-      await utils.dailySessions.getCurrent.invalidate();
+      await utils.dailySessions.getToday.invalidate();
     } catch (error) {
       console.error('Erreur lors de la réouverture:', error);
     }
@@ -45,7 +47,7 @@ export function SessionStatusBadge() {
     );
   }
 
-  const { status, openedAt } = session;
+  const { openedAt } = session;
 
   // Calculer la durée d'ouverture si la journée est ouverte
   const duration = openedAt
