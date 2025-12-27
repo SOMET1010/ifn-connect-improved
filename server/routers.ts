@@ -31,6 +31,7 @@ import { groupedOrdersRouter } from './routers/grouped-orders';
 import { merchantSettingsRouter } from './routers/merchant-settings';
 import { dailySessionsRouter } from './routers/daily-sessions';
 import { attendanceBadgesRouter } from './routers/attendance-badges';
+import { tutorialsRouter } from './routers-tutorials';
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -63,6 +64,7 @@ export const appRouter = router({
   merchantSettings: merchantSettingsRouter,
   dailySessions: dailySessionsRouter,
   attendanceBadges: attendanceBadgesRouter,
+  tutorials: tutorialsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

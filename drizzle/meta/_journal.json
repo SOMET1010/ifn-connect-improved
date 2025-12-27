@@ -169,6 +169,20 @@
       "when": 1766831309080,
       "tag": "0023_hot_the_twelve",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1766840187473,
+      "tag": "0024_curly_apocalypse",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1766840434152,
+      "tag": "0025_blue_marvex",
+      "breakpoints": true
     }
   ]
 }

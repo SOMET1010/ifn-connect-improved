@@ -47,6 +47,7 @@ import OpenDayBriefing from "./pages/merchant/OpenDayBriefing";
 import CloseDaySummary from "./pages/merchant/CloseDaySummary";
 import SessionsHistory from "./pages/merchant/SessionsHistory";
 import AttendanceBadgesPage from "./pages/merchant/AttendanceBadgesPage";
+import Tutorials from "./pages/merchant/Tutorials";
 
 function Router() {
   return (
@@ -69,6 +70,7 @@ function Router() {
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
       <Route path="/merchant/settings" component={MerchantSettings} />
+      <Route path="/merchant/tutorials" component={Tutorials} />
          {/* Merchant Routes */}
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/journey" component={MerchantJourney} />    <Route path={"/agent/dashboard"} component={AgentDashboard} />

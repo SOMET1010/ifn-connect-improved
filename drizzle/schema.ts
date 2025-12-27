@@ -1009,3 +1009,7 @@ export { transactions, marketplaceOrders } from "./schema-payments";
 
 // Export daily logins table
 export { merchantDailyLogins } from "./schema-daily-logins";
+// Export tutorials tables
+export { videoTutorials, userTutorialProgress } from "./schema-tutorials";
+// Export first time user table
+export { firstTimeUserProgress } from "./schema-first-time-user";

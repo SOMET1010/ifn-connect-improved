@@ -2955,3 +2955,48 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [ ] Fermer la journée
 - [ ] Consulter l'historique
 - [ ] Vérifier les badges débloqués
+
+## 🎯 AMÉLIORATION UX POUR MARCHANDS PEU ALPHABÉTISÉS
+
+### Phase 1 : Tutoriels Vidéo Courts (30s)
+- [x] Créer table video_tutorials (id, title, titleDioula, description, descriptionDioula, videoUrl, duration, category, order)
+- [x] Créer table user_tutorial_progress (userId, tutorialId, completed, watchedAt)
+- [x] Router tRPC tutorials avec procédures (getAll, getByCategory, markAsWatched, getProgress)
+- [x] Composant VideoTutorialCard avec lecteur vidéo intégré
+- [x] Page /merchant/tutorials avec liste par catégorie (Caisse, Stock, Marché, Protection sociale)
+- [x] Badge "Tutoriel regardé" avec compteur
+- [ ] Bouton "?" dans chaque page qui ouvre le tutoriel correspondant
+- [x] Seed de 10 tutoriels vidéo (URLs YouTube de démonstration)
+
+### Phase 2 : Mode Première Utilisation
+- [ ] Créer table first_time_user_progress (userId, currentStep, totalSteps, completed, startedAt, completedAt)
+- [ ] Hook useFirstTimeUser pour détecter les nouveaux utilisateurs
+- [ ] Composant VoiceGuidedTour avec 5 étapes guidées
+- [ ] Étape 1 : Ouvrir la journée (avec vocal en Dioula)
+- [ ] Étape 2 : Enregistrer une vente (mode guidé)
+- [ ] Étape 3 : Consulter le stock (mode guidé)
+- [ ] Étape 4 : Commander au marché (mode guidé)
+- [ ] Étape 5 : Fermer la journée (mode guidé)
+- [ ] Overlay semi-transparent avec spotlight sur l'élément actif
+- [ ] Synthèse vocale automatique en Dioula pour chaque étape
+- [ ] Bouton "Passer" pour ignorer le tour guidé
+- [ ] Désactivation automatique après 3 jours d'utilisation
+
+### Phase 3 : Système de Parrainage
+- [ ] Créer table referrals (referrerId, referredId, status, createdAt, activatedAt)
+- [ ] Créer table referral_badges (badgeCode, name, nameDioula, description, descriptionDioula, icon, requiredReferrals)
+- [ ] Router tRPC referrals avec procédures (getReferralCode, getReferrals, getStats, claimBadge)
+- [ ] Composant ReferralCard avec code QR personnel
+- [ ] Page /merchant/referrals avec statistiques (invités, actifs, badges)
+- [ ] Badge "Parrain Bronze" (1 filleul), "Parrain Argent" (3 filleuls), "Parrain Or" (5 filleuls)
+- [ ] Notification automatique quand un filleul active son compte
+- [ ] Système de récompenses (points bonus pour le score SUTA)
+- [ ] Partage du code de parrainage via WhatsApp
+
+### Phase 4 : Tests et Validation
+- [ ] Tests unitaires pour les 3 nouveaux routers
+- [ ] Tests d'intégration du parcours complet
+- [ ] Validation de la synthèse vocale en Dioula
+- [ ] Vérification de l'accessibilité (ARIA, contraste, taille)
+- [ ] Documentation utilisateur mise à jour
+- [ ] Checkpoint final avec les 3 améliorations
