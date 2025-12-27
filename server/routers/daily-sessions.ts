@@ -98,7 +98,7 @@ export const dailySessionsRouter = router({
   /**
    * Récupérer l'historique des sessions
    */
-  getHistory: publicProcedure
+  getHistory: protectedProcedure
     .input(
       z.object({
         limit: z.number().optional().default(30),
