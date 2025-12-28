@@ -55,8 +55,8 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/merchant"} component={MerchantDashboardSimple} />
-      <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
+      <Route path={"/merchant"} component={MerchantDashboardUltraSimple} />
+      <Route path={"/merchant/dashboard"} component={MerchantDashboardUltraSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
       <Route path="/merchant/cash-register" component={CashRegisterMGX} />
