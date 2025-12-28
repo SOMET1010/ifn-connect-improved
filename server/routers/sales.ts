@@ -171,6 +171,93 @@ export const salesRouter = router({
     }),
 
   /**
+   * Historique des ventes avec filtres avancés et statistiques
+   */
+  historyWithFilters: protectedProcedure
+    .input(z.object({
+      merchantId: z.number(),
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
+      productId: z.number().optional(),
+      paymentMethod: z.enum(['cash', 'mobile_money', 'credit']).optional(),
+      limit: z.number().optional().default(20),
+      offset: z.number().optional().default(0),
+    }))
+    .query(async ({ input }) => {
+      const db = await import('../db').then(m => m.getDb());
+      if (!db) return { sales: [], total: 0, stats: null };
+
+      const { sales, products } = await import('../../drizzle/schema');
+      const { eq, and, gte, lte, desc, count, sum, avg } = await import('drizzle-orm');
+
+      // Construire les conditions de filtrage
+      const conditions = [eq(sales.merchantId, input.merchantId)];
+      
+      if (input.startDate) {
+        conditions.push(gte(sales.saleDate, input.startDate));
+      }
+      
+      if (input.endDate) {
+        conditions.push(lte(sales.saleDate, input.endDate));
+      }
+      
+      if (input.productId) {
+        conditions.push(eq(sales.productId, input.productId));
+      }
+      
+      if (input.paymentMethod) {
+        conditions.push(eq(sales.paymentMethod, input.paymentMethod));
+      }
+
+      // Récupérer les ventes avec pagination
+      const salesData = await db
+        .select({
+          id: sales.id,
+          productId: sales.productId,
+          productName: products.name,
+          productNameDioula: products.nameDioula,
+          quantity: sales.quantity,
+          unitPrice: sales.unitPrice,
+          totalAmount: sales.totalAmount,
+          paymentMethod: sales.paymentMethod,
+          paymentProvider: sales.paymentProvider,
+          saleDate: sales.saleDate,
+        })
+        .from(sales)
+        .leftJoin(products, eq(sales.productId, products.id))
+        .where(and(...conditions))
+        .orderBy(desc(sales.saleDate))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      // Compter le total de ventes
+      const totalCount = await db
+        .select({ count: count() })
+        .from(sales)
+        .where(and(...conditions));
+
+      // Calculer les statistiques
+      const stats = await db
+        .select({
+          totalSales: count(),
+          totalAmount: sum(sales.totalAmount),
+          averageAmount: avg(sales.totalAmount),
+        })
+        .from(sales)
+        .where(and(...conditions));
+
+      return {
+        sales: salesData,
+        total: totalCount[0]?.count || 0,
+        stats: {
+          totalSales: Number(stats[0]?.totalSales || 0),
+          totalAmount: Number(stats[0]?.totalAmount || 0),
+          averageAmount: Number(stats[0]?.averageAmount || 0),
+        },
+      };
+    }),
+
+  /**
    * Comparaison des ventes d'hier vs avant-hier (pour briefing matinal)
    */
   yesterdayComparison: protectedProcedure

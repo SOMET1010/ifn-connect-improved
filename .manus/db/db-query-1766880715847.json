@@ -1,0 +1,9 @@
+{
+  "query": "SELECT m.*, u.name, u.email FROM merchants m JOIN users u ON m.userId = u.id WHERE u.name LIKE '%PATRICK%' OR u.name LIKE '%SOMET%' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT m.*, u.name, u.email FROM merchants m JOIN users u ON m.userId = u.id WHERE u.name LIKE '%PATRICK%' OR u.name LIKE '%SOMET%' LIMIT 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 68
+}

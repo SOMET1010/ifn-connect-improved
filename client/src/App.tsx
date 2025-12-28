@@ -49,12 +49,13 @@ import MorningBriefing from "./pages/merchant/MorningBriefing";
 import OpenDayBriefing from "./pages/merchant/OpenDayBriefing";
 import CloseDaySummary from "./pages/merchant/CloseDaySummary";
 import SessionsHistory from "./pages/merchant/SessionsHistory";
+import { SalesHistory } from "./pages/SalesHistory";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/merchant"} component={MerchantDashboardMGX} />
+      <Route path={"/merchant"} component={MerchantDashboardSimple} />
       <Route path={"/merchant/dashboard"} component={MerchantDashboardSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/merchant/events" component={Events} />
       <Route path="/merchant/weather" component={MerchantWeather} />
       <Route path="/merchant/settings" component={MerchantSettings} />
+      <Route path="/merchant/sales-history" component={SalesHistory} />
       {/* Merchant Routes (version simplifiée par défaut) */}
       <Route path="/merchant/journey" component={MerchantJourney} />
       

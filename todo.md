@@ -3181,3 +3181,88 @@ Cette approche est **plus robuste et portable** que les RLS natifs de base de do
 - [x] Appliquer le style pill arrondi avec bordure blanche
 - [x] Afficher 🇫🇷 FR ou 🇨🇮 Dioula selon la langue active
 - [x] Tester le basculement de langue
+
+
+## 📊 HISTORIQUE DES VENTES (27 décembre 2024)
+
+### Backend
+- [x] Créer les procédures tRPC pour récupérer l'historique avec filtres
+- [x] Ajouter les filtres par date (début, fin)
+- [x] Ajouter les filtres par produit
+- [x] Ajouter les filtres par méthode de paiement
+- [x] Calculer les statistiques (total ventes, montant, moyenne)
+- [x] Implémenter la pagination (20 ventes par page)
+
+### Frontend
+- [x] Créer la page SalesHistory.tsx
+- [x] Ajouter les filtres de date (date picker)
+- [x] Ajouter le filtre par produit (dropdown)
+- [x] Ajouter le filtre par méthode de paiement
+- [x] Afficher le tableau des ventes avec tri
+- [x] Ajouter les statistiques en haut de page
+- [x] Implémenter l'export CSV
+- [x] Ajouter la route dans App.tsx
+- [x] Ajouter le bouton d'accès depuis le dashboard
+
+## 🔔 NOTIFICATIONS PUSH (27 décembre 2024)
+
+### Infrastructure
+- [ ] Installer les dépendances (web-push, firebase-admin)
+- [ ] Configurer le service worker pour les notifications
+- [ ] Créer la table push_subscriptions en base de données
+- [ ] Créer le système d'abonnement aux notifications
+
+### Types de notifications
+- [ ] Alertes stock bas (< seuil)
+- [ ] Renouvellements CNPS (< 30 jours)
+- [ ] Renouvellements CMU (< 30 jours)
+- [ ] Promotions marché virtuel
+- [ ] Nouvelles commandes groupées
+- [ ] Badges débloqués
+
+### Backend
+- [ ] Créer le router tRPC notifications
+- [ ] Implémenter subscribe/unsubscribe
+- [ ] Créer les fonctions d'envoi de notifications
+- [ ] Créer les cron jobs pour notifications automatiques
+
+### Frontend
+- [ ] Créer le composant NotificationPermission
+- [ ] Ajouter le bouton d'activation dans les paramètres
+- [ ] Afficher les notifications dans le navigateur
+- [ ] Gérer les préférences de notifications
+
+## 🎁 SYSTÈME DE FIDÉLITÉ (27 décembre 2024)
+
+### Base de données
+- [ ] Créer la table loyalty_points
+- [ ] Créer la table loyalty_rewards
+- [ ] Créer la table loyalty_redemptions
+
+### Règles de points
+- [ ] +10 points par vente enregistrée
+- [ ] +50 points par commande marché virtuel
+- [ ] +100 points par renouvellement CNPS/CMU
+- [ ] +200 points par badge débloqué
+- [ ] Bonus x2 pour les séries de 7 jours consécutifs
+
+### Récompenses
+- [ ] -5% sur commande groupée (500 points)
+- [ ] -10% sur commande groupée (1000 points)
+- [ ] Livraison gratuite (750 points)
+- [ ] Badge exclusif "VIP" (2000 points)
+- [ ] Formation premium gratuite (1500 points)
+
+### Backend
+- [ ] Créer le router tRPC loyalty
+- [ ] Implémenter addPoints, getBalance, getHistory
+- [ ] Implémenter redeemReward
+- [ ] Créer les fonctions d'attribution automatique
+
+### Frontend
+- [ ] Créer la page LoyaltyProgram.tsx
+- [ ] Afficher le solde de points
+- [ ] Afficher l'historique des points
+- [ ] Afficher le catalogue de récompenses
+- [ ] Implémenter l'échange de points
+- [ ] Ajouter le bouton d'accès depuis le dashboard

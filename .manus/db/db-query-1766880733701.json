@@ -1,0 +1,16 @@
+{
+  "query": "SELECT m.id, m.merchantNumber, m.businessName, u.name FROM merchants m JOIN users u ON m.userId = u.id WHERE u.name LIKE '%PATRICK%' OR u.name LIKE '%SOMET%' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT m.id, m.merchantNumber, m.businessName, u.name FROM merchants m JOIN users u ON m.userId = u.id WHERE u.name LIKE '%PATRICK%' OR u.name LIKE '%SOMET%' LIMIT 1;",
+  "rows": [
+    {
+      "id": "390001",
+      "merchantNumber": "MRC-ADMIN-30001",
+      "businessName": "PATRICK SOMET - Commerce",
+      "name": "PATRICK SOMET"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tmerchantNumber\tbusinessName\tname\n390001\tMRC-ADMIN-30001\tPATRICK SOMET - Commerce\tPATRICK SOMET\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

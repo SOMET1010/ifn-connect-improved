@@ -7,7 +7,8 @@ import {
   ShoppingCart, 
   Package, 
   Wallet,
-  HelpCircle
+  HelpCircle,
+  History
 } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 
@@ -45,6 +46,18 @@ function DashboardContent({ merchantId }: { merchantId: number }) {
       hoverBgColor: 'hover:bg-orange-100',
       iconColor: 'text-orange-600',
       borderColor: 'border-orange-300'
+    },
+    {
+      id: 'historique',
+      title: 'HISTORIQUE',
+      icon: History,
+      color: 'purple',
+      route: '/merchant/sales-history',
+      messageId: 'history',
+      bgColor: 'bg-purple-50',
+      hoverBgColor: 'hover:bg-purple-100',
+      iconColor: 'text-purple-600',
+      borderColor: 'border-purple-300'
     },
     {
       id: 'stock',

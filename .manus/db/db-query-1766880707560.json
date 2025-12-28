@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, openId, name, email, role FROM users WHERE name LIKE '%PATRICK%' OR name LIKE '%SOMET%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ShtTNnJ3GMrVMd.37943d490216 --database jq9Dtc2z3YJFGvwosHTZg9 --execute SELECT id, openId, name, email, role FROM users WHERE name LIKE '%PATRICK%' OR name LIKE '%SOMET%' LIMIT 5;",
+  "rows": [
+    {
+      "id": "30001",
+      "openId": "GP2uvNNExjPUwKNLiA8dCy",
+      "name": "PATRICK SOMET",
+      "email": "psomet@gmail.com",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\n30001\tGP2uvNNExjPUwKNLiA8dCy\tPATRICK SOMET\tpsomet@gmail.com\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 116
+}
