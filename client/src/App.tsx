@@ -56,7 +56,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/merchant"} component={MerchantDashboardUltraSimple} />
-      <Route path={"/merchant/dashboard"} component={MerchantDashboardUltraSimple} />      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
+      <Route path={"/merchant/dashboard"} component={MerchantDashboardUltraSimple} />
+      <Route path={"/merchant/morning-briefing"} component={OpenDayBriefing} />
       <Route path={"/merchant/evening-summary"} component={CloseDaySummary} />
       <Route path="/merchant/sessions-history" component={SessionsHistory} />
       <Route path="/merchant/cash-register" component={CashRegisterMGX} />
@@ -76,7 +77,8 @@ function Router() {
       <Route path="/merchant/journey" component={MerchantJourney} />
       
       {/* Agent Routes */}
-      <Route path={"/agent/dashboard"} component={AgentDashboard} />      <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
+      <Route path={"/agent/dashboard"} component={AgentDashboard} />
+      <Route path={"/agent/enrollment"} component={EnrollmentWizard} />
       <Route path={"/agent/tasks"} component={AgentTasks} />
       
       {/* Admin Routes */}
