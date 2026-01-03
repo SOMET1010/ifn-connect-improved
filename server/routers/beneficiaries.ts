@@ -25,25 +25,21 @@ export const beneficiariesRouter = router({
     }),
 
   /**
-   * Ajouter un bénéficiaire par son ID utilisateur
+   * Ajouter un bénéficiaire par numéro de téléphone
    */
   add: protectedProcedure
     .input(z.object({
-      contactId: z.number().int().positive(),
+      contactPhone: z.string().min(8),
       nickname: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const ownerId = ctx.user.id;
 
-      if (ownerId === input.contactId) {
-        throw new Error("Vous ne pouvez pas vous ajouter vous-même comme bénéficiaire");
-      }
-
-      const beneficiary = await addBeneficiary({
+      const beneficiary = await addBeneficiaryByPhone(
         ownerId,
-        contactId: input.contactId,
-        nickname: input.nickname,
-      });
+        input.contactPhone,
+        input.nickname
+      );
 
       return beneficiary;
     }),
@@ -101,16 +97,20 @@ export const beneficiariesRouter = router({
   /**
    * Mettre à jour le surnom d'un bénéficiaire
    */
-  updateNickname: protectedProcedure
+  update: protectedProcedure
     .input(z.object({
-      beneficiaryId: z.number().int().positive(),
-      nickname: z.string().min(1),
+      id: z.number().int().positive(),
+      nickname: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const ownerId = ctx.user.id;
 
+      if (!input.nickname) {
+        throw new Error("Le surnom est requis");
+      }
+
       const beneficiary = await updateBeneficiaryNickname(
-        input.beneficiaryId,
+        input.id,
         ownerId,
         input.nickname
       );
@@ -122,14 +122,12 @@ export const beneficiariesRouter = router({
    * Supprimer un bénéficiaire
    */
   remove: protectedProcedure
-    .input(z.object({
-      beneficiaryId: z.number().int().positive(),
-    }))
+    .input(z.number().int().positive())
     .mutation(async ({ ctx, input }) => {
       const ownerId = ctx.user.id;
 
       const beneficiary = await removeBeneficiary(
-        input.beneficiaryId,
+        input,
         ownerId
       );
 

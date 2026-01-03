@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { ShoppingCart, Package, Wallet, History, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Package, Wallet, History, ArrowLeft, Send } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 
 export default function MerchantDashboard() {
@@ -31,9 +31,17 @@ export default function MerchantDashboard() {
       gradient: 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
     },
     {
+      id: 'wallet',
+      title: 'WALLET',
+      subtitle: 'Envoyer argent',
+      icon: Send,
+      route: '/merchant/wallet',
+      gradient: 'from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700',
+    },
+    {
       id: 'argent',
-      title: 'ARGENT',
-      subtitle: 'Épargne & gains',
+      title: 'ÉPARGNE',
+      subtitle: 'Économiser',
       icon: Wallet,
       route: '/merchant/savings',
       gradient: 'from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700',

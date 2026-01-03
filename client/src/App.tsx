@@ -11,6 +11,9 @@ import MerchantCashRegister from "./pages/merchant-simple/CashRegister";
 import MerchantStock from "./pages/merchant-simple/Stock";
 import MerchantSavings from "./pages/merchant-simple/Savings";
 import MerchantHistory from "./pages/merchant-simple/History";
+import MerchantWallet from "./pages/merchant-simple/Wallet";
+import MerchantSendMoney from "./pages/merchant-simple/SendMoney";
+import MerchantBeneficiaries from "./pages/merchant-simple/Beneficiaries";
 
 import AgentDashboard from "./pages/agent-simple/Dashboard";
 
@@ -27,6 +30,9 @@ function Router() {
       <Route path="/merchant/stock" component={MerchantStock} />
       <Route path="/merchant/savings" component={MerchantSavings} />
       <Route path="/merchant/history" component={MerchantHistory} />
+      <Route path="/merchant/wallet" component={MerchantWallet} />
+      <Route path="/merchant/send-money" component={MerchantSendMoney} />
+      <Route path="/merchant/beneficiaries" component={MerchantBeneficiaries} />
 
       <Route path="/agent" component={AgentDashboard} />
       <Route path="/agent/dashboard" component={AgentDashboard} />
