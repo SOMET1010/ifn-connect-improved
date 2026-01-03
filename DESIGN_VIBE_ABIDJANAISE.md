@@ -348,6 +348,42 @@ Tous les éléments sont fully responsive :
 
 ## 🎨 Exemples d'Application
 
+### Page d'Accueil (Home)
+
+Fichier : `client/src/pages/Home.tsx`
+
+**Éléments clés appliqués** :
+1. ✅ Background photo de marché vibrante (`brightness(0.85) saturate(1.3)`)
+2. ✅ Overlay dégradé Terre & Soleil (orange-900 → amber-800 → green-900)
+3. ✅ Titre "Bienvenue" avec motif Wax en arrière-plan
+4. ✅ Bouton Marchand : Dégradé `#D35400` → `#E67E22` → `#F39C12` avec motif Wax
+5. ✅ Bouton Agent : Dégradé vert nature avec motif Géométrique
+6. ✅ Badge "Accès principal" avec dégradé jaune moutarde
+7. ✅ Message d'aide avec motif Kente et glassmorphism
+8. ✅ Footer avec glassmorphism et motif subtil
+
+**Détails techniques** :
+```tsx
+// Background principal
+<div className="absolute inset-0 bg-cover bg-center"
+  style={{
+    backgroundImage: 'url(/marche-ivoirien.jpg)',
+    filter: 'brightness(0.85) saturate(1.3)',
+  }}
+/>
+
+// Overlay dégradé
+<div className="absolute inset-0 bg-gradient-to-br from-orange-900/40 via-amber-800/30 to-green-900/35" />
+
+// Bouton avec motif
+<button className="backdrop-blur-xl bg-gradient-to-r from-[#D35400] via-[#E67E22] to-[#F39C12] ... border-4 border-amber-600/30">
+  <div className="absolute inset-0 text-white opacity-10 pointer-events-none">
+    <AfricanPattern variant="wax" opacity={0.4} />
+  </div>
+  {/* Contenu */}
+</button>
+```
+
 ### Page de Login Social
 
 Fichier : `client/src/pages/SocialLogin.tsx`
