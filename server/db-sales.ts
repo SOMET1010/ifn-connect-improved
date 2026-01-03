@@ -50,12 +50,16 @@ export async function createSale(data: {
       )
     );
 
-  await creditWalletFromSale({
-    userId: merchant.userId,
-    amount: String(data.totalAmount),
-    saleId: sale.id,
-    description: `Vente #${sale.id} - ${data.paymentMethod === 'cash' ? 'Espèces' : 'Mobile Money'}`,
-  });
+  try {
+    await creditWalletFromSale({
+      userId: merchant.userId,
+      amount: String(data.totalAmount),
+      saleId: sale.id,
+      description: `Vente #${sale.id} - ${data.paymentMethod === 'cash' ? 'Espèces' : 'Mobile Money'}`,
+    });
+  } catch (error) {
+    console.error('Error crediting wallet from sale:', error);
+  }
 
   return { success: true, saleId: sale.id };
 }
