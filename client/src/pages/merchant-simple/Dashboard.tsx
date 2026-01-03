@@ -97,22 +97,43 @@ export default function MerchantDashboard() {
                   </p>
                 </div>
               </div>
+
+              {/* Tantie Sagesse (Desktop) */}
+              <div className="hidden sm:block relative">
+                <div className="absolute inset-0 bg-[#C25E00]/20 rounded-2xl blur-xl" />
+                <img
+                  src="/tantie-sagesse.png"
+                  alt="Tantie Sagesse"
+                  className="relative w-28 h-28 object-contain drop-shadow-2xl"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Salutation */}
+          {/* Salutation avec Tantie Sagesse */}
           <div className="backdrop-blur-xl bg-white/90 rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-2 border-white/30 mb-6 relative overflow-hidden">
             <div className="absolute inset-0 text-[#C25E00] opacity-[0.03] pointer-events-none">
               <AfricanPattern variant="wax" opacity={0.3} />
             </div>
 
-            <div className="relative z-10">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Bonjour Patrick ! 👋
-              </h1>
-              <p className="text-lg text-gray-600 font-medium">
-                Prêt pour les affaires ?
-              </p>
+            <div className="relative z-10 flex items-center gap-4">
+              {/* Tantie Sagesse (Mobile) */}
+              <div className="sm:hidden relative flex-shrink-0">
+                <div className="absolute inset-0 bg-[#C25E00]/20 rounded-2xl blur-lg" />
+                <img
+                  src="/tantie-sagesse.png"
+                  alt="Tantie Sagesse"
+                  className="relative w-20 h-20 object-contain drop-shadow-2xl"
+                />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Bonjour Patrick ! 👋
+                </h1>
+                <p className="text-lg text-gray-600 font-medium">
+                  Prêt pour les affaires ?
+                </p>
+              </div>
             </div>
           </div>
 
