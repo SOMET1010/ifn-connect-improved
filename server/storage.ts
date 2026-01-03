@@ -100,3 +100,16 @@ export async function storageGet(relKey: string): Promise<{ key: string; url: st
     url: await buildDownloadUrl(baseUrl, key, apiKey),
   };
 }
+
+export async function getSignedUploadUrl(relKey: string, contentType: string): Promise<string> {
+  const { baseUrl, apiKey } = getStorageConfig();
+  const key = normalizeKey(relKey);
+  const uploadUrl = buildUploadUrl(baseUrl, key);
+  return uploadUrl.toString();
+}
+
+export async function getSignedDownloadUrl(relKey: string): Promise<string> {
+  const { baseUrl, apiKey } = getStorageConfig();
+  const key = normalizeKey(relKey);
+  return await buildDownloadUrl(baseUrl, key, apiKey);
+}

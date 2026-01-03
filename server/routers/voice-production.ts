@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { db } from "../db";
+import { getDb } from "../db";
 import { voiceRecordings, voiceTransformations, voicePersonasCustom } from "../../drizzle/schema-voice-production";
 import { eq, desc, and } from "drizzle-orm";
 import { getSignedUploadUrl, getSignedDownloadUrl } from "../storage";
@@ -26,6 +26,9 @@ export const voiceProductionRouter = router({
       fileSizeBytes: z.number().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const userId = ctx.user!.id;
       const key = `voice-recordings/${userId}/${Date.now()}-${input.fileName}`;
 
@@ -51,6 +54,9 @@ export const voiceProductionRouter = router({
       status: z.enum(["draft", "processing", "completed", "failed"]).optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const conditions = [];
 
       if (input?.status) {
@@ -83,6 +89,9 @@ export const voiceProductionRouter = router({
       id: z.string().uuid(),
     }))
     .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const recording = await db.query.voiceRecordings.findFirst({
         where: eq(voiceRecordings.id, input.id),
       });
@@ -110,6 +119,9 @@ export const voiceProductionRouter = router({
       metadata: z.record(z.any()).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const { id, ...updates } = input;
 
       const [updated] = await db
@@ -133,6 +145,9 @@ export const voiceProductionRouter = router({
       id: z.string().uuid(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       await db
         .delete(voiceRecordings)
         .where(eq(voiceRecordings.id, input.id));
@@ -147,6 +162,9 @@ export const voiceProductionRouter = router({
       transformationType: z.enum(["speech_to_speech", "text_to_speech"]).default("speech_to_speech"),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const recording = await db.query.voiceRecordings.findFirst({
         where: eq(voiceRecordings.id, input.recordingId),
       });
@@ -167,6 +185,9 @@ export const voiceProductionRouter = router({
 
       (async () => {
         try {
+          const db = await getDb();
+          if (!db) return;
+
           const startTime = Date.now();
 
           await db
@@ -220,6 +241,9 @@ export const voiceProductionRouter = router({
             })
             .where(eq(voiceTransformations.id, transformation.id));
         } catch (error) {
+          const db = await getDb();
+          if (!db) return;
+
           await db
             .update(voiceTransformations)
             .set({
@@ -238,6 +262,9 @@ export const voiceProductionRouter = router({
       id: z.string().uuid(),
     }))
     .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const transformation = await db.query.voiceTransformations.findFirst({
         where: eq(voiceTransformations.id, input.id),
       });
@@ -266,6 +293,9 @@ export const voiceProductionRouter = router({
       status: z.enum(["pending", "processing", "completed", "failed"]).optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const conditions = [];
 
       if (input?.recordingId) {
@@ -305,6 +335,9 @@ export const voiceProductionRouter = router({
       sampleAudioUrl: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const userId = ctx.user!.id;
 
       const [persona] = await db.insert(voicePersonasCustom).values({
@@ -320,6 +353,9 @@ export const voiceProductionRouter = router({
       isActive: z.boolean().optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const conditions = [];
 
       if (input?.isActive !== undefined) {
@@ -343,6 +379,9 @@ export const voiceProductionRouter = router({
       sampleAudioUrl: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       const { id, ...updates } = input;
 
       const [updated] = await db
@@ -366,6 +405,9 @@ export const voiceProductionRouter = router({
       id: z.string().uuid(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
       await db
         .delete(voicePersonasCustom)
         .where(eq(voicePersonasCustom.id, input.id));
