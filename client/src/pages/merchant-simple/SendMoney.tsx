@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Send, User, DollarSign, Lock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Send, User, DollarSign, Lock, CircleAlert as AlertCircle } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
