@@ -1,6 +1,7 @@
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { 
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import {
   InsertUser, users,
   merchants, InsertMerchant,
   agents, InsertAgent,
@@ -19,12 +20,18 @@ import {
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _client: postgres.Sql | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _client = postgres(process.env.DATABASE_URL, {
+        max: 10,
+        idle_timeout: 20,
+        connect_timeout: 10,
+      });
+      _db = drizzle(_client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
