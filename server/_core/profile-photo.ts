@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { getDb } from '../db';
-import { users } from '@/drizzle/schema';
+import { users } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'client', 'public', 'uploads', 'profile-photos');
