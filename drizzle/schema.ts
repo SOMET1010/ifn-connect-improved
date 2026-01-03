@@ -1,28 +1,65 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, uniqueIndex, date, json } from "drizzle-orm/mysql-core";
+import { pgTable, serial, varchar, text, timestamp, decimal, boolean, index, uniqueIndex, date, json, integer, pgEnum } from "drizzle-orm/pg-core";
 
 /**
  * Schéma de base de données pour IFN Connect
  * Plateforme d'inclusion financière numérique pour la Côte d'Ivoire
+ * PostgreSQL/Supabase
  */
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+export const roleEnum = pgEnum("role", ["admin", "merchant", "agent", "cooperative"]);
+export const languageEnum = pgEnum("language", ["fr", "dioula"]);
+export const statusEnum = pgEnum("status", ["active", "inactive", "pending", "expired"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["cash", "mobile_money", "credit"]);
+export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "preparing", "in_transit", "delivered", "cancelled"]);
+export const notificationTypeEnum = pgEnum("notification_type", ["sms", "email", "push"]);
+export const notificationStatusEnum = pgEnum("notification_status", ["pending", "sent", "failed"]);
+export const creditTierEnum = pgEnum("credit_tier", ["none", "bronze", "silver", "gold", "platinum"]);
+export const savingsTypeEnum = pgEnum("savings_type", ["deposit", "withdrawal"]);
+export const eventTypeEnum = pgEnum("event_type", ["religious", "national", "cultural", "commercial"]);
+export const priorityEnum = pgEnum("priority", ["high", "medium", "low"]);
+export const alertTypeEnum = pgEnum("alert_type", ["7_days", "3_days", "1_day", "today"]);
+export const actorTypeEnum = pgEnum("actor_type", ["grossiste", "semi-grossiste", "detaillant"]);
+export const actionEnum = pgEnum("action", ["create", "update", "delete", "verify", "bulk_update"]);
+export const renewalTypeEnum = pgEnum("renewal_type", ["cnps", "cmu", "rsti"]);
+export const renewalStatusEnum = pgEnum("renewal_status", ["pending", "approved", "rejected", "cancelled"]);
+export const correctAnswerEnum = pgEnum("correct_answer", ["A", "B", "C", "D"]);
+export const challengeStatusEnum = pgEnum("challenge_status", ["pending", "accepted", "completed", "declined"]);
+export const groupedOrderStatusEnum = pgEnum("grouped_order_status", ["draft", "pending", "confirmed", "delivered", "cancelled"]);
+export const inAppNotificationTypeEnum = pgEnum("in_app_notification_type", [
+  "quiz_passed",
+  "badge_earned",
+  "challenge_received",
+  "challenge_won",
+  "renewal_reminder",
+  "stock_alert",
+  "order_status",
+  "group_order_created",
+  "session_reminder",
+  "system"
+]);
 
 // ============================================================================
 // USERS & AUTHENTICATION
 // ============================================================================
 
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  openId: varchar("open_id", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   phone: varchar("phone", { length: 20 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["admin", "merchant", "agent", "cooperative"]).default("merchant").notNull(),
-  language: mysqlEnum("language", ["fr", "dioula"]).default("fr").notNull(),
-  pinCode: varchar("pinCode", { length: 255 }), // Hashed PIN for sensitive operations
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  loginMethod: varchar("login_method", { length: 64 }),
+  role: roleEnum("role").default("merchant").notNull(),
+  language: languageEnum("language").default("fr").notNull(),
+  pinCode: varchar("pin_code", { length: 255 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  lastSignedIn: timestamp("last_signed_in", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   phoneIdx: index("phone_idx").on(table.phone),
   roleIdx: index("role_idx").on(table.role),
@@ -32,29 +69,49 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 // ============================================================================
+// AGENTS
+// ============================================================================
+
+export const agents = pgTable("agents", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  agentNumber: varchar("agent_number", { length: 50 }).notNull().unique(),
+  zone: text("zone"),
+  totalEnrollments: integer("total_enrollments").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  agentNumberIdx: index("agent_number_idx").on(table.agentNumber),
+}));
+
+export type Agent = typeof agents.$inferSelect;
+export type InsertAgent = typeof agents.$inferInsert;
+
+// ============================================================================
 // MERCHANTS
 // ============================================================================
 
-export const merchants = mysqlTable("merchants", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  merchantNumber: varchar("merchantNumber", { length: 50 }).notNull().unique(), // Unique merchant ID
-  businessName: text("businessName").notNull(),
-  businessType: varchar("businessType", { length: 100 }),
+export const merchants = pgTable("merchants", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  merchantNumber: varchar("merchant_number", { length: 50 }).notNull().unique(),
+  businessName: text("business_name").notNull(),
+  businessType: varchar("business_type", { length: 100 }),
   location: text("location"),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
   longitude: decimal("longitude", { precision: 11, scale: 8 }),
-  cnpsNumber: varchar("cnpsNumber", { length: 50 }), // Social security number
-  cmuNumber: varchar("cmuNumber", { length: 50 }), // Health insurance number
-  cnpsStatus: mysqlEnum("cnpsStatus", ["active", "inactive", "pending"]).default("pending"),
-  cmuStatus: mysqlEnum("cmuStatus", ["active", "inactive", "pending"]).default("pending"),
-  cnpsExpiryDate: timestamp("cnpsExpiryDate"), // CNPS expiry date
-  cmuExpiryDate: timestamp("cmuExpiryDate"), // CMU expiry date
-  enrolledBy: int("enrolledBy").references(() => agents.id), // Agent who enrolled this merchant
-  enrolledAt: timestamp("enrolledAt"),
-  isVerified: boolean("isVerified").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  cnpsNumber: varchar("cnps_number", { length: 50 }),
+  cmuNumber: varchar("cmu_number", { length: 50 }),
+  cnpsStatus: statusEnum("cnps_status").default("pending"),
+  cmuStatus: statusEnum("cmu_status").default("pending"),
+  cnpsExpiryDate: timestamp("cnps_expiry_date", { withTimezone: true }),
+  cmuExpiryDate: timestamp("cmu_expiry_date", { withTimezone: true }),
+  enrolledBy: integer("enrolled_by").references(() => agents.id),
+  enrolledAt: timestamp("enrolled_at", { withTimezone: true }),
+  isVerified: boolean("is_verified").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantNumberIdx: index("merchant_number_idx").on(table.merchantNumber),
   locationIdx: index("location_idx").on(table.latitude, table.longitude),
@@ -65,19 +122,19 @@ export type Merchant = typeof merchants.$inferSelect;
 export type InsertMerchant = typeof merchants.$inferInsert;
 
 // ============================================================================
-// MERCHANT DAILY SESSIONS (Ouverture/Fermeture de journée)
+// MERCHANT DAILY SESSIONS
 // ============================================================================
 
-export const merchantDailySessions = mysqlTable("merchant_daily_sessions", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  sessionDate: date("sessionDate").notNull(), // Date de la session (YYYY-MM-DD)
-  openedAt: timestamp("openedAt"), // Timestamp d'ouverture (NULL si pas encore ouverte)
-  closedAt: timestamp("closedAt"), // Timestamp de fermeture (NULL si pas encore fermée)
-  openingNotes: text("openingNotes"), // Notes/objectifs saisis à l'ouverture
-  closingNotes: text("closingNotes"), // Réflexions/notes saisies à la fermeture
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const merchantDailySessions = pgTable("merchant_daily_sessions", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  sessionDate: date("session_date").notNull(),
+  openedAt: timestamp("opened_at", { withTimezone: true }),
+  closedAt: timestamp("closed_at", { withTimezone: true }),
+  openingNotes: text("opening_notes"),
+  closingNotes: text("closing_notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   uniqueMerchantDate: uniqueIndex("unique_merchant_date").on(table.merchantId, table.sessionDate),
   merchantDateIdx: index("merchant_date_idx").on(table.merchantId, table.sessionDate),
@@ -89,39 +146,19 @@ export type MerchantDailySession = typeof merchantDailySessions.$inferSelect;
 export type InsertMerchantDailySession = typeof merchantDailySessions.$inferInsert;
 
 // ============================================================================
-// AGENTS
-// ============================================================================
-
-export const agents = mysqlTable("agents", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  agentNumber: varchar("agentNumber", { length: 50 }).notNull().unique(),
-  zone: text("zone"), // Geographic zone assigned to agent
-  totalEnrollments: int("totalEnrollments").default(0).notNull(),
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-}, (table) => ({
-  agentNumberIdx: index("agent_number_idx").on(table.agentNumber),
-}));
-
-export type Agent = typeof agents.$inferSelect;
-export type InsertAgent = typeof agents.$inferInsert;
-
-// ============================================================================
 // COOPERATIVES
 // ============================================================================
 
-export const cooperatives = mysqlTable("cooperatives", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  cooperativeName: text("cooperativeName").notNull(),
-  cooperativeNumber: varchar("cooperativeNumber", { length: 50 }).notNull().unique(),
+export const cooperatives = pgTable("cooperatives", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  cooperativeName: text("cooperative_name").notNull(),
+  cooperativeNumber: varchar("cooperative_number", { length: 50 }).notNull().unique(),
   location: text("location"),
-  totalMembers: int("totalMembers").default(0).notNull(),
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  totalMembers: integer("total_members").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   cooperativeNumberIdx: index("cooperative_number_idx").on(table.cooperativeNumber),
 }));
@@ -133,18 +170,18 @@ export type InsertCooperative = typeof cooperatives.$inferInsert;
 // PRODUCTS
 // ============================================================================
 
-export const products = mysqlTable("products", {
-  id: int("id").autoincrement().primaryKey(),
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  nameDioula: text("nameDioula"), // Product name in Dioula
+  nameDioula: text("name_dioula"),
   category: varchar("category", { length: 100 }),
-  unit: varchar("unit", { length: 50 }).notNull(), // kg, tas, sac, etc.
-  basePrice: decimal("basePrice", { precision: 10, scale: 2 }),
-  imageUrl: text("imageUrl"),
-  pictogramUrl: text("pictogramUrl"), // Pictogram for accessibility
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  unit: varchar("unit", { length: 50 }).notNull(),
+  basePrice: decimal("base_price", { precision: 10, scale: 2 }),
+  imageUrl: text("image_url"),
+  pictogramUrl: text("pictogram_url"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   categoryIdx: index("category_idx").on(table.category),
 }));
@@ -156,15 +193,15 @@ export type InsertProduct = typeof products.$inferInsert;
 // MERCHANT STOCK
 // ============================================================================
 
-export const merchantStock = mysqlTable("merchant_stock", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  productId: int("productId").notNull().references(() => products.id, { onDelete: "cascade" }),
+export const merchantStock = pgTable("merchant_stock", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
-  minThreshold: decimal("minThreshold", { precision: 10, scale: 2 }).default("5"), // Alert threshold
-  lastRestocked: timestamp("lastRestocked"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  minThreshold: decimal("min_threshold", { precision: 10, scale: 2 }).default("5"),
+  lastRestocked: timestamp("last_restocked", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantProductIdx: index("merchant_product_idx").on(table.merchantId, table.productId),
 }));
@@ -176,20 +213,20 @@ export type InsertMerchantStock = typeof merchantStock.$inferInsert;
 // SALES
 // ============================================================================
 
-export const sales = mysqlTable("sales", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  productId: int("productId").notNull().references(() => products.id, { onDelete: "cascade" }),
+export const sales = pgTable("sales", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
-  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
-  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
-  paymentMethod: mysqlEnum("paymentMethod", ["cash", "mobile_money", "credit"]).default("cash").notNull(),
-  paymentProvider: varchar("paymentProvider", { length: 50 }), // InTouch, Orange Money, MTN
-  transactionId: varchar("transactionId", { length: 100 }),
-  isVoiceRecorded: boolean("isVoiceRecorded").default(false), // Was this sale recorded via voice?
-  isSynced: boolean("isSynced").default(false).notNull(), // Offline sync status
-  saleDate: timestamp("saleDate").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: paymentMethodEnum("payment_method").default("cash").notNull(),
+  paymentProvider: varchar("payment_provider", { length: 50 }),
+  transactionId: varchar("transaction_id", { length: 100 }),
+  isVoiceRecorded: boolean("is_voice_recorded").default(false),
+  isSynced: boolean("is_synced").default(false).notNull(),
+  saleDate: timestamp("sale_date", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantDateIdx: index("merchant_date_idx").on(table.merchantId, table.saleDate),
   syncIdx: index("sync_idx").on(table.isSynced),
@@ -204,15 +241,15 @@ export type InsertSale = typeof sales.$inferInsert;
 // COOPERATIVE STOCK
 // ============================================================================
 
-export const cooperativeStock = mysqlTable("cooperative_stock", {
-  id: int("id").autoincrement().primaryKey(),
-  cooperativeId: int("cooperativeId").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
-  productId: int("productId").notNull().references(() => products.id, { onDelete: "cascade" }),
+export const cooperativeStock = pgTable("cooperative_stock", {
+  id: serial("id").primaryKey(),
+  cooperativeId: integer("cooperative_id").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
-  minThreshold: decimal("minThreshold", { precision: 10, scale: 2 }).default("50"),
-  lastRestocked: timestamp("lastRestocked"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  minThreshold: decimal("min_threshold", { precision: 10, scale: 2 }).default("50"),
+  lastRestocked: timestamp("last_restocked", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   cooperativeProductIdx: index("cooperative_product_idx").on(table.cooperativeId, table.productId),
 }));
@@ -221,22 +258,22 @@ export type CooperativeStock = typeof cooperativeStock.$inferSelect;
 export type InsertCooperativeStock = typeof cooperativeStock.$inferInsert;
 
 // ============================================================================
-// ORDERS (Merchant orders from Cooperative)
+// ORDERS
 // ============================================================================
 
-export const virtualMarketOrders = mysqlTable("orders", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  cooperativeId: int("cooperativeId").references(() => cooperatives.id),
-  productId: int("productId").notNull().references(() => products.id, { onDelete: "cascade" }),
+export const virtualMarketOrders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  cooperativeId: integer("cooperative_id").references(() => cooperatives.id),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
-  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
-  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }).notNull(),
-  status: mysqlEnum("status", ["pending", "confirmed", "preparing", "in_transit", "delivered", "cancelled"]).default("pending").notNull(),
-  orderDate: timestamp("orderDate").defaultNow().notNull(),
-  deliveryDate: timestamp("deliveryDate"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  status: orderStatusEnum("status").default("pending").notNull(),
+  orderDate: timestamp("order_date", { withTimezone: true }).defaultNow().notNull(),
+  deliveryDate: timestamp("delivery_date", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantStatusIdx: index("merchant_status_idx").on(table.merchantId, table.status),
   cooperativeStatusIdx: index("cooperative_status_idx").on(table.cooperativeId, table.status),
@@ -249,13 +286,13 @@ export type InsertVirtualMarketOrder = typeof virtualMarketOrders.$inferInsert;
 // ENROLLMENT DOCUMENTS
 // ============================================================================
 
-export const enrollmentDocuments = mysqlTable("enrollment_documents", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  documentType: varchar("documentType", { length: 100 }).notNull(), // ID card, business license, etc.
-  documentUrl: text("documentUrl").notNull(),
-  uploadedBy: int("uploadedBy").notNull().references(() => agents.id),
-  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+export const enrollmentDocuments = pgTable("enrollment_documents", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  documentType: varchar("document_type", { length: 100 }).notNull(),
+  documentUrl: text("document_url").notNull(),
+  uploadedBy: integer("uploaded_by").notNull().references(() => agents.id),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_idx").on(table.merchantId),
 }));
@@ -267,16 +304,16 @@ export type InsertEnrollmentDocument = typeof enrollmentDocuments.$inferInsert;
 // NOTIFICATIONS
 // ============================================================================
 
-export const notifications = mysqlTable("notifications", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  type: mysqlEnum("type", ["sms", "email", "push"]).notNull(),
-  category: varchar("category", { length: 50 }).notNull(), // otp, stock_alert, payment_confirmation, etc.
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: notificationTypeEnum("type").notNull(),
+  category: varchar("category", { length: 50 }).notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
-  status: mysqlEnum("status", ["pending", "sent", "failed"]).default("pending").notNull(),
-  sentAt: timestamp("sentAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  status: notificationStatusEnum("status").default("pending").notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userStatusIdx: index("user_status_idx").on(table.userId, table.status),
 }));
@@ -288,15 +325,15 @@ export type InsertNotification = typeof notifications.$inferInsert;
 // VOICE COMMANDS LOG
 // ============================================================================
 
-export const voiceCommands = mysqlTable("voice_commands", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  language: mysqlEnum("language", ["fr", "dioula"]).notNull(),
-  command: text("command").notNull(), // Original voice command
-  transcription: text("transcription").notNull(), // Transcribed text
-  action: varchar("action", { length: 100 }), // sell, check_stock, etc.
-  isSuccessful: boolean("isSuccessful").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const voiceCommands = pgTable("voice_commands", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  language: languageEnum("language").notNull(),
+  command: text("command").notNull(),
+  transcription: text("transcription").notNull(),
+  action: varchar("action", { length: 100 }),
+  isSuccessful: boolean("is_successful").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("user_idx").on(table.userId),
 }));
@@ -308,11 +345,8 @@ export type InsertVoiceCommand = typeof voiceCommands.$inferInsert;
 // BADGES & GAMIFICATION
 // ============================================================================
 
-/**
- * Table des badges disponibles
- */
-export const badges = mysqlTable("badges", {
-  id: int("id").autoincrement().primaryKey(),
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
   code: varchar("code", { length: 50 }).notNull().unique(),
   name: varchar("name", { length: 100 }).notNull(),
   description: text("description").notNull(),
@@ -320,22 +354,19 @@ export const badges = mysqlTable("badges", {
   color: varchar("color", { length: 50 }).notNull(),
   requirement: text("requirement").notNull(),
   category: varchar("category", { length: 50 }).notNull(),
-  points: int("points").notNull().default(10),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  points: integer("points").notNull().default(10),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type Badge = typeof badges.$inferSelect;
 export type InsertBadge = typeof badges.$inferInsert;
 
-/**
- * Table des badges débloqués par les marchands
- */
-export const merchantBadges = mysqlTable("merchant_badges", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  badgeId: int("badgeId").notNull().references(() => badges.id, { onDelete: "cascade" }),
-  unlockedAt: timestamp("unlockedAt").defaultNow().notNull(),
-  isNew: boolean("isNew").default(true).notNull(),
+export const merchantBadges = pgTable("merchant_badges", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  badgeId: integer("badge_id").notNull().references(() => badges.id, { onDelete: "cascade" }),
+  unlockedAt: timestamp("unlocked_at", { withTimezone: true }).defaultNow().notNull(),
+  isNew: boolean("is_new").default(true).notNull(),
 }, (table) => ({
   merchantIdIdx: index("merchant_id_idx").on(table.merchantId),
   badgeIdIdx: index("badge_id_idx").on(table.badgeId),
@@ -348,16 +379,16 @@ export type InsertMerchantBadge = typeof merchantBadges.$inferInsert;
 // AUDIT LOGS
 // ============================================================================
 
-export const auditLogs = mysqlTable("audit_logs", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
   action: varchar("action", { length: 100 }).notNull(),
-  entity: varchar("entity", { length: 100 }).notNull(), // merchants, sales, orders, etc.
-  entityId: int("entityId"),
-  details: text("details"), // JSON string with additional details
-  ipAddress: varchar("ipAddress", { length: 45 }),
-  userAgent: text("userAgent"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  entity: varchar("entity", { length: 100 }).notNull(),
+  entityId: integer("entity_id"),
+  details: text("details"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userActionIdx: index("user_action_idx").on(table.userId, table.action),
   entityIdx: index("entity_idx").on(table.entity, table.entityId),
@@ -370,45 +401,39 @@ export type InsertAuditLog = typeof auditLogs.$inferInsert;
 // SYSTEM SETTINGS
 // ============================================================================
 
-export const systemSettings = mysqlTable("system_settings", {
-  id: int("id").autoincrement().primaryKey(),
+export const systemSettings = pgTable("system_settings", {
+  id: serial("id").primaryKey(),
   key: varchar("key", { length: 100 }).notNull().unique(),
   value: text("value").notNull(),
   description: text("description"),
-  updatedBy: int("updatedBy").references(() => users.id),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedBy: integer("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type SystemSetting = typeof systemSettings.$inferSelect;
 export type InsertSystemSetting = typeof systemSettings.$inferInsert;
 
-
 // ============================================================================
-// MARKETS & COOPERATIVES (DONNÉES D'ENRÔLEMENT)
+// MARKETS & ACTORS
 // ============================================================================
 
-/**
- * Marchés et Coopératives
- * Données importées depuis markets.csv
- */
-export const markets = mysqlTable("markets", {
-  id: int("id").autoincrement().primaryKey(),
+export const markets = pgTable("markets", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull().unique(),
-  sourceFile: text("sourceFile"),
-  declaredEffectif: int("declaredEffectif"),
-  declaredCmu: int("declaredCmu"),
-  declaredCnps: int("declaredCnps"),
-  declaredRsti: int("declaredRsti"),
-  rowsInFile: int("rowsInFile"),
-  uniqueIdentifierCodes: int("uniqueIdentifierCodes"),
-  // Géolocalisation
+  sourceFile: text("source_file"),
+  declaredEffectif: integer("declared_effectif"),
+  declaredCmu: integer("declared_cmu"),
+  declaredCnps: integer("declared_cnps"),
+  declaredRsti: integer("declared_rsti"),
+  rowsInFile: integer("rows_in_file"),
+  uniqueIdentifierCodes: integer("unique_identifier_codes"),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
   longitude: decimal("longitude", { precision: 11, scale: 8 }),
   address: text("address"),
-  isGeolocated: boolean("isGeolocated").default(false).notNull(),
-  geolocatedAt: timestamp("geolocatedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  isGeolocated: boolean("is_geolocated").default(false).notNull(),
+  geolocatedAt: timestamp("geolocated_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   nameIdx: index("market_name_idx").on(table.name),
 }));
@@ -416,21 +441,17 @@ export const markets = mysqlTable("markets", {
 export type Market = typeof markets.$inferSelect;
 export type InsertMarket = typeof markets.$inferInsert;
 
-/**
- * Acteurs/Bénéficiaires enrôlés
- * Données importées depuis actors.csv
- */
-export const actors = mysqlTable("actors", {
-  id: int("id").autoincrement().primaryKey(),
-  actorKey: varchar("actorKey", { length: 50 }).notNull().unique(), // ex: PACA-001
-  marketId: int("marketId").references(() => markets.id, { onDelete: "set null" }),
-  marketName: varchar("marketName", { length: 255 }).notNull(),
-  rowNo: int("rowNo"),
-  fullName: varchar("fullName", { length: 255 }).notNull(),
-  identifierCode: varchar("identifierCode", { length: 50 }), // Code carte
+export const actors = pgTable("actors", {
+  id: serial("id").primaryKey(),
+  actorKey: varchar("actor_key", { length: 50 }).notNull().unique(),
+  marketId: integer("market_id").references(() => markets.id, { onDelete: "set null" }),
+  marketName: varchar("market_name", { length: 255 }).notNull(),
+  rowNo: integer("row_no"),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  identifierCode: varchar("identifier_code", { length: 50 }),
   phone: varchar("phone", { length: 20 }),
-  sourceFile: text("sourceFile"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  sourceFile: text("source_file"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   actorKeyIdx: index("actor_key_idx").on(table.actorKey),
   marketNameIdx: index("actor_market_name_idx").on(table.marketName),
@@ -442,43 +463,29 @@ export type Actor = typeof actors.$inferSelect;
 export type InsertActor = typeof actors.$inferInsert;
 
 // ============================================================================
-// SCORE SUTA - PRÉ-SCORING CRÉDIT
+// SCORE SUTA
 // ============================================================================
 
-/**
- * Scores des marchands pour l'inclusion financière
- * Calculé basé sur : régularité, volume, épargne, utilisation, ancienneté
- */
-export const merchantScores = mysqlTable("merchant_scores", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  
-  // Score global (0-100)
-  totalScore: int("totalScore").notNull().default(0),
-  
-  // Détail des composantes du score
-  regularityScore: int("regularityScore").notNull().default(0), // 30%
-  volumeScore: int("volumeScore").notNull().default(0), // 20%
-  savingsScore: int("savingsScore").notNull().default(0), // 20%
-  usageScore: int("usageScore").notNull().default(0), // 15%
-  seniorityScore: int("seniorityScore").notNull().default(0), // 15%
-  
-  // Métriques utilisées pour le calcul
-  consecutiveSalesDays: int("consecutiveSalesDays").notNull().default(0),
-  totalSalesAmount: decimal("totalSalesAmount", { precision: 15, scale: 2 }).notNull().default("0"),
-  totalSavingsAmount: decimal("totalSavingsAmount", { precision: 15, scale: 2 }).notNull().default("0"),
-  appUsageDays: int("appUsageDays").notNull().default(0),
-  accountAgeDays: int("accountAgeDays").notNull().default(0),
-  
-  // Éligibilité crédit
-  isEligibleForCredit: boolean("isEligibleForCredit").notNull().default(false),
-  maxCreditAmount: decimal("maxCreditAmount", { precision: 15, scale: 2 }).notNull().default("0"),
-  creditTier: mysqlEnum("creditTier", ["none", "bronze", "silver", "gold", "platinum"]).default("none").notNull(),
-  
-  // Historique
-  lastCalculatedAt: timestamp("lastCalculatedAt").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const merchantScores = pgTable("merchant_scores", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  totalScore: integer("total_score").notNull().default(0),
+  regularityScore: integer("regularity_score").notNull().default(0),
+  volumeScore: integer("volume_score").notNull().default(0),
+  savingsScore: integer("savings_score").notNull().default(0),
+  usageScore: integer("usage_score").notNull().default(0),
+  seniorityScore: integer("seniority_score").notNull().default(0),
+  consecutiveSalesDays: integer("consecutive_sales_days").notNull().default(0),
+  totalSalesAmount: decimal("total_sales_amount", { precision: 15, scale: 2 }).notNull().default("0"),
+  totalSavingsAmount: decimal("total_savings_amount", { precision: 15, scale: 2 }).notNull().default("0"),
+  appUsageDays: integer("app_usage_days").notNull().default(0),
+  accountAgeDays: integer("account_age_days").notNull().default(0),
+  isEligibleForCredit: boolean("is_eligible_for_credit").notNull().default(false),
+  maxCreditAmount: decimal("max_credit_amount", { precision: 15, scale: 2 }).notNull().default("0"),
+  creditTier: creditTierEnum("credit_tier").default("none").notNull(),
+  lastCalculatedAt: timestamp("last_calculated_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_score_idx").on(table.merchantId),
   scoreIdx: index("total_score_idx").on(table.totalScore),
@@ -488,15 +495,12 @@ export const merchantScores = mysqlTable("merchant_scores", {
 export type MerchantScore = typeof merchantScores.$inferSelect;
 export type InsertMerchantScore = typeof merchantScores.$inferInsert;
 
-/**
- * Historique des scores pour suivre la progression
- */
-export const scoreHistory = mysqlTable("score_history", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  totalScore: int("totalScore").notNull(),
-  creditTier: mysqlEnum("creditTier", ["none", "bronze", "silver", "gold", "platinum"]).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const scoreHistory = pgTable("score_history", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  totalScore: integer("total_score").notNull(),
+  creditTier: creditTierEnum("credit_tier").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("score_history_merchant_idx").on(table.merchantId),
   dateIdx: index("score_history_date_idx").on(table.createdAt),
@@ -505,20 +509,21 @@ export const scoreHistory = mysqlTable("score_history", {
 export type ScoreHistory = typeof scoreHistory.$inferSelect;
 export type InsertScoreHistory = typeof scoreHistory.$inferInsert;
 
-/**
- * Objectifs d'épargne (Tontine Digitale)
- */
-export const savingsGoals = mysqlTable("savings_goals", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 100 }).notNull(), // "Tabaski", "Rentrée", "Stock"
-  targetAmount: decimal("targetAmount", { precision: 15, scale: 2 }).notNull(),
-  currentAmount: decimal("currentAmount", { precision: 15, scale: 2 }).notNull().default("0"),
+// ============================================================================
+// SAVINGS
+// ============================================================================
+
+export const savingsGoals = pgTable("savings_goals", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  targetAmount: decimal("target_amount", { precision: 15, scale: 2 }).notNull(),
+  currentAmount: decimal("current_amount", { precision: 15, scale: 2 }).notNull().default("0"),
   deadline: date("deadline"),
-  isCompleted: boolean("isCompleted").notNull().default(false),
-  completedAt: timestamp("completedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  isCompleted: boolean("is_completed").notNull().default(false),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("savings_merchant_idx").on(table.merchantId),
   statusIdx: index("savings_status_idx").on(table.isCompleted),
@@ -527,18 +532,15 @@ export const savingsGoals = mysqlTable("savings_goals", {
 export type SavingsGoal = typeof savingsGoals.$inferSelect;
 export type InsertSavingsGoal = typeof savingsGoals.$inferInsert;
 
-/**
- * Transactions d'épargne
- */
-export const savingsTransactions = mysqlTable("savings_transactions", {
-  id: int("id").autoincrement().primaryKey(),
-  savingsGoalId: int("savingsGoalId").notNull().references(() => savingsGoals.id, { onDelete: "cascade" }),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+export const savingsTransactions = pgTable("savings_transactions", {
+  id: serial("id").primaryKey(),
+  savingsGoalId: integer("savings_goal_id").notNull().references(() => savingsGoals.id, { onDelete: "cascade" }),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  type: mysqlEnum("type", ["deposit", "withdrawal"]).notNull(),
-  source: varchar("source", { length: 50 }), // "manual", "auto_after_sale", "mobile_money"
+  type: savingsTypeEnum("type").notNull(),
+  source: varchar("source", { length: 50 }),
   notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   goalIdx: index("savings_tx_goal_idx").on(table.savingsGoalId),
   merchantIdx: index("savings_tx_merchant_idx").on(table.merchantId),
@@ -548,21 +550,22 @@ export const savingsTransactions = mysqlTable("savings_transactions", {
 export type SavingsTransaction = typeof savingsTransactions.$inferSelect;
 export type InsertSavingsTransaction = typeof savingsTransactions.$inferInsert;
 
-/**
- * Événements locaux (Ramadan, Tabaski, Noël, Rentrée)
- */
-export const localEvents = mysqlTable("local_events", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(), // "Ramadan", "Tabaski"
-  type: mysqlEnum("type", ["religious", "national", "cultural", "commercial"]).notNull(),
+// ============================================================================
+// EVENTS
+// ============================================================================
+
+export const localEvents = pgTable("local_events", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  type: eventTypeEnum("type").notNull(),
   date: date("date").notNull(),
-  endDate: date("endDate"), // Pour Ramadan (30 jours)
+  endDate: date("end_date"),
   description: text("description"),
-  isRecurring: boolean("isRecurring").notNull().default(false), // Répété chaque année
-  iconEmoji: varchar("iconEmoji", { length: 10 }), // "🌙", "🐑", "🎄"
-  color: varchar("color", { length: 20 }), // "green", "purple", "red"
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  isRecurring: boolean("is_recurring").notNull().default(false),
+  iconEmoji: varchar("icon_emoji", { length: 10 }),
+  color: varchar("color", { length: 20 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   dateIdx: index("events_date_idx").on(table.date),
   typeIdx: index("events_type_idx").on(table.type),
@@ -571,18 +574,15 @@ export const localEvents = mysqlTable("local_events", {
 export type LocalEvent = typeof localEvents.$inferSelect;
 export type InsertLocalEvent = typeof localEvents.$inferInsert;
 
-/**
- * Recommandations de stock par événement
- */
-export const eventStockRecommendations = mysqlTable("event_stock_recommendations", {
-  id: int("id").autoincrement().primaryKey(),
-  eventId: int("eventId").notNull().references(() => localEvents.id, { onDelete: "cascade" }),
-  productName: varchar("productName", { length: 100 }).notNull(), // "Sucre", "Riz", "Mouton"
-  category: varchar("category", { length: 50 }), // "Alimentaire", "Scolaire"
-  priority: mysqlEnum("priority", ["high", "medium", "low"]).notNull().default("medium"),
-  estimatedDemandIncrease: int("estimatedDemandIncrease"), // Pourcentage d'augmentation (ex: 150%)
+export const eventStockRecommendations = pgTable("event_stock_recommendations", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").notNull().references(() => localEvents.id, { onDelete: "cascade" }),
+  productName: varchar("product_name", { length: 100 }).notNull(),
+  category: varchar("category", { length: 50 }),
+  priority: priorityEnum("priority").notNull().default("medium"),
+  estimatedDemandIncrease: integer("estimated_demand_increase"),
   notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   eventIdx: index("stock_rec_event_idx").on(table.eventId),
   priorityIdx: index("stock_rec_priority_idx").on(table.priority),
@@ -591,18 +591,15 @@ export const eventStockRecommendations = mysqlTable("event_stock_recommendations
 export type EventStockRecommendation = typeof eventStockRecommendations.$inferSelect;
 export type InsertEventStockRecommendation = typeof eventStockRecommendations.$inferInsert;
 
-/**
- * Alertes événements pour les marchands
- */
-export const eventAlerts = mysqlTable("event_alerts", {
-  id: int("id").autoincrement().primaryKey(),
-  eventId: int("eventId").notNull().references(() => localEvents.id, { onDelete: "cascade" }),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  alertType: mysqlEnum("alertType", ["7_days", "3_days", "1_day", "today"]).notNull(),
+export const eventAlerts = pgTable("event_alerts", {
+  id: serial("id").primaryKey(),
+  eventId: integer("event_id").notNull().references(() => localEvents.id, { onDelete: "cascade" }),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  alertType: alertTypeEnum("alert_type").notNull(),
   message: text("message").notNull(),
-  isRead: boolean("isRead").notNull().default(false),
-  readAt: timestamp("readAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  readAt: timestamp("read_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   eventIdx: index("alerts_event_idx").on(table.eventId),
   merchantIdx: index("alerts_merchant_idx").on(table.merchantId),
@@ -613,20 +610,20 @@ export type EventAlert = typeof eventAlerts.$inferSelect;
 export type InsertEventAlert = typeof eventAlerts.$inferInsert;
 
 // ============================================================================
-// MERCHANT ACTIVITY (Activité commerciale)
+// MERCHANT ACTIVITY & SOCIAL PROTECTION
 // ============================================================================
 
-export const merchantActivity = mysqlTable("merchant_activity", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  actorType: mysqlEnum("actorType", ["grossiste", "semi-grossiste", "detaillant"]),
-  products: text("products"), // JSON array of products: ["riz", "igname", "mais"]
-  numberOfStores: int("numberOfStores").default(0),
-  tableNumber: varchar("tableNumber", { length: 20 }),
-  boxNumber: varchar("boxNumber", { length: 20 }),
-  sector: varchar("sector", { length: 100 }), // Secteur commercial
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const merchantActivity = pgTable("merchant_activity", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  actorType: actorTypeEnum("actor_type"),
+  products: text("products"),
+  numberOfStores: integer("number_of_stores").default(0),
+  tableNumber: varchar("table_number", { length: 20 }),
+  boxNumber: varchar("box_number", { length: 20 }),
+  sector: varchar("sector", { length: 100 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_activity_merchant_idx").on(table.merchantId),
 }));
@@ -634,37 +631,26 @@ export const merchantActivity = mysqlTable("merchant_activity", {
 export type MerchantActivity = typeof merchantActivity.$inferSelect;
 export type InsertMerchantActivity = typeof merchantActivity.$inferInsert;
 
-// ============================================================================
-// MERCHANT SOCIAL PROTECTION (Protection sociale détaillée)
-// ============================================================================
-
-export const merchantSocialProtection = mysqlTable("merchant_social_protection", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  
-  // CMU (Couverture Maladie Universelle)
-  hasCMU: boolean("hasCMU").default(false).notNull(),
-  cmuNumber: varchar("cmuNumber", { length: 50 }),
-  cmuStatus: mysqlEnum("cmuStatus", ["active", "inactive", "pending", "expired"]).default("pending"),
-  cmuStartDate: timestamp("cmuStartDate"),
-  cmuExpiryDate: timestamp("cmuExpiryDate"),
-  
-  // CNPS (Caisse Nationale de Prévoyance Sociale)
-  hasCNPS: boolean("hasCNPS").default(false).notNull(),
-  cnpsNumber: varchar("cnpsNumber", { length: 50 }),
-  cnpsStatus: mysqlEnum("cnpsStatus", ["active", "inactive", "pending", "expired"]).default("pending"),
-  cnpsStartDate: timestamp("cnpsStartDate"),
-  cnpsExpiryDate: timestamp("cnpsExpiryDate"),
-  
-  // RSTI (Régime Social des Travailleurs Indépendants)
-  hasRSTI: boolean("hasRSTI").default(false).notNull(),
-  rstiNumber: varchar("rstiNumber", { length: 50 }),
-  rstiStatus: mysqlEnum("rstiStatus", ["active", "inactive", "pending", "expired"]).default("pending"),
-  rstiStartDate: timestamp("rstiStartDate"),
-  rstiExpiryDate: timestamp("rstiExpiryDate"),
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const merchantSocialProtection = pgTable("merchant_social_protection", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  hasCMU: boolean("has_cmu").default(false).notNull(),
+  cmuNumber: varchar("cmu_number", { length: 50 }),
+  cmuStatus: statusEnum("cmu_status").default("pending"),
+  cmuStartDate: timestamp("cmu_start_date", { withTimezone: true }),
+  cmuExpiryDate: timestamp("cmu_expiry_date", { withTimezone: true }),
+  hasCNPS: boolean("has_cnps").default(false).notNull(),
+  cnpsNumber: varchar("cnps_number", { length: 50 }),
+  cnpsStatus: statusEnum("cnps_status").default("pending"),
+  cnpsStartDate: timestamp("cnps_start_date", { withTimezone: true }),
+  cnpsExpiryDate: timestamp("cnps_expiry_date", { withTimezone: true }),
+  hasRSTI: boolean("has_rsti").default(false).notNull(),
+  rstiNumber: varchar("rsti_number", { length: 50 }),
+  rstiStatus: statusEnum("rsti_status").default("pending"),
+  rstiStartDate: timestamp("rsti_start_date", { withTimezone: true }),
+  rstiExpiryDate: timestamp("rsti_expiry_date", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_social_protection_merchant_idx").on(table.merchantId),
   cmuStatusIdx: index("merchant_social_protection_cmu_status_idx").on(table.cmuStatus),
@@ -674,20 +660,16 @@ export const merchantSocialProtection = mysqlTable("merchant_social_protection",
 export type MerchantSocialProtection = typeof merchantSocialProtection.$inferSelect;
 export type InsertMerchantSocialProtection = typeof merchantSocialProtection.$inferInsert;
 
-// ============================================================================
-// MERCHANT EDIT HISTORY (Historique des modifications)
-// ============================================================================
-
-export const merchantEditHistory = mysqlTable("merchant_edit_history", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  editedBy: int("editedBy").notNull().references(() => users.id),
-  fieldName: varchar("fieldName", { length: 100 }).notNull(), // Nom du champ modifié
-  oldValue: text("oldValue"), // Ancienne valeur (JSON si complexe)
-  newValue: text("newValue"), // Nouvelle valeur (JSON si complexe)
-  action: mysqlEnum("action", ["create", "update", "delete", "verify", "bulk_update"]).notNull(),
-  comment: text("comment"), // Commentaire optionnel
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const merchantEditHistory = pgTable("merchant_edit_history", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  editedBy: integer("edited_by").notNull().references(() => users.id),
+  fieldName: varchar("field_name", { length: 100 }).notNull(),
+  oldValue: text("old_value"),
+  newValue: text("new_value"),
+  action: actionEnum("action").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_edit_history_merchant_idx").on(table.merchantId),
   editedByIdx: index("merchant_edit_history_edited_by_idx").on(table.editedBy),
@@ -697,28 +679,24 @@ export const merchantEditHistory = mysqlTable("merchant_edit_history", {
 export type MerchantEditHistory = typeof merchantEditHistory.$inferSelect;
 export type InsertMerchantEditHistory = typeof merchantEditHistory.$inferInsert;
 
-// ============================================================================
-// SOCIAL PROTECTION RENEWALS (Demandes de renouvellement CNPS/CMU)
-// ============================================================================
-
-export const socialProtectionRenewals = mysqlTable("social_protection_renewals", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  type: mysqlEnum("type", ["cnps", "cmu", "rsti"]).notNull(), // Type de couverture à renouveler
-  currentExpiryDate: timestamp("currentExpiryDate"), // Date d'expiration actuelle
-  requestedExpiryDate: timestamp("requestedExpiryDate").notNull(), // Nouvelle date d'expiration demandée
-  status: mysqlEnum("status", ["pending", "approved", "rejected", "cancelled"]).default("pending").notNull(),
-  proofDocumentUrl: text("proofDocumentUrl"), // URL du justificatif (S3)
-  proofDocumentKey: varchar("proofDocumentKey", { length: 255 }), // Clé S3 du justificatif
-  merchantNotes: text("merchantNotes"), // Notes du marchand (raison de la demande)
-  adminNotes: text("adminNotes"), // Notes de l'admin (raison approbation/rejet)
-  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
-  reviewedAt: timestamp("reviewedAt"), // Date de traitement de la demande
-  reviewedBy: int("reviewedBy").references(() => users.id), // Admin qui a traité la demande
-  approvedAt: timestamp("approvedAt"), // Date d'approbation
-  rejectedAt: timestamp("rejectedAt"), // Date de rejet
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const socialProtectionRenewals = pgTable("social_protection_renewals", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  type: renewalTypeEnum("type").notNull(),
+  currentExpiryDate: timestamp("current_expiry_date", { withTimezone: true }),
+  requestedExpiryDate: timestamp("requested_expiry_date", { withTimezone: true }).notNull(),
+  status: renewalStatusEnum("status").default("pending").notNull(),
+  proofDocumentUrl: text("proof_document_url"),
+  proofDocumentKey: varchar("proof_document_key", { length: 255 }),
+  merchantNotes: text("merchant_notes"),
+  adminNotes: text("admin_notes"),
+  requestedAt: timestamp("requested_at", { withTimezone: true }).defaultNow().notNull(),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  rejectedAt: timestamp("rejected_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("social_protection_renewals_merchant_idx").on(table.merchantId),
   statusIdx: index("social_protection_renewals_status_idx").on(table.status),
@@ -733,18 +711,18 @@ export type InsertSocialProtectionRenewal = typeof socialProtectionRenewals.$inf
 // E-LEARNING
 // ============================================================================
 
-export const courses = mysqlTable("courses", {
-  id: int("id").autoincrement().primaryKey(),
+export const courses = pgTable("courses", {
+  id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
-  category: varchar("category", { length: 100 }).notNull(), // gestion_stock, paiements_mobiles, protection_sociale, marketing
-  duration: int("duration").notNull(), // Durée en minutes
-  videoUrl: text("videoUrl"), // URL de la vidéo (YouTube, Vimeo, ou S3)
-  thumbnailUrl: text("thumbnailUrl"), // URL de l'image de couverture
-  level: varchar("level", { length: 50 }).notNull().default("beginner"), // beginner, intermediate, advanced
-  isPublished: boolean("isPublished").notNull().default(true),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  duration: integer("duration").notNull(),
+  videoUrl: text("video_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  level: varchar("level", { length: 50 }).notNull().default("beginner"),
+  isPublished: boolean("is_published").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   categoryIdx: index("courses_category_idx").on(table.category),
   levelIdx: index("courses_level_idx").on(table.level),
@@ -754,15 +732,15 @@ export const courses = mysqlTable("courses", {
 export type Course = typeof courses.$inferSelect;
 export type InsertCourse = typeof courses.$inferInsert;
 
-export const courseProgress = mysqlTable("course_progress", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
-  progress: int("progress").notNull().default(0), // Pourcentage de progression (0-100)
+export const courseProgress = pgTable("course_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  progress: integer("progress").notNull().default(0),
   completed: boolean("completed").notNull().default(false),
-  completedAt: timestamp("completedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("course_progress_user_idx").on(table.userId),
   courseIdx: index("course_progress_course_idx").on(table.courseId),
@@ -773,20 +751,17 @@ export const courseProgress = mysqlTable("course_progress", {
 export type CourseProgress = typeof courseProgress.$inferSelect;
 export type InsertCourseProgress = typeof courseProgress.$inferInsert;
 
-/**
- * Questions de quiz pour les cours
- */
-export const quizzes = mysqlTable("quizzes", {
-  id: int("id").autoincrement().primaryKey(),
-  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
+export const quizzes = pgTable("quizzes", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
   question: text("question").notNull(),
-  optionA: varchar("optionA", { length: 255 }).notNull(),
-  optionB: varchar("optionB", { length: 255 }).notNull(),
-  optionC: varchar("optionC", { length: 255 }).notNull(),
-  optionD: varchar("optionD", { length: 255 }),
-  correctAnswer: mysqlEnum("correctAnswer", ["A", "B", "C", "D"]).notNull(),
-  explanation: text("explanation"), // Explication de la bonne réponse
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  optionA: varchar("option_a", { length: 255 }).notNull(),
+  optionB: varchar("option_b", { length: 255 }).notNull(),
+  optionC: varchar("option_c", { length: 255 }).notNull(),
+  optionD: varchar("option_d", { length: 255 }),
+  correctAnswer: correctAnswerEnum("correct_answer").notNull(),
+  explanation: text("explanation"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   courseIdx: index("quizzes_course_idx").on(table.courseId),
 }));
@@ -794,19 +769,16 @@ export const quizzes = mysqlTable("quizzes", {
 export type Quiz = typeof quizzes.$inferSelect;
 export type InsertQuiz = typeof quizzes.$inferInsert;
 
-/**
- * Tentatives de quiz par les utilisateurs
- */
-export const quizAttempts = mysqlTable("quiz_attempts", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
-  score: int("score").notNull(), // Pourcentage (0-100)
-  totalQuestions: int("totalQuestions").notNull(),
-  correctAnswers: int("correctAnswers").notNull(),
-  passed: boolean("passed").notNull(), // true si score >= 70%
-  answers: text("answers"), // JSON des réponses de l'utilisateur
-  completedAt: timestamp("completedAt").defaultNow().notNull(),
+export const quizAttempts = pgTable("quiz_attempts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  score: integer("score").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  passed: boolean("passed").notNull(),
+  answers: text("answers"),
+  completedAt: timestamp("completed_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("quiz_attempts_user_idx").on(table.userId),
   courseIdx: index("quiz_attempts_course_idx").on(table.courseId),
@@ -816,21 +788,14 @@ export const quizAttempts = mysqlTable("quiz_attempts", {
 export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
 
-// ============================================================================
-// GAMIFICATION E-LEARNING
-// ============================================================================
-
-/**
- * Badges sociaux obtenus par les utilisateurs
- */
-export const userAchievements = mysqlTable("user_achievements", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  badgeName: varchar("badgeName", { length: 100 }).notNull(), // "Expert Marketing", "Pro CNPS", "Maître Stock"
-  badgeIcon: varchar("badgeIcon", { length: 10 }), // Emoji du badge: "🏆", "💼", "📦"
-  courseId: int("courseId").references(() => courses.id, { onDelete: "set null" }), // Cours associé (optionnel)
-  scoreObtained: int("scoreObtained").notNull(), // Score du quiz (0-100)
-  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+export const userAchievements = pgTable("user_achievements", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  badgeName: varchar("badge_name", { length: 100 }).notNull(),
+  badgeIcon: varchar("badge_icon", { length: 10 }),
+  courseId: integer("course_id").references(() => courses.id, { onDelete: "set null" }),
+  scoreObtained: integer("score_obtained").notNull(),
+  earnedAt: timestamp("earned_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("user_achievements_user_idx").on(table.userId),
   badgeIdx: index("user_achievements_badge_idx").on(table.badgeName),
@@ -839,20 +804,17 @@ export const userAchievements = mysqlTable("user_achievements", {
 export type UserAchievement = typeof userAchievements.$inferSelect;
 export type InsertUserAchievement = typeof userAchievements.$inferInsert;
 
-/**
- * Défis entre marchands
- */
-export const challenges = mysqlTable("challenges", {
-  id: int("id").autoincrement().primaryKey(),
-  challengerId: int("challengerId").notNull().references(() => users.id, { onDelete: "cascade" }), // Qui lance le défi
-  challengedId: int("challengedId").notNull().references(() => users.id, { onDelete: "cascade" }), // Qui est défié
-  courseId: int("courseId").notNull().references(() => courses.id, { onDelete: "cascade" }),
-  challengerScore: int("challengerScore"), // Score du lanceur
-  challengedScore: int("challengedScore"), // Score du défié
-  status: mysqlEnum("status", ["pending", "accepted", "completed", "declined"]).default("pending").notNull(),
-  winnerId: int("winnerId").references(() => users.id), // Gagnant du défi
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  completedAt: timestamp("completedAt"),
+export const challenges = pgTable("challenges", {
+  id: serial("id").primaryKey(),
+  challengerId: integer("challenger_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  challengedId: integer("challenged_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  challengerScore: integer("challenger_score"),
+  challengedScore: integer("challenged_score"),
+  status: challengeStatusEnum("status").default("pending").notNull(),
+  winnerId: integer("winner_id").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
 }, (table) => ({
   challengerIdx: index("challenges_challenger_idx").on(table.challengerId),
   challengedIdx: index("challenges_challenged_idx").on(table.challengedId),
@@ -862,21 +824,18 @@ export const challenges = mysqlTable("challenges", {
 export type Challenge = typeof challenges.$inferSelect;
 export type InsertChallenge = typeof challenges.$inferInsert;
 
-/**
- * Classement hebdomadaire régional
- */
-export const weeklyLeaderboard = mysqlTable("weekly_leaderboard", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  weekNumber: int("weekNumber").notNull(), // Numéro de la semaine (1-52)
-  year: int("year").notNull(), // Année
-  region: varchar("region", { length: 100 }), // "Abidjan Nord", "Cocody", "Yopougon"
-  totalPoints: int("totalPoints").notNull().default(0), // Points cumulés
-  quizzesCompleted: int("quizzesCompleted").notNull().default(0), // Nombre de quiz terminés
-  averageScore: int("averageScore").notNull().default(0), // Score moyen (0-100)
-  rank: int("rank"), // Classement dans la région (1, 2, 3...)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const weeklyLeaderboard = pgTable("weekly_leaderboard", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  weekNumber: integer("week_number").notNull(),
+  year: integer("year").notNull(),
+  region: varchar("region", { length: 100 }),
+  totalPoints: integer("total_points").notNull().default(0),
+  quizzesCompleted: integer("quizzes_completed").notNull().default(0),
+  averageScore: integer("average_score").notNull().default(0),
+  rank: integer("rank"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("weekly_leaderboard_user_idx").on(table.userId),
   weekIdx: index("weekly_leaderboard_week_idx").on(table.weekNumber, table.year),
@@ -887,31 +846,16 @@ export const weeklyLeaderboard = mysqlTable("weekly_leaderboard", {
 export type WeeklyLeaderboard = typeof weeklyLeaderboard.$inferSelect;
 export type InsertWeeklyLeaderboard = typeof weeklyLeaderboard.$inferInsert;
 
-// ============================================================================
-// IN-APP NOTIFICATIONS
-// ============================================================================
-
-export const inAppNotifications = mysqlTable("in_app_notifications", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  type: mysqlEnum("type", [
-    "quiz_passed",
-    "badge_earned",
-    "challenge_received",
-    "challenge_won",
-    "renewal_reminder",
-    "stock_alert",
-    "order_status",
-    "group_order_created",
-    "session_reminder",
-    "system",
-  ]).notNull(),
+export const inAppNotifications = pgTable("in_app_notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: inAppNotificationTypeEnum("type").notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
-  isRead: boolean("isRead").default(false).notNull(),
-  actionUrl: text("actionUrl"), // URL to navigate when clicked
-  metadata: json("metadata"), // Additional data (e.g., badgeId, challengeId)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  actionUrl: text("action_url"),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   userReadIdx: index("user_read_idx").on(table.userId, table.isRead),
   createdAtIdx: index("created_at_idx").on(table.createdAt),
@@ -920,16 +864,12 @@ export const inAppNotifications = mysqlTable("in_app_notifications", {
 export type InAppNotification = typeof inAppNotifications.$inferSelect;
 export type InsertInAppNotification = typeof inAppNotifications.$inferInsert;
 
-// ============================================================================
-// COOPERATIVE MEMBERS
-// ============================================================================
-
-export const cooperativeMembers = mysqlTable("cooperative_members", {
-  id: int("id").autoincrement().primaryKey(),
-  cooperativeId: int("cooperativeId").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
-  isActive: boolean("isActive").default(true).notNull(),
+export const cooperativeMembers = pgTable("cooperative_members", {
+  id: serial("id").primaryKey(),
+  cooperativeId: integer("cooperative_id").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
 }, (table) => ({
   cooperativeMerchantIdx: index("cooperative_merchant_idx").on(table.cooperativeId, table.merchantId),
 }));
@@ -937,22 +877,18 @@ export const cooperativeMembers = mysqlTable("cooperative_members", {
 export type CooperativeMember = typeof cooperativeMembers.$inferSelect;
 export type InsertCooperativeMember = typeof cooperativeMembers.$inferInsert;
 
-// ============================================================================
-// GROUPED ORDERS (Commandes groupées des coopératives)
-// ============================================================================
-
-export const groupedOrders = mysqlTable("grouped_orders", {
-  id: int("id").autoincrement().primaryKey(),
-  cooperativeId: int("cooperativeId").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
-  productName: varchar("productName", { length: 255 }).notNull(),
-  totalQuantity: int("totalQuantity").notNull(),
-  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }),
-  totalAmount: decimal("totalAmount", { precision: 10, scale: 2 }),
-  status: mysqlEnum("status", ["draft", "pending", "confirmed", "delivered", "cancelled"]).notNull().default("draft"),
-  createdBy: int("createdBy").notNull().references(() => users.id),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  confirmedAt: timestamp("confirmedAt"),
-  deliveredAt: timestamp("deliveredAt"),
+export const groupedOrders = pgTable("grouped_orders", {
+  id: serial("id").primaryKey(),
+  cooperativeId: integer("cooperative_id").notNull().references(() => cooperatives.id, { onDelete: "cascade" }),
+  productName: varchar("product_name", { length: 255 }).notNull(),
+  totalQuantity: integer("total_quantity").notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
+  status: groupedOrderStatusEnum("status").notNull().default("draft"),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  deliveredAt: timestamp("delivered_at", { withTimezone: true }),
 }, (table) => ({
   cooperativeStatusIdx: index("cooperative_status_idx").on(table.cooperativeId, table.status),
 }));
@@ -960,12 +896,12 @@ export const groupedOrders = mysqlTable("grouped_orders", {
 export type GroupedOrder = typeof groupedOrders.$inferSelect;
 export type InsertGroupedOrder = typeof groupedOrders.$inferInsert;
 
-export const groupedOrderParticipants = mysqlTable("grouped_order_participants", {
-  id: int("id").autoincrement().primaryKey(),
-  groupedOrderId: int("groupedOrderId").notNull().references(() => groupedOrders.id, { onDelete: "cascade" }),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }),
-  quantity: int("quantity").notNull(),
-  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+export const groupedOrderParticipants = pgTable("grouped_order_participants", {
+  id: serial("id").primaryKey(),
+  groupedOrderId: integer("grouped_order_id").notNull().references(() => groupedOrders.id, { onDelete: "cascade" }),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  quantity: integer("quantity").notNull(),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   groupedOrderMerchantIdx: index("grouped_order_merchant_idx").on(table.groupedOrderId, table.merchantId),
 }));
@@ -973,32 +909,19 @@ export const groupedOrderParticipants = mysqlTable("grouped_order_participants",
 export type GroupedOrderParticipant = typeof groupedOrderParticipants.$inferSelect;
 export type InsertGroupedOrderParticipant = typeof groupedOrderParticipants.$inferInsert;
 
-// ============================================================================
-// MERCHANT SETTINGS (Paramètres personnalisables)
-// ============================================================================
-
-export const merchantSettings = mysqlTable("merchant_settings", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }).unique(),
-  
-  // Paramètres de proposition d'épargne automatique
-  savingsProposalEnabled: boolean("savingsProposalEnabled").default(true).notNull(),
-  savingsProposalThreshold: decimal("savingsProposalThreshold", { precision: 10, scale: 2 }).default("20000").notNull(), // Montant minimum de vente
-  savingsProposalPercentage: decimal("savingsProposalPercentage", { precision: 5, scale: 2 }).default("2").notNull(), // Pourcentage suggéré
-  
-  // Paramètres de notifications
-  groupedOrderNotificationsEnabled: boolean("groupedOrderNotificationsEnabled").default(true).notNull(),
-  
-  // Paramètres de briefing matinal
-  morningBriefingEnabled: boolean("morningBriefingEnabled").default(true).notNull(),
-  morningBriefingTime: varchar("morningBriefingTime", { length: 5 }).default("08:00"), // Format HH:MM
-  
-  // Paramètres de rappels d'ouverture/fermeture de journée
-  reminderOpeningTime: varchar("reminderOpeningTime", { length: 5 }).default("09:00"), // Format HH:MM
-  reminderClosingTime: varchar("reminderClosingTime", { length: 5 }).default("20:00"), // Format HH:MM
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const merchantSettings = pgTable("merchant_settings", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }).unique(),
+  savingsProposalEnabled: boolean("savings_proposal_enabled").default(true).notNull(),
+  savingsProposalThreshold: decimal("savings_proposal_threshold", { precision: 10, scale: 2 }).default("20000").notNull(),
+  savingsProposalPercentage: decimal("savings_proposal_percentage", { precision: 5, scale: 2 }).default("2").notNull(),
+  groupedOrderNotificationsEnabled: boolean("grouped_order_notifications_enabled").default(true).notNull(),
+  morningBriefingEnabled: boolean("morning_briefing_enabled").default(true).notNull(),
+  morningBriefingTime: varchar("morning_briefing_time", { length: 5 }).default("08:00"),
+  reminderOpeningTime: varchar("reminder_opening_time", { length: 5 }).default("09:00"),
+  reminderClosingTime: varchar("reminder_closing_time", { length: 5 }).default("20:00"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_settings_merchant_idx").on(table.merchantId),
 }));
@@ -1006,8 +929,5 @@ export const merchantSettings = mysqlTable("merchant_settings", {
 export type MerchantSettings = typeof merchantSettings.$inferSelect;
 export type InsertMerchantSettings = typeof merchantSettings.$inferInsert;
 
-// Export payments tables
 export { transactions, marketplaceOrders } from "./schema-payments";
-
-// Export daily logins table
 export { merchantDailyLogins } from "./schema-daily-logins";

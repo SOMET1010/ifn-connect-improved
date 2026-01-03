@@ -1,24 +1,24 @@
-import { mysqlTable, varchar, int, decimal, timestamp, text, index } from "drizzle-orm/mysql-core";
+import { pgTable, serial, varchar, integer, decimal, timestamp, text, index } from "drizzle-orm/pg-core";
 import { merchants, products } from "./schema";
 
 /**
  * Table transactions - Historique des paiements Mobile Money
  */
-export const transactions = mysqlTable("transactions", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchant_id").notNull().references(() => merchants.id),
-  orderId: int("order_id").references(() => marketplaceOrders.id),
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id),
+  orderId: integer("order_id").references(() => marketplaceOrders.id),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).default("XOF"),
-  provider: varchar("provider", { length: 20 }).notNull(), // orange_money, mtn_momo, wave, moov_money
+  provider: varchar("provider", { length: 20 }).notNull(),
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
-  status: varchar("status", { length: 20 }).default("pending"), // pending, success, failed, refunded
+  status: varchar("status", { length: 20 }).default("pending"),
   transactionId: varchar("transaction_id", { length: 255 }),
   reference: varchar("reference", { length: 255 }),
   errorMessage: text("error_message"),
-  webhookData: text("webhook_data"), // JSON stringified
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  webhookData: text("webhook_data"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   transactionIdIdx: index("transaction_id_idx").on(table.transactionId),
   merchantIdIdx: index("merchant_id_idx").on(table.merchantId),
@@ -33,19 +33,19 @@ export type InsertTransaction = typeof transactions.$inferInsert;
 /**
  * Table marketplace_orders - Commandes du marché virtuel
  */
-export const marketplaceOrders = mysqlTable("marketplace_orders", {
-  id: int("id").autoincrement().primaryKey(),
-  buyerId: int("buyer_id").notNull().references(() => merchants.id),
-  sellerId: int("seller_id").notNull().references(() => merchants.id),
-  productId: int("product_id").notNull().references(() => products.id),
-  quantity: int("quantity").notNull(),
+export const marketplaceOrders = pgTable("marketplace_orders", {
+  id: serial("id").primaryKey(),
+  buyerId: integer("buyer_id").notNull().references(() => merchants.id),
+  sellerId: integer("seller_id").notNull().references(() => merchants.id),
+  productId: integer("product_id").notNull().references(() => products.id),
+  quantity: integer("quantity").notNull(),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  status: varchar("status", { length: 20 }).default("pending_payment"), // pending_payment, paid, shipped, delivered, cancelled, refunded
+  status: varchar("status", { length: 20 }).default("pending_payment"),
   deliveryAddress: text("delivery_address"),
   deliveryPhone: varchar("delivery_phone", { length: 20 }),
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   buyerIdIdx: index("buyer_id_idx").on(table.buyerId),
   sellerIdIdx: index("seller_id_idx").on(table.sellerId),
