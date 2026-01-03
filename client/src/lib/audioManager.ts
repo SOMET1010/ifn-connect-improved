@@ -1,8 +1,12 @@
 /**
- * Audio Manager pour IFN Connect
+ * Audio Manager pour IFN Connect / PNAVIM
  * Support multilingue avec 6 langues locales de Côte d'Ivoire
  * Feedback multi-sensoriel (audio + visuel + tactile)
+ * Intégration ElevenLabs pour voix authentiques ivoiriennes
  */
+
+import { elevenLabsVoice, type VoiceContext } from './elevenLabsVoice';
+import { selectPersonaForContext } from '../../../shared/voice-personas';
 
 export type SupportedLanguage = 'fr' | 'dioula' | 'baule' | 'bete' | 'senoufo' | 'malinke';
 
@@ -194,6 +198,8 @@ class AudioManager {
   private audioCache: Map<string, HTMLAudioElement> = new Map();
   private isSpeaking: boolean = false;
   private isEnabled: boolean = true;
+  private useElevenLabs: boolean = true;
+  private elevenLabsConfigured: boolean = false;
 
   setLanguage(language: SupportedLanguage) {
     this.currentLanguage = language;
@@ -215,9 +221,64 @@ class AudioManager {
     return stored === null ? true : stored === 'true';
   }
 
+  async checkElevenLabsConfiguration(): Promise<void> {
+    try {
+      const config = await elevenLabsVoice.checkConfiguration();
+      this.elevenLabsConfigured = config.isConfigured;
+
+      if (!config.isConfigured) {
+        console.warn('[AudioManager] ElevenLabs not configured, falling back to browser TTS');
+      }
+    } catch (error) {
+      console.warn('[AudioManager] Could not check ElevenLabs config:', error);
+      this.elevenLabsConfigured = false;
+    }
+  }
+
+  setUseElevenLabs(use: boolean) {
+    this.useElevenLabs = use;
+    localStorage.setItem('pnavim_use_elevenlabs', use ? 'true' : 'false');
+  }
+
+  getUseElevenLabs(): boolean {
+    return this.useElevenLabs && this.elevenLabsConfigured;
+  }
+
+  private mapInstructionToContext(key: string): VoiceContext {
+    const contextMap: Record<string, VoiceContext> = {
+      welcome: 'onboarding',
+      sell: 'transaction',
+      stock: 'information',
+      money: 'transaction',
+      help: 'help',
+      send_money: 'transaction',
+      receive_money: 'transaction',
+      save_money: 'transaction',
+      cnps: 'information',
+      cmu: 'information',
+      market: 'information',
+      order: 'transaction',
+      low_stock: 'error',
+      out_of_stock: 'error',
+      success: 'success',
+      error: 'error',
+      loading: 'information',
+      confirm: 'security',
+      enroll: 'onboarding',
+      take_photo: 'information',
+      location: 'information',
+      cooperative: 'information',
+      group_order: 'transaction',
+      voice_command: 'help',
+      listening: 'information',
+    };
+
+    return contextMap[key] || 'information';
+  }
+
   /**
    * Jouer une instruction audio
-   * Utilise la synthèse vocale du navigateur
+   * Utilise ElevenLabs (voix clonées) en priorité, puis browser TTS en fallback
    */
   async playInstruction(key: string): Promise<void> {
     if (!this.isEnabled || !this.isAudioEnabled()) return;
@@ -229,17 +290,26 @@ class AudioManager {
     }
 
     const text = instruction[this.currentLanguage] || instruction.fr;
-    
+    const context = this.mapInstructionToContext(key);
+
+    if (this.useElevenLabs && this.elevenLabsConfigured) {
+      try {
+        this.isSpeaking = true;
+        await elevenLabsVoice.speak({ text, context });
+        this.isSpeaking = false;
+        return;
+      } catch (error) {
+        console.warn('[AudioManager] ElevenLabs failed, falling back to browser TTS:', error);
+      }
+    }
+
     if ('speechSynthesis' in window) {
       return new Promise((resolve) => {
-        // Arrêter toute lecture en cours
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        
-        // Configuration de la voix selon la langue
         utterance.lang = this.currentLanguage === 'fr' ? 'fr-FR' : 'fr-FR';
-        utterance.rate = 0.85; // Parler plus lentement pour meilleure compréhension
+        utterance.rate = 0.85;
         utterance.pitch = 1;
         utterance.volume = 1;
 
@@ -372,10 +442,21 @@ class AudioManager {
 
   /**
    * Lire un texte personnalisé
-   * Utile pour les montants, noms de produits, etc.
+   * Utilise ElevenLabs (voix clonées) en priorité, puis browser TTS en fallback
    */
-  async speak(text: string): Promise<void> {
+  async speak(text: string, context: VoiceContext = 'information'): Promise<void> {
     if (!this.isEnabled || !this.isAudioEnabled()) return;
+
+    if (this.useElevenLabs && this.elevenLabsConfigured) {
+      try {
+        this.isSpeaking = true;
+        await elevenLabsVoice.speak({ text, context });
+        this.isSpeaking = false;
+        return;
+      } catch (error) {
+        console.warn('[AudioManager] ElevenLabs failed, falling back to browser TTS:', error);
+      }
+    }
 
     if ('speechSynthesis' in window) {
       return new Promise((resolve) => {
@@ -402,15 +483,59 @@ class AudioManager {
       });
     }
   }
+
+  async speakAmount(amount: number, context: VoiceContext = 'transaction'): Promise<void> {
+    if (!this.isEnabled || !this.isAudioEnabled()) return;
+
+    if (this.useElevenLabs && this.elevenLabsConfigured) {
+      try {
+        this.isSpeaking = true;
+        await elevenLabsVoice.speakAmount({ amount, context });
+        this.isSpeaking = false;
+        return;
+      } catch (error) {
+        console.warn('[AudioManager] ElevenLabs failed for amount, falling back:', error);
+      }
+    }
+
+    const formattedAmount = new Intl.NumberFormat('fr-FR').format(amount);
+    const text = `${formattedAmount} francs CFA`;
+    await this.speak(text, context);
+  }
+
+  async speakMessage(messageKey: string, context: VoiceContext, replacements?: Record<string, string>): Promise<void> {
+    if (!this.isEnabled || !this.isAudioEnabled()) return;
+
+    if (this.useElevenLabs && this.elevenLabsConfigured) {
+      try {
+        this.isSpeaking = true;
+        await elevenLabsVoice.speakMessage({ messageKey, context, replacements });
+        this.isSpeaking = false;
+        return;
+      } catch (error) {
+        console.warn('[AudioManager] ElevenLabs failed for message, falling back:', error);
+      }
+    }
+
+    const instruction = AUDIO_INSTRUCTIONS[messageKey];
+    if (instruction) {
+      await this.speak(instruction.fr, context);
+    }
+  }
 }
 
-// Instance singleton
 export const audioManager = new AudioManager();
 
-// Initialiser la langue au chargement
 if (typeof window !== 'undefined') {
   const savedLanguage = localStorage.getItem('ifn_language') as SupportedLanguage;
   if (savedLanguage) {
     audioManager.setLanguage(savedLanguage);
   }
+
+  const savedUseElevenLabs = localStorage.getItem('pnavim_use_elevenlabs');
+  if (savedUseElevenLabs !== null) {
+    audioManager.setUseElevenLabs(savedUseElevenLabs === 'true');
+  }
+
+  audioManager.checkElevenLabsConfiguration().catch(console.error);
 }
