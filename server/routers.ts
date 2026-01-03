@@ -17,6 +17,8 @@ import { copilotRouter } from "./routers/copilot";
 import { copilotChatRouter } from "./routers/copilot-chat";
 import { scoresRouter } from "./routers/scores";
 import { savingsRouter } from './routers/savings';
+import { walletRouter } from './routers/wallet';
+import { beneficiariesRouter } from './routers/beneficiaries';
 import { eventsRouter } from './routers/events';
 import { weatherRouter } from './routers/weather';
 import { socialProtectionRouter } from './routers/social-protection';
@@ -50,6 +52,8 @@ export const appRouter = router({
   copilotChat: copilotChatRouter,
   scores: scoresRouter,
   savings: savingsRouter,
+  wallet: walletRouter,
+  beneficiaries: beneficiariesRouter,
   events: eventsRouter,
   weather: weatherRouter,
   socialProtection: socialProtectionRouter,
