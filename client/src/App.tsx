@@ -19,6 +19,7 @@ import AgentDashboard from "./pages/agent-simple/Dashboard";
 
 import VoiceStudio from "./pages/admin/VoiceStudio";
 import SocialLogin from "./pages/SocialLogin";
+import Settings from "./pages/Settings";
 
 function Router() {
   return (
@@ -38,6 +39,8 @@ function Router() {
 
       <Route path="/agent" component={AgentDashboard} />
       <Route path="/agent/dashboard" component={AgentDashboard} />
+
+      <Route path="/settings" component={Settings} />
 
       <Route path="/admin/voice-studio" component={VoiceStudio} />
 
