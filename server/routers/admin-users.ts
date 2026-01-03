@@ -4,6 +4,7 @@ import { protectedProcedure, router } from '../_core/trpc';
 import { getDb } from '../db';
 import { users, merchants } from '../../drizzle/schema';
 import { eq, like, or, sql, desc, and } from 'drizzle-orm';
+import { logAudit, getClientIp, getUserAgent } from '../audit';
 
 /**
  * Middleware pour vérifier que l'utilisateur est admin
@@ -151,6 +152,20 @@ export const adminUsersRouter = router({
         .set({ role: input.role })
         .where(eq(users.id, input.userId));
 
+      // Logger l'action
+      await logAudit({
+        userId: ctx.user.id,
+        action: 'update',
+        entityType: 'users',
+        entityId: input.userId,
+        changes: {
+          before: { role: user.role },
+          after: { role: input.role },
+        },
+        ipAddress: getClientIp(ctx.req),
+        userAgent: getUserAgent(ctx.req),
+      });
+
       return { success: true };
     }),
 
@@ -192,6 +207,20 @@ export const adminUsersRouter = router({
         .update(users)
         .set({ isActive: input.isActive })
         .where(eq(users.id, input.userId));
+
+      // Logger l'action
+      await logAudit({
+        userId: ctx.user.id,
+        action: 'update',
+        entityType: 'users',
+        entityId: input.userId,
+        changes: {
+          before: { isActive: user.isActive },
+          after: { isActive: input.isActive },
+        },
+        ipAddress: getClientIp(ctx.req),
+        userAgent: getUserAgent(ctx.req),
+      });
 
       return { success: true };
     }),

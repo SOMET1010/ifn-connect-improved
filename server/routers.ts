@@ -28,6 +28,7 @@ import { achievementsRouter } from './routers/achievements';
 import { challengesRouter } from './routers/challenges';
 import { leaderboardRouter } from './routers/leaderboard';
 import { adminUsersRouter } from './routers/admin-users';
+import { auditLogsRouter } from './routers/audit-logs';
 import { inAppNotificationsRouter } from './routers/in-app-notifications';
 import { cooperativeDashboardRouter } from './routers/cooperative-dashboard';
 import { groupedOrdersRouter } from './routers/grouped-orders';
@@ -64,6 +65,7 @@ export const appRouter = router({
   challenges: challengesRouter,
   leaderboard: leaderboardRouter,
   adminUsers: adminUsersRouter,
+  auditLogs: auditLogsRouter,
   inAppNotifications: inAppNotificationsRouter,
   cooperativeDashboard: cooperativeDashboardRouter,
   groupedOrders: groupedOrdersRouter,

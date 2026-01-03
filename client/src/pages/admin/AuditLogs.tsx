@@ -24,7 +24,7 @@ export default function AuditLogs() {
   const [entityFilter, setEntityFilter] = useState<string>('');
 
   // Récupérer les logs avec pagination et filtres
-  const { data, isLoading } = trpc.admin.getAuditLogs.useQuery({
+  const { data, isLoading } = trpc.auditLogs.getLogs.useQuery({
     page,
     limit: 50,
     action: actionFilter || undefined,
@@ -64,7 +64,7 @@ export default function AuditLogs() {
       case 'reject':
         return 'bg-orange-100 text-orange-800';
       case 'export':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-teal-100 text-teal-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -106,7 +106,7 @@ export default function AuditLogs() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <InstitutionalHeader />
 
       <main className="container mx-auto px-4 py-12">

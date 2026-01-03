@@ -149,7 +149,7 @@ export default function UsersManagement() {
       {/* En-tête */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <UsersIcon className="h-8 w-8 text-indigo-600" />
+          <UsersIcon className="h-8 w-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
         </div>
         <p className="text-gray-600">Gérer les rôles et les accès des utilisateurs</p>
