@@ -931,3 +931,4 @@ export type InsertMerchantSettings = typeof merchantSettings.$inferInsert;
 
 export { transactions, marketplaceOrders } from "./schema-payments";
 export { merchantDailyLogins } from "./schema-daily-logins";
+export { voiceRecordings, voiceTransformations, voicePersonasCustom } from "./schema-voice-production";

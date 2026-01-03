@@ -14,6 +14,8 @@ import MerchantHistory from "./pages/merchant-simple/History";
 
 import AgentDashboard from "./pages/agent-simple/Dashboard";
 
+import VoiceStudio from "./pages/admin/VoiceStudio";
+
 function Router() {
   return (
     <Switch>
@@ -28,6 +30,8 @@ function Router() {
 
       <Route path="/agent" component={AgentDashboard} />
       <Route path="/agent/dashboard" component={AgentDashboard} />
+
+      <Route path="/admin/voice-studio" component={VoiceStudio} />
 
       <Route component={NotFound} />
     </Switch>
