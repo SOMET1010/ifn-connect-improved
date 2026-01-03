@@ -88,20 +88,20 @@ export default function InstitutionalHeader() {
             {/* Logo PNAVIM-CI */}
             <div className="flex items-center gap-3 md:gap-4">
               <div className="flex flex-col">
-                <h1 className="text-lg md:text-2xl font-bold text-orange-600 leading-tight">PNAVIM-CI</h1>
-                <p className="text-[10px] md:text-xs text-gray-600 leading-tight hidden sm:block">Plateforme Nationale des Acteurs du Vivrier Marchand</p>
+                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-[#C25E00] to-[#E67E22] bg-clip-text text-transparent leading-tight">PNAVIM-CI</h1>
+                <p className="text-[10px] md:text-xs text-[#636E72] leading-tight hidden sm:block">Plateforme Nationale des Acteurs du Vivrier Marchand</p>
               </div>
             </div>
           </div>
 
           {/* --- ZONE CENTRE : NAVIGATION (Desktop) --- */}
           <nav className="hidden lg:flex flex-1 justify-center items-center gap-6">
-            <a href="/" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Accueil</a>
-            <a href="/actors" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Acteurs</a>
-            <a href="/marketplace" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Marché</a>
-            <a href="/payments" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Paiements</a>
-            <a href="/api" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">API</a>
-            <a href="/support" className="text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors">Support</a>
+            <a href="/" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Accueil</a>
+            <a href="/actors" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Acteurs</a>
+            <a href="/marketplace" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Marché</a>
+            <a href="/payments" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Paiements</a>
+            <a href="/api" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">API</a>
+            <a href="/support" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Support</a>
           </nav>
 
           {/* --- BOUTON HAMBURGER (Mobile) --- */}
@@ -172,12 +172,12 @@ export default function InstitutionalHeader() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="hidden md:flex items-center gap-2 rounded-full px-5 bg-[#000] hover:bg-[#333] text-white shadow-sm hover:shadow transition-all ml-2"
+                    className="hidden md:flex items-center gap-2 rounded-full px-5 bg-gradient-to-r from-[#C25E00] to-[#E67E22] hover:from-[#A04000] hover:to-[#D35400] text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all ml-2 border-2 border-[#F39C12]/30"
                   >
                     <User className="h-4 w-4" />
-                    <span className="font-medium">{user?.name || 'Utilisateur'}</span>
+                    <span className="font-semibold">{user?.name || 'Utilisateur'}</span>
                     {user?.role && (
-                      <span className="ml-1 px-2 py-0.5 text-[10px] bg-orange-500 rounded-full">
+                      <span className="ml-1 px-2 py-0.5 text-[10px] bg-yellow-400 text-yellow-900 rounded-full font-bold">
                         {user.role === 'merchant' ? 'Marchand' : user.role === 'agent' ? 'Agent' : 'Admin'}
                       </span>
                     )}
@@ -211,10 +211,10 @@ export default function InstitutionalHeader() {
             ) : (
               <Button
                 onClick={() => window.location.href = getLoginUrl()}
-                className="hidden md:flex items-center gap-2 rounded-full px-5 bg-[#000] hover:bg-[#333] text-white shadow-sm hover:shadow transition-all ml-2"
+                className="hidden md:flex items-center gap-2 rounded-full px-6 py-2 bg-gradient-to-r from-[#F1C40F] to-[#F39C12] hover:from-[#F39C12] hover:to-[#E67E22] text-yellow-900 font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all ml-2 border-2 border-yellow-600/30"
               >
                 <User className="h-4 w-4" />
-                <span className="font-medium">Se connecter</span>
+                <span className="font-semibold">Se connecter</span>
               </Button>
             )}
 
@@ -281,45 +281,45 @@ export default function InstitutionalHeader() {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg animate-in slide-in-from-top-4 duration-300">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
-            <a 
-              href="/" 
+            <a
+              href="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
             >
               Accueil
             </a>
-            <a 
-              href="/actors" 
+            <a
+              href="/actors"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
             >
               Acteurs
             </a>
-            <a 
-              href="/marketplace" 
+            <a
+              href="/marketplace"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
             >
               Marché
             </a>
-            <a 
-              href="/payments" 
+            <a
+              href="/payments"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
             >
               Paiements
             </a>
-            <a 
-              href="/api" 
+            <a
+              href="/api"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
             >
               API
             </a>
-            <a 
-              href="/support" 
+            <a
+              href="/support"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
             >
               Support
             </a>
