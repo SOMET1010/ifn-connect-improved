@@ -18,11 +18,13 @@ import MerchantBeneficiaries from "./pages/merchant-simple/Beneficiaries";
 import AgentDashboard from "./pages/agent-simple/Dashboard";
 
 import VoiceStudio from "./pages/admin/VoiceStudio";
+import SocialLogin from "./pages/SocialLogin";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/login" component={SocialLogin} />
 
       <Route path="/merchant" component={MerchantDashboard} />
       <Route path="/merchant/dashboard" component={MerchantDashboard} />

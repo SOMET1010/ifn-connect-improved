@@ -19,6 +19,7 @@ import { scoresRouter } from "./routers/scores";
 import { savingsRouter } from './routers/savings';
 import { walletRouter } from './routers/wallet';
 import { beneficiariesRouter } from './routers/beneficiaries';
+import { socialAuthRouter } from './routers/social-auth';
 import { eventsRouter } from './routers/events';
 import { weatherRouter } from './routers/weather';
 import { socialProtectionRouter } from './routers/social-protection';
@@ -54,6 +55,7 @@ export const appRouter = router({
   savings: savingsRouter,
   wallet: walletRouter,
   beneficiaries: beneficiariesRouter,
+  socialAuth: socialAuthRouter,
   events: eventsRouter,
   weather: weatherRouter,
   socialProtection: socialProtectionRouter,
