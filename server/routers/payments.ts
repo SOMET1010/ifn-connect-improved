@@ -4,32 +4,37 @@ import { getDb, getMerchantByUserId } from "../db";
 import { transactions, marketplaceOrders, merchants, products } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { PaymentSandbox, type Provider } from "../lib/payment-sandbox";
 
 /**
- * Router tRPC pour les paiements Mobile Money (Chipdeals)
- * 
- * Documentation Chipdeals : https://chipdeals.me/docs
- * 
+ * Router tRPC pour les paiements Mobile Money
+ *
  * Fonctionnalités :
  * - Initier un paiement (Orange Money, MTN MoMo, Wave, Moov Money)
  * - Vérifier le statut d'un paiement
  * - Webhook de confirmation
  * - Rembourser un paiement
  * - Historique des transactions
- * 
- * MODE SIMULATION :
- * Par défaut, le mode simulation est activé (SIMULATION_MODE=true)
- * - Numéro se terminant par 00 → SUCCESS immédiat
- * - Numéro se terminant par 99 → FAILED (solde insuffisant)
- * - Numéro se terminant par 98 → FAILED (numéro invalide)
- * - Autres numéros → SUCCESS après 2 secondes
- * 
+ *
+ * MODE SANDBOX :
+ * Par défaut, le mode sandbox est activé (PAYMENT_MODE=sandbox)
+ * Scénarios de simulation par numéro de téléphone:
+ * - Termine par 00 → Succès immédiat (500ms)
+ * - Termine par 11 → Succès après délai (3s)
+ * - Termine par 99 → Échec (solde insuffisant)
+ * - Termine par 98 → Échec (numéro invalide)
+ * - Termine par 97 → Échec (transaction refusée)
+ * - Termine par 96 → Timeout (pas de réponse)
+ * - Termine par 95 → Échec (service indisponible)
+ * - Autres → Succès après délai (2s)
+ *
  * Pour activer les vraies transactions :
- * - Définir SIMULATION_MODE=false dans .env
+ * - Définir PAYMENT_MODE=production dans .env
  * - Configurer CHIPDEALS_API_KEY dans .env
  */
 
-const SIMULATION_MODE = process.env.SIMULATION_MODE !== "false";
+const PAYMENT_MODE = process.env.PAYMENT_MODE || "sandbox";
+const IS_SANDBOX = PAYMENT_MODE === "sandbox";
 
 export const paymentsRouter = router({
   /**
@@ -97,56 +102,36 @@ export const paymentsRouter = router({
         })
         .$returningId();
 
-      // 3. MODE SIMULATION ou appel API Chipdeals
-      if (SIMULATION_MODE) {
-        console.log(`[SIMULATION] Paiement initié: ${reference}`);
-        
-        // Simuler un délai de traitement (2 secondes)
-        setTimeout(async () => {
-          const lastTwoDigits = input.phoneNumber.slice(-2);
-          let simulatedStatus: "success" | "failed" = "success";
-          let errorMessage: string | null = null;
+      // 3. MODE SANDBOX ou appel API réelle
+      if (IS_SANDBOX) {
+        console.log(`[Sandbox] Paiement initié: ${reference}`);
 
-          if (lastTwoDigits === "99") {
-            simulatedStatus = "failed";
-            errorMessage = "Solde insuffisant (simulation)";
-          } else if (lastTwoDigits === "98") {
-            simulatedStatus = "failed";
-            errorMessage = "Numéro invalide ou inactif (simulation)";
-          }
+        // Utiliser le simulateur PaymentSandbox
+        const callbackUrl = `${process.env.SUPABASE_URL}/functions/v1/payment-webhook`;
 
-          // Mettre à jour le statut après simulation
-          const dbUpdate = await getDb();
-          if (dbUpdate) {
-            await dbUpdate
-              .update(transactions)
-              .set({
-                status: simulatedStatus,
-                transactionId: `SIM-${Date.now()}`,
-                errorMessage,
-                webhookData: JSON.stringify({
-                  simulation: true,
-                  timestamp: new Date().toISOString(),
-                }),
-              })
-              .where(eq(transactions.id, transaction.id));
+        const sandboxResponse = await PaymentSandbox.initiatePayment({
+          amount: order.totalAmount.toString(),
+          currency: "XOF",
+          provider: input.provider as Provider,
+          phoneNumber: input.phoneNumber,
+          reference,
+          callbackUrl,
+        });
 
-            // Si succès, mettre à jour la commande
-            if (simulatedStatus === "success") {
-              await dbUpdate
-                .update(marketplaceOrders)
-                .set({ status: "paid" })
-                .where(eq(marketplaceOrders.id, order.id));
-            }
-          }
-        }, 2000);
+        // Mettre à jour la transaction avec l'ID simulé
+        await db
+          .update(transactions)
+          .set({
+            transactionId: sandboxResponse.transactionId,
+          })
+          .where(eq(transactions.id, transaction.id));
 
         return {
           transactionId: transaction.id,
           reference,
           status: "pending",
-          message: "Paiement simulé initié. Vérifiez le statut dans 2 secondes.",
-          simulation: true,
+          message: sandboxResponse.message,
+          sandbox: true,
         };
       }
 
