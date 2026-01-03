@@ -4,6 +4,36 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* === DESIGN SYSTEM PNAVIM - L'Âme du Marché === */
+
+  /* Couleurs PNAVIM */
+  --color-pnavim-terre: #C25E00;
+  --color-pnavim-sanguine: #E67E22;
+  --color-pnavim-manioc: #2E7D32;
+  --color-pnavim-moutarde: #F1C40F;
+  --color-pnavim-sable: #FFF5E6;
+  --color-pnavim-charbon: #2D3436;
+  --color-pnavim-verre: rgba(255,255,255,0.85);
+  --color-pnavim-terre-profond: #A04000;
+  --color-pnavim-vert-fonce: #1B5E20;
+  --color-pnavim-gris-doux: #636E72;
+
+  /* Typographie PNAVIM */
+  --font-heading: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Ombres PNAVIM */
+  --shadow-pnavim-cta: 0 4px 14px rgba(194, 94, 0, 0.39);
+  --shadow-pnavim-card: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-pnavim-card-hover: 0 16px 48px rgba(0, 0, 0, 0.18);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* Bordures personnalisées */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  /* Tokens shadcn/ui existants */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
