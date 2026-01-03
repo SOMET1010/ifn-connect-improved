@@ -51,9 +51,42 @@ function generateVerificationCode(): string {
 }
 
 async function sendSMSProduction(phone: string, message: string): Promise<boolean> {
-  console.log(`[SMS Production] Sending to ${phone}: ${message}`);
+  try {
+    if (!ENV.smsApiUrl || !ENV.smsApiKey || !ENV.smsSenderId) {
+      console.error("[SMS] Configuration manquante. Vérifiez SMS_API_URL, SMS_API_KEY, et SMS_SENDER_ID");
+      return false;
+    }
 
-  return false;
+    const payload = {
+      sender: ENV.smsSenderId,
+      recipient: phone,
+      message: message,
+    };
+
+    console.log(`[SMS Production] Envoi vers ${phone}`);
+
+    const response = await fetch(ENV.smsApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${ENV.smsApiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[SMS] Erreur API ANSUT Hub: ${response.status} - ${errorText}`);
+      return false;
+    }
+
+    const result = await response.json();
+    console.log(`[SMS] Succès:`, result);
+    return true;
+  } catch (error) {
+    console.error("[SMS] Erreur lors de l'envoi:", error);
+    return false;
+  }
 }
 
 async function sendSMSDevelopment(phone: string, message: string): Promise<boolean> {

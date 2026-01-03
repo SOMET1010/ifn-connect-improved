@@ -11,4 +11,7 @@ export const ENV = {
   elevenlabsTantieVoiceId: process.env.ELEVENLABS_TANTIE_VOICE_ID ?? "",
   elevenlabsProVoiceId: process.env.ELEVENLABS_PRO_VOICE_ID ?? "",
   elevenlabsAmbianceurVoiceId: process.env.ELEVENLABS_AMBIANCEUR_VOICE_ID ?? "",
+  smsApiUrl: process.env.SMS_API_URL ?? "",
+  smsApiKey: process.env.SMS_API_KEY ?? "",
+  smsSenderId: process.env.SMS_SENDER_ID ?? "",
 };
