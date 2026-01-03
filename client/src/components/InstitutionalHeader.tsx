@@ -97,11 +97,11 @@ export default function InstitutionalHeader() {
           {/* --- ZONE CENTRE : NAVIGATION (Desktop) --- */}
           <nav className="hidden lg:flex flex-1 justify-center items-center gap-6">
             <a href="/" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Accueil</a>
-            <a href="/actors" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Acteurs</a>
-            <a href="/marketplace" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Marché</a>
-            <a href="/payments" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Paiements</a>
-            <a href="/api" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">API</a>
-            <a href="/support" className="text-sm font-medium text-gray-700 hover:text-[#C25E00] transition-colors">Support</a>
+            <a href="/#" className="text-sm font-medium text-gray-400 cursor-not-allowed opacity-60" title="Bientôt disponible">Acteurs</a>
+            <a href="/#" className="text-sm font-medium text-gray-400 cursor-not-allowed opacity-60" title="Bientôt disponible">Marché</a>
+            <a href="/#" className="text-sm font-medium text-gray-400 cursor-not-allowed opacity-60" title="Bientôt disponible">Paiements</a>
+            <a href="/#" className="text-sm font-medium text-gray-400 cursor-not-allowed opacity-60" title="Bientôt disponible">API</a>
+            <a href="/#" className="text-sm font-medium text-gray-400 cursor-not-allowed opacity-60" title="Bientôt disponible">Support</a>
           </nav>
 
           {/* --- BOUTON HAMBURGER (Mobile) --- */}
@@ -288,41 +288,26 @@ export default function InstitutionalHeader() {
             >
               Accueil
             </a>
-            <a
-              href="/actors"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
-            >
-              Acteurs
-            </a>
-            <a
-              href="/marketplace"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
-            >
-              Marché
-            </a>
-            <a
-              href="/payments"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
-            >
-              Paiements
-            </a>
-            <a
-              href="/api"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
-            >
-              API
-            </a>
-            <a
-              href="/support"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-base font-medium text-gray-700 hover:bg-[#FFF5E6] hover:text-[#C25E00] rounded-lg transition-colors"
-            >
-              Support
-            </a>
+            <div className="px-4 py-3 text-base font-medium text-gray-400 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-between">
+              <span>Acteurs</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Bientôt</span>
+            </div>
+            <div className="px-4 py-3 text-base font-medium text-gray-400 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-between">
+              <span>Marché</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Bientôt</span>
+            </div>
+            <div className="px-4 py-3 text-base font-medium text-gray-400 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-between">
+              <span>Paiements</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Bientôt</span>
+            </div>
+            <div className="px-4 py-3 text-base font-medium text-gray-400 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-between">
+              <span>API</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Bientôt</span>
+            </div>
+            <div className="px-4 py-3 text-base font-medium text-gray-400 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-between">
+              <span>Support</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Bientôt</span>
+            </div>
           </nav>
         </div>
       )}
