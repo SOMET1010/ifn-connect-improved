@@ -1,6 +1,7 @@
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { getDb } from './db';
-import { sales, products, merchantStock } from '../drizzle/schema';
+import { sales, products, merchantStock, merchants } from '../drizzle/schema';
+import { creditWalletFromSale } from './db-wallet';
 
 /**
  * Créer une nouvelle vente
@@ -18,8 +19,14 @@ export async function createSale(data: {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
 
-  // Insérer la vente
-  await db.insert(sales).values({
+  const [merchant] = await db
+    .select({ userId: merchants.userId })
+    .from(merchants)
+    .where(eq(merchants.id, data.merchantId));
+
+  if (!merchant) throw new Error('Merchant not found');
+
+  const [sale] = await db.insert(sales).values({
     merchantId: data.merchantId,
     productId: data.productId,
     quantity: String(data.quantity),
@@ -28,9 +35,8 @@ export async function createSale(data: {
     paymentMethod: data.paymentMethod || 'cash',
     paymentProvider: data.paymentProvider,
     saleDate: new Date(),
-  });
+  }).returning();
 
-  // Mettre à jour le stock
   await db
     .update(merchantStock)
     .set({
@@ -44,7 +50,14 @@ export async function createSale(data: {
       )
     );
 
-  return { success: true };
+  await creditWalletFromSale({
+    userId: merchant.userId,
+    amount: String(data.totalAmount),
+    saleId: sale.id,
+    description: `Vente #${sale.id} - ${data.paymentMethod === 'cash' ? 'Espèces' : 'Mobile Money'}`,
+  });
+
+  return { success: true, saleId: sale.id };
 }
 
 /**

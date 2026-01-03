@@ -384,3 +384,74 @@ export async function findUserByPhone(phone: string) {
 
   return user || null;
 }
+
+/**
+ * Créditer le wallet lors d'une vente (deposit from sale)
+ */
+export async function creditWalletFromSale(params: {
+  userId: number;
+  amount: string;
+  saleId?: number;
+  description?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const { userId, amount, saleId, description } = params;
+
+  const amountNum = parseFloat(amount);
+  if (amountNum <= 0) {
+    throw new Error("Le montant doit être supérieur à 0");
+  }
+
+  return await db.transaction(async (tx) => {
+    let wallet = await tx
+      .select()
+      .from(wallets)
+      .where(eq(wallets.userId, userId))
+      .then(rows => rows[0]);
+
+    if (!wallet) {
+      const [newWallet] = await tx
+        .insert(wallets)
+        .values({
+          userId,
+          balance: "0",
+          currency: "XOF",
+          isActive: true,
+        })
+        .returning();
+      wallet = newWallet;
+    }
+
+    const newBalance = (parseFloat(wallet.balance) + amountNum).toFixed(2);
+
+    await tx
+      .update(wallets)
+      .set({
+        balance: newBalance,
+        updatedAt: new Date()
+      })
+      .where(eq(wallets.id, wallet.id));
+
+    const reference = generateTransactionReference();
+
+    const [transaction] = await tx
+      .insert(walletTransactions)
+      .values({
+        toWalletId: wallet.id,
+        toUserId: userId,
+        amount,
+        currency: "XOF",
+        type: "deposit",
+        status: "completed",
+        reference,
+        description: description || `Vente #${saleId || 'N/A'}`,
+        metadata: saleId ? JSON.stringify({ saleId }) : null,
+        completedAt: new Date(),
+      })
+      .returning();
+
+    return transaction;
+  });
+}
