@@ -14,7 +14,15 @@ import {
   trustDevice,
   getActiveChallengesByCategory,
   createMerchantChallenge,
+  createUserWithPhone,
+  verifyPinCode,
+  incrementPinFailedAttempts,
+  resetPinFailedAttempts,
+  isAccountLocked,
+  updatePinCode,
+  markPhoneAsVerified,
 } from '../db-social-auth';
+import { sendVerificationCode, sendPinResetCode } from '../_core/sms';
 
 export const socialAuthRouter = router({
   initiateLogin: publicProcedure
@@ -308,5 +316,259 @@ export const socialAuthRouter = router({
     .query(async ({ input }) => {
       const challenges = await getActiveChallengesByCategory(input.category);
       return challenges;
+    }),
+
+  registerWithPhone: publicProcedure
+    .input(
+      z.object({
+        phone: z.string().regex(/^(\+225)?[0-9]{10}$/, 'Numéro de téléphone invalide'),
+        name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+        pinCode: z.string().regex(/^[0-9]{4}$/, 'Le code PIN doit contenir exactement 4 chiffres'),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const normalizedPhone = input.phone.startsWith('+225') ? input.phone : `+225${input.phone}`;
+
+      const existingUser = await findUserByPhone(normalizedPhone);
+      if (existingUser) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'Ce numéro de téléphone est déjà enregistré.',
+        });
+      }
+
+      const user = await createUserWithPhone({
+        phone: normalizedPhone,
+        name: input.name,
+        pinCode: input.pinCode,
+      });
+
+      const { code, success } = await sendVerificationCode(normalizedPhone);
+
+      if (!success) {
+        console.warn('Failed to send SMS verification code');
+      }
+
+      return {
+        success: true,
+        userId: user.id,
+        phone: normalizedPhone,
+        message: 'Ton compte a été créé! Vérifie ton téléphone pour le code de confirmation.',
+        verificationCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+      };
+    }),
+
+  sendVerificationCode: publicProcedure
+    .input(
+      z.object({
+        phone: z.string().regex(/^(\+225)?[0-9]{10}$/, 'Numéro de téléphone invalide'),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const normalizedPhone = input.phone.startsWith('+225') ? input.phone : `+225${input.phone}`;
+
+      const user = await findUserByPhone(normalizedPhone);
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Aucun compte associé à ce numéro.',
+        });
+      }
+
+      const { code, success } = await sendVerificationCode(normalizedPhone);
+
+      if (!success) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Impossible d\'envoyer le code. Réessaie plus tard.',
+        });
+      }
+
+      return {
+        success: true,
+        message: 'Code de vérification envoyé par SMS.',
+        verificationCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+      };
+    }),
+
+  verifyPhone: publicProcedure
+    .input(
+      z.object({
+        phone: z.string(),
+        code: z.string().length(6),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const normalizedPhone = input.phone.startsWith('+225') ? input.phone : `+225${input.phone}`;
+
+      const user = await findUserByPhone(normalizedPhone);
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Utilisateur non trouvé.',
+        });
+      }
+
+      const updatedUser = await markPhoneAsVerified(user.id);
+
+      return {
+        success: true,
+        message: 'Ton numéro a été vérifié avec succès!',
+        user: {
+          id: updatedUser.id,
+          phone: updatedUser.phone,
+          name: updatedUser.name,
+        },
+      };
+    }),
+
+  loginWithPin: publicProcedure
+    .input(
+      z.object({
+        phone: z.string().regex(/^(\+225)?[0-9]{10}$/, 'Numéro de téléphone invalide'),
+        pinCode: z.string().regex(/^[0-9]{4}$/, 'Le code PIN doit contenir exactement 4 chiffres'),
+        deviceFingerprint: z.string(),
+        deviceName: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const normalizedPhone = input.phone.startsWith('+225') ? input.phone : `+225${input.phone}`;
+
+      const user = await findUserByPhone(normalizedPhone);
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Aucun compte associé à ce numéro.',
+        });
+      }
+
+      if (!user.phoneVerified) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Ton numéro n\'est pas encore vérifié. Vérifie ton SMS.',
+        });
+      }
+
+      const locked = await isAccountLocked(user.id);
+      if (locked) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Ton compte est bloqué suite à trop de tentatives. Réessaie dans 15 minutes.',
+        });
+      }
+
+      const isValidPin = await verifyPinCode(user.id, input.pinCode);
+
+      if (!isValidPin) {
+        const result = await incrementPinFailedAttempts(user.id);
+
+        if (result.locked) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Code PIN incorrect. Ton compte est maintenant bloqué pour 15 minutes.',
+          });
+        }
+
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: `Code PIN incorrect. Il te reste ${3 - (result.attempts || 0)} tentative(s).`,
+        });
+      }
+
+      await resetPinFailedAttempts(user.id);
+
+      const merchant = await getMerchantByUserId(user.id);
+      if (merchant) {
+        await createOrUpdateMerchantDevice(
+          merchant.id,
+          input.deviceFingerprint,
+          input.deviceName
+        );
+      }
+
+      await logAuthAttempt({
+        userId: user.id,
+        phone: normalizedPhone,
+        deviceFingerprint: input.deviceFingerprint,
+        trustScore: 100,
+        decision: 'allow',
+        success: true,
+      });
+
+      return {
+        success: true,
+        status: 'APPROVED',
+        user: {
+          id: user.id,
+          name: user.name,
+          phone: user.phone,
+          role: user.role,
+        },
+        merchant: merchant ? {
+          id: merchant.id,
+          businessName: merchant.businessName,
+        } : null,
+        message: `Bonne arrivée ${user.name}! On fait quoi aujourd'hui ?`,
+      };
+    }),
+
+  requestPinReset: publicProcedure
+    .input(
+      z.object({
+        phone: z.string().regex(/^(\+225)?[0-9]{10}$/, 'Numéro de téléphone invalide'),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const normalizedPhone = input.phone.startsWith('+225') ? input.phone : `+225${input.phone}`;
+
+      const user = await findUserByPhone(normalizedPhone);
+      if (!user) {
+        return {
+          success: true,
+          message: 'Si ce numéro est enregistré, tu recevras un code de réinitialisation.',
+        };
+      }
+
+      const { code, success } = await sendPinResetCode(normalizedPhone);
+
+      if (!success) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Impossible d\'envoyer le code. Réessaie plus tard.',
+        });
+      }
+
+      return {
+        success: true,
+        message: 'Code de réinitialisation envoyé par SMS.',
+        verificationCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+      };
+    }),
+
+  resetPin: publicProcedure
+    .input(
+      z.object({
+        phone: z.string().regex(/^(\+225)?[0-9]{10}$/, 'Numéro de téléphone invalide'),
+        verificationCode: z.string().length(6),
+        newPinCode: z.string().regex(/^[0-9]{4}$/, 'Le code PIN doit contenir exactement 4 chiffres'),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const normalizedPhone = input.phone.startsWith('+225') ? input.phone : `+225${input.phone}`;
+
+      const user = await findUserByPhone(normalizedPhone);
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Utilisateur non trouvé.',
+        });
+      }
+
+      await updatePinCode(user.id, input.newPinCode);
+
+      return {
+        success: true,
+        message: 'Ton code PIN a été réinitialisé avec succès!',
+      };
     }),
 });

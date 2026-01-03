@@ -266,3 +266,131 @@ export async function getAuthStats(merchantId: number) {
 
   return stats;
 }
+
+export async function createUserWithPhone(data: {
+  phone: string;
+  name: string;
+  pinCode: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const pinHash = await bcrypt.hash(data.pinCode, 10);
+
+  const [user] = await db.insert(users).values({
+    phone: data.phone,
+    name: data.name,
+    pinCode: pinHash,
+    phoneVerified: false,
+    loginMethod: 'phone_social',
+    role: 'merchant',
+  }).returning();
+
+  return user;
+}
+
+export async function verifyPinCode(userId: number, pinCode: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId));
+
+  if (!user || !user.pinCode) return false;
+
+  return bcrypt.compare(pinCode, user.pinCode);
+}
+
+export async function incrementPinFailedAttempts(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const [user] = await db
+    .update(users)
+    .set({
+      pinFailedAttempts: sql`${users.pinFailedAttempts} + 1`,
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  if (user.pinFailedAttempts >= 3) {
+    const lockUntil = new Date();
+    lockUntil.setMinutes(lockUntil.getMinutes() + 15);
+
+    await db
+      .update(users)
+      .set({ pinLockedUntil: lockUntil })
+      .where(eq(users.id, userId));
+
+    return { locked: true, lockUntil };
+  }
+
+  return { locked: false, attempts: user.pinFailedAttempts };
+}
+
+export async function resetPinFailedAttempts(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db
+    .update(users)
+    .set({
+      pinFailedAttempts: 0,
+      pinLockedUntil: null,
+    })
+    .where(eq(users.id, userId));
+}
+
+export async function isAccountLocked(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId));
+
+  if (!user || !user.pinLockedUntil) return false;
+
+  const now = new Date();
+  if (user.pinLockedUntil > now) {
+    return true;
+  }
+
+  await resetPinFailedAttempts(userId);
+  return false;
+}
+
+export async function updatePinCode(userId: number, newPinCode: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const pinHash = await bcrypt.hash(newPinCode, 10);
+
+  const [user] = await db
+    .update(users)
+    .set({
+      pinCode: pinHash,
+      pinFailedAttempts: 0,
+      pinLockedUntil: null,
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return user;
+}
+
+export async function markPhoneAsVerified(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const [user] = await db
+    .update(users)
+    .set({ phoneVerified: true })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return user;
+}
